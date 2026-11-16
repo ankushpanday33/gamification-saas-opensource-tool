@@ -85,3 +85,11 @@ export function RewardButton() {
 }
 ```
 
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
+
+The license covers this project's own code. Third-party names, logos, sounds and animations referenced or bundled here belong to their respective owners and are not licensed under MIT.
