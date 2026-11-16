@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Gamify — Gamification Platform &amp; Embed SDK</title>
+  <!-- Google Fonts: IBM Plex Sans & IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <script src="/sdk/sound-engine.js"></script>
+  <script src="/sdk/stickers.js"></script>
+  <script src="/sdk/widgets.js"></script>
+  <style>
+    :root {
+      --ds-bg: #0F1117;
+      --ds-sidebar: #171B24;
+      --ds-card: #1C2230;
+      --ds-card-hover: #222938;
+      --ds-border: #2B3240;
+      --ds-border-subtle: #222836;
+      --ds-accent: #4F83CC;
+      --ds-accent-hover: #6396D8;
+      --ds-success: #22A06B;
+      --ds-warning: #D99A35;
+      --ds-error: #D65B62;
+      --ds-text: #F1F3F5;
+      --ds-text-secondary: #9AA4B2;
+      --ds-text-tertiary: #6B7280;
+      --ds-font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --ds-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--ds-bg);
+      color: var(--ds-text);
+      font-family: var(--ds-font-sans);
+      font-size: 14px;
+      line-height: 1.5;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar */
+    aside {
+      width: 250px;
+      background: var(--ds-sidebar);
+      border-right: 1px solid var(--ds-border);
+      display: flex;
+      flex-direction: column;
+      padding: 16px 12px;
+      flex-shrink: 0;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 4px 6px 14px;
+      border-bottom: 1px solid var(--ds-border);
+      margin-bottom: 12px;
+    }
+
+    .brand-logo {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      background: var(--ds-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #FFFFFF;
+    }
+
+    .brand-title {
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--ds-text);
+    }
+
+    .brand-tag {
+      font-size: 11px;
+      font-family: var(--ds-font-mono);
+      background: rgba(79, 131, 204, 0.15);
+      color: var(--ds-accent);
+      padding: 1px 6px;
+      border-radius: 4px;
+      font-weight: 500;
+      margin-left: 6px;
+    }
+
+    .nav-group-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: var(--ds-text-tertiary);
+      font-weight: 600;
+      letter-spacing: 0.6px;
+      margin: 14px 0 6px 8px;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 10px;
+      border-radius: 6px;
+      color: var(--ds-text-secondary);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+      margin-bottom: 2px;
+      border: 1px solid transparent;
+    }
+
+    .nav-link i {
+      font-size: 13px;
+      color: var(--ds-text-secondary);
+      width: 16px;
+      text-align: center;
+    }
+
+    .nav-link:hover {
+      background: var(--ds-card);
+      color: var(--ds-text);
+    }
+
+    .nav-link.active {
+      background: rgba(79, 131, 204, 0.12);
+      border-color: rgba(79, 131, 204, 0.25);
+      color: var(--ds-text);
+      font-weight: 600;
+    }
+
+    .nav-link.active i {
+      color: var(--ds-accent);
+    }
+
+    .badge-subtle {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 4px;
+      margin-left: auto;
+      background: rgba(79, 131, 204, 0.18);
+      color: var(--ds-accent);
+    }
+
+    .sidebar-api-key {
+      margin-top: auto;
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 8px;
+      padding: 10px 12px;
+    }
+
+    .api-key-label {
+      font-size: 11px;
+      color: var(--ds-text-tertiary);
+      margin-bottom: 6px;
+      display: flex;
+      justify-content: space-between;
+      font-weight: 500;
+    }
+
+    .api-key-box {
+      font-family: var(--ds-font-mono);
+      font-size: 11px;
+      color: var(--ds-accent);
+      background: var(--ds-bg);
+      border: 1px solid var(--ds-border);
+      padding: 6px 8px;
+      border-radius: 6px;
+      cursor: pointer;
+      word-break: break-all;
+    }
+    .api-key-box:hover {
+      border-color: var(--ds-accent);
+    }
+
+    /* Main Area */
+    main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--ds-bg);
+    }
+
+    header {
+      height: 52px;
+      border-bottom: 1px solid var(--ds-border);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--ds-sidebar);
+      flex-shrink: 0;
+    }
+
+    .page-title h2 {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--ds-text);
+      letter-spacing: -0.1px;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hdr-btn {
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      color: var(--ds-text-secondary);
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: border-color 0.15s, color 0.15s;
+    }
+
+    .hdr-btn:hover {
+      border-color: var(--ds-accent);
+      color: var(--ds-text);
+    }
+
+    .content-area {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px 24px 32px;
+    }
+
+    /* Metrics Grid */
+    .metrics-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .metric-card {
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 8px;
+      padding: 14px 16px;
+    }
+
+    .metric-title {
+      font-size: 11px;
+      color: var(--ds-text-tertiary);
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+      letter-spacing: 0.3px;
+    }
+
+    .metric-val {
+      font-family: var(--ds-font-mono);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ds-text);
+    }
+
+    /* Studio Layout */
+    .saas-layout {
+      display: grid;
+      grid-template-columns: 290px 1fr;
+      gap: 16px;
+      min-height: 620px;
+    }
+
+    .widgets-pane, .studio-pane {
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 10px;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .pane-header {
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--ds-border);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--ds-sidebar);
+    }
+
+    .widgets-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .widget-item-btn {
+      width: 100%;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 9px 10px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 4px;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .widget-item-btn:hover {
+      background: var(--ds-bg-hover);
+    }
+
+    .widget-item-btn.selected {
+      background: rgba(79, 131, 204, 0.12);
+      border-color: var(--ds-accent);
+    }
+
+    .widget-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--ds-sidebar);
+      border: 1px solid var(--ds-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      color: var(--ds-accent);
+      flex-shrink: 0;
+    }
+
+    .widget-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--ds-text);
+      margin-bottom: 1px;
+    }
+
+    .widget-info p {
+      font-size: 11px;
+      color: var(--ds-text-secondary);
+    }
+
+    /* Studio Header Tabs */
+    .studio-tabs {
+      display: flex;
+      border-bottom: 1px solid var(--ds-border);
+      background: var(--ds-sidebar);
+      padding: 0 10px;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .studio-tab-btn {
+      background: transparent;
+      border: none;
+      padding: 11px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ds-text-secondary);
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 0;
+    }
+
+    .studio-tab-btn:hover {
+      color: var(--ds-text);
+    }
+
+    .studio-tab-btn.active {
+      color: var(--ds-accent);
+      border-bottom-color: var(--ds-accent);
+      font-weight: 600;
+    }
+
+    .studio-body {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 310px 1fr;
+      overflow: hidden;
+    }
+
+    .customizer-form {
+      padding: 16px;
+      border-right: 1px solid var(--ds-border);
+      overflow-y: auto;
+      background: var(--ds-sidebar);
+    }
+
+    .form-group {
+      margin-bottom: 12px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--ds-text-secondary);
+      text-transform: uppercase;
+      letter-spacing: 0.4px;
+      margin-bottom: 5px;
+    }
+
+    .form-input {
+      width: 100%;
+      background: var(--ds-bg);
+      border: 1px solid var(--ds-border);
+      border-radius: 6px;
+      padding: 7px 10px;
+      color: var(--ds-text);
+      font-family: var(--ds-font-sans);
+      font-size: 13px;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: var(--ds-accent);
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      border: 1px solid var(--ds-border);
+      cursor: pointer;
+      background: none;
+      padding: 0;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .save-config-btn {
+      flex: 1;
+      height: 36px;
+      background: var(--ds-accent);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      transition: background 0.15s;
+    }
+
+    .save-config-btn:hover {
+      background: var(--ds-accent-hover);
+    }
+
+    .reset-config-btn {
+      height: 36px;
+      padding: 0 12px;
+      background: var(--ds-card);
+      color: var(--ds-text-secondary);
+      border: 1px solid var(--ds-border);
+      border-radius: 6px;
+      font-weight: 500;
+      font-size: 12px;
+      cursor: pointer;
+    }
+    .reset-config-btn:hover {
+      border-color: var(--ds-border);
+      color: var(--ds-text);
+    }
+
+    .preview-sandbox {
+      background: var(--ds-bg);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      position: relative;
+      overflow-y: auto;
+    }
+
+    .sandbox-badge {
+      position: absolute;
+      top: 12px;
+      left: 16px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--ds-text-tertiary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .embed-drawer {
+      display: none;
+      padding: 20px;
+      overflow-y: auto;
+      grid-column: 1 / -1;
+      background: var(--ds-sidebar);
+    }
+
+    .code-box {
+      background: var(--ds-bg);
+      border: 1px solid var(--ds-border);
+      border-radius: 8px;
+      padding: 14px;
+      font-family: var(--ds-font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--ds-text);
+      margin-bottom: 16px;
+      position: relative;
+      white-space: pre-wrap;
+    }
+
+    .copy-btn {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      color: var(--ds-text-secondary);
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .copy-btn:hover {
+      color: var(--ds-text);
+      border-color: var(--ds-accent);
+    }
+
+    /* Events Log Drawer */
+    .events-panel {
+      display: none;
+      background: var(--ds-card);
+      border: 1px solid var(--ds-border);
+      border-radius: 10px;
+      padding: 20px;
+    }
+
+    .event-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: var(--ds-sidebar);
+      border: 1px solid var(--ds-border);
+      border-radius: 6px;
+      margin-bottom: 6px;
+      font-family: var(--ds-font-mono);
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+
+  <aside>
+    <div class="brand-wrap">
+      <div class="brand-logo"><i class="fa-solid fa-trophy"></i></div>
+      <div class="brand-title">Gamify<span class="brand-tag">v2.1</span></div>
+    </div>
+
+    <div class="nav-group-label">Platform</div>
+    <div class="nav-link active" id="navStudio" onclick="switchPage('studio', this)"><i class="fa-solid fa-sliders"></i> Widget Studio</div>
+    <div class="nav-link" id="navEvents" onclick="switchPage('events', this)"><i class="fa-solid fa-bolt"></i> Live Event Log</div>
+    <div class="nav-link" onclick="switchStudioTab('embed')"><i class="fa-solid fa-code"></i> Embed SDK</div>
+
+    <div class="nav-group-label">Screen-Recorded Kits</div>
+    <div class="nav-link" onclick="selectWidget('cred_slot_09')"><i class="fa-solid fa-dice"></i> CRED Slot Machine <span class="badge-subtle">NEW</span></div>
+    <div class="nav-link" onclick="selectWidget('cred_wheel_07')"><i class="fa-solid fa-gem"></i> CRED Luxury Wheel</div>
+    <div class="nav-link" onclick="selectWidget('mynaksh_checkin_02')"><i class="fa-solid fa-coins"></i> MyNaksh 1:1 Streaks</div>
+    <div class="nav-link" onclick="selectWidget('gamify_leaderboard_08')"><i class="fa-solid fa-ranking-star"></i> Triple Podium Ranks</div>
+    <div class="nav-link" onclick="selectWidget('zepto_scratch_01')"><i class="fa-solid fa-wand-magic-sparkles"></i> Zepto Scratch</div>
+    <div class="nav-link" onclick="selectWidget('duolingo_flow_06')"><i class="fa-solid fa-feather-pointed"></i> Duolingo Flow</div>
+    <div class="nav-link" onclick="selectWidget('paytm_chest_04')"><i class="fa-solid fa-treasure-chest"></i> Paytm Chest Flip</div>
+    <div class="nav-link" onclick="selectWidget('paytm_spin_05')"><i class="fa-solid fa-dharmachakra"></i> Paytm Spin &amp; Win</div>
+    <div class="nav-link" onclick="selectWidget('instaastro_points_03')"><i class="fa-solid fa-star"></i> InstaAstro Points</div>
+    <div class="nav-link" onclick="selectWidget('fire_streak_10')"><i class="fa-solid fa-fire"></i> Fire Streak <span class="badge-subtle">NEW</span></div>
+    <div class="nav-link" onclick="selectWidget('coin_wallet_11')"><i class="fa-solid fa-wallet"></i> Coin Wallet <span class="badge-subtle">NEW</span></div>
+
+    <div class="nav-group-label">Playground &amp; Rewards</div>
+    <div class="nav-link" onclick="window.location.href='/live'"><i class="fa-solid fa-gamepad"></i> Live PlayZone App <span class="badge-subtle">HOT</span></div>
+    <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openAlbum()"><i class="fa-solid fa-book-bookmark"></i> Sticker Album (15)</div>
+
+    <div class="sidebar-api-key">
+      <div class="api-key-label"><span>API KEY</span><span style="color:var(--ds-success);">ACTIVE</span></div>
+      <div class="api-key-box" onclick="copyText('pk_live_duo_9821')">pk_live_duo_9821</div>
+    </div>
+  </aside>
+
+  <main>
+    <header>
+      <div class="page-title"><h2>Gamification Management Studio</h2></div>
+      <div class="header-actions">
+        <button class="hdr-btn" id="globalMuteBtn" onclick="toggleGlobalSound()">
+          <i class="fa-solid fa-volume-high" style="color:var(--ds-accent);"></i> Sound: ON
+        </button>
+        <button class="hdr-btn" onclick="switchStudioTab('embed')">
+          <i class="fa-solid fa-code"></i> Embed Code
+        </button>
+      </div>
+    </header>
+
+    <div class="content-area">
+      <!-- Top Metrics -->
+      <div class="metrics-row">
+        <div class="metric-card">
+          <div class="metric-title">IMPRESSIONS <i class="fa-solid fa-eye" style="color:var(--ds-accent);"></i></div>
+          <div class="metric-val" id="mImpressions">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">REWARDS CLAIMED <i class="fa-solid fa-gift" style="color:var(--ds-success);"></i></div>
+          <div class="metric-val" id="mClaims">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">CONVERSION <i class="fa-solid fa-arrow-trend-up" style="color:var(--ds-accent);"></i></div>
+          <div class="metric-val" id="mConversion">-</div>
+        </div>
+        <div class="metric-card">
+          <div class="metric-title">RECORDED KITS <i class="fa-solid fa-cubes" style="color:var(--ds-warning);"></i></div>
+          <div class="metric-val" id="mCount">9 Kits</div>
+        </div>
+      </div>
+
+      <!-- Studio View -->
+      <div class="saas-layout" id="studioView">
+        <div class="widgets-pane">
+          <div class="pane-header"><span>Gamification Kits</span><span style="font-size:11px; color:var(--ds-text-tertiary);">9 Kits</span></div>
+          <div class="widgets-list" id="widgetsListContainer"></div>
+        </div>
+
+        <div class="studio-pane">
+          <div class="studio-tabs">
+            <div>
+              <button class="studio-tab-btn active" id="tabDesign" onclick="switchStudioTab('design')"><i class="fa-solid fa-sliders"></i> Customize &amp; Test</button>
+              <button class="studio-tab-btn" id="tabEmbed" onclick="switchStudioTab('embed')"><i class="fa-solid fa-code"></i> Embed SDK</button>
+              <button class="studio-tab-btn" id="tabJson" onclick="switchStudioTab('json')"><i class="fa-solid fa-file-code"></i> JSON Schema</button>
+            </div>
+            <span id="saveToast" style="font-size:11px; font-weight:600; color:var(--ds-success); opacity:0; transition:opacity 0.2s;">✓ Configuration Saved</span>
+          </div>
+
+          <div class="studio-body">
+            <div class="customizer-form" id="customizerForm"></div>
+
+            <div class="preview-sandbox" id="previewSandbox">
+              <div class="sandbox-badge">
+                <i class="fa-solid fa-circle" style="color:var(--ds-success); font-size:7px;"></i>
+                Interactive Canvas Preview
+              </div>
+              <div id="sandboxMount"></div>
+            </div>
+
+            <div class="embed-drawer" id="embedDrawer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Events View -->
+      <div class="events-panel" id="eventsView">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <h3 style="font-size:14px; font-weight:600;">Live Triggered Events</h3>
+          <button class="hdr-btn" onclick="refreshStats()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+        </div>
+        <div id="eventsList"></div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const soundEngine = new window.GamifySoundEngine('');
+    let widgetsData = [];
+    let selectedWidget = null;
+    let activeTab = 'design';
+
+    function toggleGlobalSound() {
+      const muted = !soundEngine.muted;
+      soundEngine.setMuted(muted);
+      const btn = document.getElementById('globalMuteBtn');
+      btn.innerHTML = muted
+        ? '<i class="fa-solid fa-volume-xmark" style="color:var(--ds-error);"></i> Sound: OFF'
+        : '<i class="fa-solid fa-volume-high" style="color:var(--ds-accent);"></i> Sound: ON';
+    }
+
+    async function loadWidgets() {
+      const res = await fetch('/api/v1/widgets');
+      const json = await res.json();
+      widgetsData = json.widgets || [];
+      renderWidgetsList();
+      if (widgetsData.length && !selectedWidget) selectWidget(widgetsData[0].id);
+      refreshStats();
+    }
+
+    async function refreshStats() {
+      const res = await fetch('/api/v1/stats');
+      const json = await res.json();
+      if (!json.success) return;
+      document.getElementById('mImpressions').innerText = json.stats.totalImpressions.toLocaleString();
+      document.getElementById('mClaims').innerText = json.stats.totalClaims.toLocaleString();
+      document.getElementById('mConversion').innerText = json.stats.avgConversion;
+      document.getElementById('mCount').innerText = json.stats.totalWidgets + ' Kits';
+
+      const evBox = document.getElementById('eventsList');
+      const evs = (json.stats.recentEvents || []).slice().reverse();
+      evBox.innerHTML = evs.length
+        ? evs.map(e => `<div class="event-row"><span><b style="color:var(--ds-accent); font-weight:500;">${e.event}</b> &bull; ${JSON.stringify(e.metadata || {})}</span><span style="color:var(--ds-text-tertiary);">${new Date(e.timestamp).toLocaleTimeString()}</span></div>`).join('')
+        : '<div style="color:var(--ds-text-tertiary); font-size:13px;">Interact with any widget in the studio sandbox to record live telemetry events.</div>';
+    }
+
+    function renderWidgetsList() {
+      const iconMap = {
+        zepto_scratch: 'fa-wand-magic-sparkles',
+        mynaksh_checkin: 'fa-coins',
+        instaastro_points: 'fa-star',
+        paytm_chest_scratch: 'fa-box-open',
+        paytm_spin_win: 'fa-dharmachakra',
+        duolingo_flow: 'fa-feather-pointed',
+        cred_wheel: 'fa-gem',
+        cred_slot_machine: 'fa-dice',
+        gamify_leaderboard: 'fa-ranking-star',
+        fire_streak: 'fa-fire',
+        coin_wallet: 'fa-wallet'
+      };
+      document.getElementById('widgetsListContainer').innerHTML = widgetsData.map(w => {
+        const ic = iconMap[w.type] || 'fa-gift';
+        const sel = selectedWidget && selectedWidget.id === w.id;
+        return `
+          <button class="widget-item-btn ${sel ? 'selected' : ''}" onclick="selectWidget('${w.id}')">
+            <div class="widget-icon"><i class="fa-solid ${ic}"></i></div>
+            <div class="widget-info">
+              <h4>${w.name}</h4>
+              <p>${w.appSource}</p>
+            </div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function selectWidget(id) {
+      selectedWidget = widgetsData.find(w => w.id === id);
+      if (!selectedWidget) return;
+      renderWidgetsList();
+      renderCustomizerForm();
+      renderPreview();
+      if (activeTab !== 'design') renderEmbedOrJson();
+    }
+
+    function fieldInput(key, label, val, type = 'text') {
+      if (type === 'color') {
+        return `
+          <div class="form-group">
+            <label>${label}</label>
+            <div class="color-row">
+              <input type="color" class="color-swatch liveCfg" data-key="${key}" value="${val}">
+              <input type="text" class="form-input liveCfgText" data-key="${key}" value="${val}">
+            </div>
+          </div>`;
+      }
+      if (type === 'boolean') {
+        return `
+          <div class="form-group" style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="margin:0;">${label}</label>
+            <input type="checkbox" class="liveCfgBool" data-key="${key}" ${val !== false ? 'checked' : ''} style="width:16px; height:16px; accent-color:var(--ds-accent); cursor:pointer;">
+          </div>`;
+      }
+      return `
+        <div class="form-group">
+          <label>${label}</label>
+          <input type="${type}" class="form-input liveCfg" data-key="${key}" value="${val}">
+        </div>`;
+    }
+
+    function fieldSelect(key, label, val, options) {
+      return `
+        <div class="form-group">
+          <label>${label}</label>
+          <select class="form-input liveCfg" data-key="${key}">
+            ${options.map(([v, t]) => `<option value="${v}" ${val === v ? 'selected' : ''}>${t}</option>`).join('')}
+          </select>
+        </div>`;
+    }
+
+    // Wheel fields like "slice2Label" / "slice2Color" edit config.slices[2] (Spin & Win) or config.segments[2] (CRED wheel).
+    function applySliceKey(k, value) {
+      const m = /^slice(\d+)(Label|Color)$/.exec(k);
+      const list = selectedWidget.config.slices || selectedWidget.config.segments;
+      if (!m || !Array.isArray(list)) return false;
+      const s = list[Number(m[1])];
+      if (!s) return false;
+      s[m[2] === 'Label' ? 'label' : 'color'] = value;
+      return true;
+    }
+
+    function renderCustomizerForm() {
+      const w = selectedWidget;
+      const c = w.config;
+      let fields = `<h3 style="font-size:13px; font-weight:600; margin-bottom:12px; color:var(--ds-text);">Configure: ${w.name}</h3>`;
+
+      if (w.type === 'zepto_scratch') {
+        fields += fieldInput('headerEyebrow', 'Eyebrow Heading', c.headerEyebrow);
+        fields += fieldInput('headerTitle', 'Main Title (wrap gold text in *stars*)', c.headerTitle);
+        fields += fieldInput('brandWatermark', 'Foil Watermark Text', c.brandWatermark);
+        fields += fieldInput('foilTopColor', 'Foil Top Color', c.foilTopColor, 'color');
+        fields += fieldInput('foilBottomColor', 'Foil Bottom Color', c.foilBottomColor, 'color');
+        fields += fieldInput('brandBadge', 'Reward Brand Badge', c.brandBadge);
+        fields += fieldInput('rewardTitle', 'Reward Title', c.rewardTitle);
+        fields += fieldInput('rewardSubtitle', 'Reward Subtitle', c.rewardSubtitle);
+        fields += fieldInput('couponCode', 'Promo / Coupon Text', c.couponCode);
+        fields += fieldInput('ctaText', 'CTA Button Text', c.ctaText);
+        fields += fieldInput('ctaColor', 'CTA Button Color', c.ctaColor, 'color');
+        fields += fieldInput('scratchThresholdPercent', 'Reveal Threshold %', c.scratchThresholdPercent, 'number');
+      } else if (w.type === 'mynaksh_checkin') {
+        fields += fieldSelect('initialView', 'Preview Screen', c.initialView, [['rewards_hub', 'Full Rewards Hub (1:1 Layout)'], ['celebrate', 'Celebration Modal'], ['modal', 'Check-in Sheet']]);
+        fields += fieldInput('walletBalance', 'Wallet Balance (₹)', c.walletBalance, 'number');
+        fields += fieldInput('activeDay', 'Active Streak Day (1-7)', c.activeDay, 'number');
+        fields += fieldInput('dayRewardsCsv', '7-Day Rewards (comma separated)', (c.dayRewards || []).join(','));
+        fields += fieldInput('referralBonus', 'Referral Bonus (₹)', c.referralBonus, 'number');
+        fields += fieldInput('referralCode', 'Referral Code', c.referralCode);
+        fields += fieldInput('mantraName', 'Mantra Card Title', c.mantraName);
+        fields += fieldInput('mantraChant', 'Mantra Chant Text', c.mantraChant);
+        fields += fieldInput('mantraReward', 'Mantra Reward (₹)', c.mantraReward, 'number');
+        fields += fieldInput('highlightColor', 'Active Border Color', c.highlightColor, 'color');
+        fields += fieldInput('ctaColor', 'CTA Color', c.ctaColor, 'color');
+      } else if (w.type === 'instaastro_points') {
+        fields += fieldSelect('initialView', 'Preview Mode', c.initialView, [['hub', 'Points Hub & Milestone Track'], ['stepper', '7-Day Streak Stepper Sheet']]);
+        fields += fieldInput('startingPoints', 'Starting Points', c.startingPoints, 'number');
+        fields += fieldInput('streakBonusPoints', 'Streak Bonus (+)', c.streakBonusPoints, 'number');
+        fields += fieldInput('accentColor', 'Accent Color', c.accentColor, 'color');
+        fields += fieldInput('progressColor', 'Progress Fill Color', c.progressColor, 'color');
+      } else if (w.type === 'paytm_chest_scratch') {
+        fields += fieldSelect('cardTheme', 'Scratch Card Design', c.cardTheme, [['maroon', 'Royal Maroon Elephant'], ['teal', 'Blue-Teal Lotus']]);
+        fields += fieldInput('startingCoins', 'Starting Odometer Coins', c.startingCoins, 'number');
+        fields += fieldInput('rewardCoins', 'Reward Coins Won', c.rewardCoins, 'number');
+      } else if (w.type === 'paytm_spin_win') {
+        fields += fieldInput('title', 'Header Title', c.title || 'Spin and Win');
+        fields += fieldInput('spinsLeft', 'Initial Spins Left', c.spinsLeft, 'number');
+        (c.slices || []).forEach((s, i) => {
+          fields += fieldInput(`slice${i}Label`, `Slice ${i + 1} Prize`, s.label);
+          fields += fieldInput(`slice${i}Color`, `Slice ${i + 1} Color`, s.color, 'color');
+        });
+      } else if (w.type === 'duolingo_flow') {
+        fields += fieldSelect('startStep', 'Jump to Stage', String(c.startStep), [['1', 'Stage 1: Lesson Complete'], ['2', 'Stage 2: Ignite Streak'], ['3', 'Stage 3: Streak Goal'], ['4', 'Stage 4: Rare Chest -> x3 XP']]);
+        fields += fieldInput('themeColor', 'Brand Color', c.themeColor, 'color');
+        fields += fieldInput('xpEarned', 'Total XP', c.xpEarned, 'number');
+        fields += fieldInput('accuracy', 'Accuracy %', c.accuracy, 'number');
+        fields += fieldInput('durationText', 'Duration Time', c.durationText);
+        fields += fieldInput('streakCount', 'Streak Day Count', c.streakCount, 'number');
+        fields += fieldSelect('lottieTier', 'Chest Tier', c.lottieTier, [['gold', 'Gold Chest'], ['silver', 'Silver Chest'], ['bronze', 'Bronze Chest']]);
+      } else if (w.type === 'cred_wheel') {
+        fields += fieldInput('titleScript', 'Title Line 1', c.titleScript || 'Spin');
+        fields += fieldInput('titleSerif', 'Title Line 2', c.titleSerif || 'The Wheel');
+        fields += fieldInput('partnerName', 'Partner Brand Name', c.partnerName || 'BOMBAY SHAVING COMPANY');
+        fields += fieldInput('couponCode', 'Winning Promo Code', c.couponCode || 'CRED899');
+        fields += fieldInput('spinCostCoins', 'Spin Cost (Coins)', c.spinCostCoins ?? 1000, 'number');
+        fields += fieldInput('coins', 'Coin Balance', c.coins ?? 560052, 'number');
+        (c.segments || []).forEach((s, i) => {
+          fields += fieldInput(`slice${i}Label`, `Slice ${i + 1} Prize`, s.label);
+          fields += fieldInput(`slice${i}Color`, `Slice ${i + 1} Color`, s.color, 'color');
+        });
+      } else if (w.type === 'cred_slot_machine') {
+        fields += fieldInput('headline', 'Sign Headline', c.headline || 'WIN JACKPOT');
+        fields += fieldInput('offerLine', 'Offer Line (wrap gold text in *stars*)', c.offerLine || 'or get *30% OFF* your next Uber Intercity Ride');
+        fields += fieldInput('rewardTitle', 'Winning Reward Title', c.rewardTitle);
+        fields += fieldInput('couponCode', 'Voucher Code', c.couponCode);
+        fields += fieldInput('spinCost', 'Spin Cost (Coins)', c.spinCost || 9000, 'number');
+        fields += fieldInput('spinsLeft', 'Spins Remaining', c.spinsLeft ?? 9, 'number');
+        fields += fieldInput('maxSpins', 'Total Spins', c.maxSpins || 10, 'number');
+        fields += fieldInput('playersCount', 'Players Count Text', c.playersCount || '43,745');
+      } else if (w.type === 'gamify_leaderboard') {
+        fields += fieldInput('title', 'Leaderboard Title', c.title);
+        fields += fieldSelect('activeTab', 'Default Active Tab', c.activeTab, [['Region', 'Region'], ['National', 'National'], ['Global', 'Global']]);
+        const r1 = (c.topThree && c.topThree[0]) || { name: 'Eiden', score: 2430 };
+        const r2 = (c.topThree && c.topThree[1]) || { name: 'Jackson', score: 1847 };
+        const r3 = (c.topThree && c.topThree[2]) || { name: 'Emma Aria', score: 1674 };
+        fields += fieldInput('rank1Name', 'Rank 1 Champion', r1.name);
+        fields += fieldInput('rank1Score', 'Rank 1 Score', r1.score, 'number');
+        fields += fieldInput('rank2Name', 'Rank 2 Name', r2.name);
+        fields += fieldInput('rank2Score', 'Rank 2 Score', r2.score, 'number');
+        fields += fieldInput('rank3Name', 'Rank 3 Name', r3.name);
+        fields += fieldInput('rank3Score', 'Rank 3 Score', r3.score, 'number');
+      } else if (w.type === 'fire_streak') {
+        fields += fieldInput('eyebrow', 'Eyebrow Heading', c.eyebrow);
+        fields += fieldInput('title', 'Title', c.title);
+        fields += fieldInput('streakCount', 'Current Streak (days)', c.streakCount, 'number');
+        fields += fieldInput('longestStreak', 'Longest Streak (days)', c.longestStreak, 'number');
+        fields += fieldInput('freezesAvailable', 'Streak Freezes Left', c.freezesAvailable, 'number');
+        fields += fieldInput('nextMilestone', 'Next Milestone (days)', c.nextMilestone, 'number');
+        fields += fieldSelect('flameState', 'Flame State', c.flameState, [['active', 'Active'], ['at_risk', 'At Risk'], ['frozen', 'Frozen'], ['lost', 'Lost'], ['repaired', 'Repaired'], ['unlit', 'Unlit']]);
+        fields += fieldInput('celebrationMessage', 'Celebration Message', c.celebrationMessage);
+        fields += fieldInput('ctaText', 'Button Text', c.ctaText);
+        fields += fieldInput('primaryColor', 'Primary Color', c.primaryColor, 'color');
+        fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
+        fields += fieldInput('requireIgnite', 'Swipe / Tap to Ignite', c.requireIgnite, 'boolean');
+        fields += fieldInput('showTiers', 'Show Flame Tiers', c.showTiers, 'boolean');
+      } else if (w.type === 'coin_wallet') {
+        fields += fieldInput('title', 'Title', c.title);
+        fields += fieldInput('walletLabel', 'Wallet Label', c.walletLabel);
+        fields += fieldInput('startingCoins', 'Starting Coins', c.startingCoins, 'number');
+        fields += fieldInput('taskLabel', 'Task Label', c.taskLabel);
+        fields += fieldInput('taskTitle', 'Task Title', c.taskTitle);
+        fields += fieldInput('earnAmount', 'Coins per Task', c.earnAmount, 'number');
+        fields += fieldInput('flyCount', 'Flying Coins (max 20)', c.flyCount, 'number');
+        fields += fieldInput('rewardAmount', 'Bonus Reward Coins', c.rewardAmount, 'number');
+        fields += fieldInput('rewardTitle', 'Reward Popup Title', c.rewardTitle);
+        fields += fieldInput('rewardMessage', 'Reward Popup Message', c.rewardMessage);
+        fields += fieldInput('ctaText', 'Button Text', c.ctaText);
+        fields += fieldInput('primaryColor', 'Primary Color', c.primaryColor, 'color');
+        fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
+      }
+
+      fields += fieldInput('soundEnabled', 'Enable Sound Effects', c.soundEnabled, 'boolean');
+      fields += `
+        <div class="btn-row">
+          <button class="save-config-btn" onclick="saveCurrentWidget()"><i class="fa-solid fa-cloud-arrow-up"></i> Save Changes</button>
+          <button class="reset-config-btn" onclick="resetCurrentWidget()" title="Reset to Defaults"><i class="fa-solid fa-rotate-left"></i></button>
+        </div>
+      `;
+
+      const form = document.getElementById('customizerForm');
+      form.innerHTML = fields;
+
+      form.querySelectorAll('.liveCfg').forEach(inp => {
+        inp.oninput = () => {
+          const k = inp.getAttribute('data-key');
+          if (applySliceKey(k, inp.value)) {
+            // handled: wheel slice label/color
+          } else if (k === 'dayRewardsCsv') {
+            selectedWidget.config.dayRewards = inp.value.split(',').map(x => Number(x.trim()) || 0).slice(0, 7);
+          } else if (k === 'rank1Name') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[0].name = inp.value;
+          } else if (k === 'rank1Score') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[0].score = Number(inp.value);
+          } else if (k === 'rank2Name') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[1].name = inp.value;
+          } else if (k === 'rank2Score') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[1].score = Number(inp.value);
+          } else if (k === 'rank3Name') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[2].name = inp.value;
+          } else if (k === 'rank3Score') {
+            if (!selectedWidget.config.topThree) selectedWidget.config.topThree = [{}, {}, {}];
+            selectedWidget.config.topThree[2].score = Number(inp.value);
+          } else {
+            selectedWidget.config[k] = inp.type === 'number' ? Number(inp.value) : inp.value;
+          }
+          const sibling = form.querySelector(`.liveCfgText[data-key="${k}"]`);
+          if (sibling) sibling.value = inp.value;
+          renderPreview();
+        };
+      });
+      form.querySelectorAll('.liveCfgText').forEach(inp => {
+        inp.oninput = () => {
+          const k = inp.getAttribute('data-key');
+          if (!applySliceKey(k, inp.value)) selectedWidget.config[k] = inp.value;
+          const sibling = form.querySelector(`.liveCfg[data-key="${k}"]`);
+          if (sibling && /^#[0-9A-F]{6}$/i.test(inp.value)) sibling.value = inp.value;
+          renderPreview();
+        };
+      });
+      form.querySelectorAll('.liveCfgBool').forEach(inp => {
+        inp.onchange = () => {
+          selectedWidget.config[inp.getAttribute('data-key')] = inp.checked;
+          renderPreview();
+        };
+      });
+    }
+
+    function renderPreview() {
+      const mount = document.getElementById('sandboxMount');
+      window.GamifyWidgets.render(mount, selectedWidget, {
+        sound: soundEngine,
+        onEvent: (eventName, metadata) => {
+          fetch('/api/v1/events', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ userId: 'studio_preview', event: eventName, metadata })
+          }).then(() => refreshStats());
+        }
+      });
+    }
+
+    async function saveCurrentWidget() {
+      const res = await fetch(`/api/v1/widgets/${selectedWidget.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ config: selectedWidget.config })
+      });
+      const json = await res.json();
+      if (json.success) {
+        const toast = document.getElementById('saveToast');
+        toast.style.opacity = '1';
+        setTimeout(() => { toast.style.opacity = '0'; }, 2000);
+      }
+    }
+
+    async function resetCurrentWidget() {
+      const res = await fetch(`/api/v1/widgets/${selectedWidget.id}/reset`, { method: 'POST' });
+      const json = await res.json();
+      if (json.success) {
+        const idx = widgetsData.findIndex(w => w.id === selectedWidget.id);
+        widgetsData[idx] = json.widget;
+        selectedWidget = json.widget;
+        renderCustomizerForm();
+        renderPreview();
+      }
+    }
+
+    function switchStudioTab(tab) {
+      activeTab = tab;
+      document.querySelectorAll('.studio-tab-btn').forEach(b => b.classList.remove('active'));
+      document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+
+      const form = document.getElementById('customizerForm');
+      const prev = document.getElementById('previewSandbox');
+      const draw = document.getElementById('embedDrawer');
+
+      if (tab === 'design') {
+        form.style.display = 'block';
+        prev.style.display = 'flex';
+        draw.style.display = 'none';
+      } else {
+        form.style.display = 'none';
+        prev.style.display = 'none';
+        draw.style.display = 'block';
+        renderEmbedOrJson();
+      }
+    }
+
+    function renderEmbedOrJson() {
+      const draw = document.getElementById('embedDrawer');
+      const w = selectedWidget;
+      if (activeTab === 'embed') {
+        draw.innerHTML = `
+          <h3 style="font-size:14px; font-weight:600; margin-bottom:10px;">Embed "${w.name}" via SDK</h3>
+          <div style="font-size:12px; color:var(--ds-text-secondary); margin-bottom:6px;">Inline Mount:</div>
+          <div class="code-box"><button class="copy-btn" onclick="copyText(this.nextElementSibling.innerText)">Copy</button><code>&lt;div id="gamify-slot"&gt;&lt;/div&gt;
+&lt;script src="http://localhost:4000/sdk/gamify.js" data-api-key="pk_live_duo_9821"&gt;&lt;/script&gt;
+&lt;script&gt;
+  const gamify = new Gamify();
+  gamify.identify('user_123', { plan: 'pro' });
+  gamify.mount('#gamify-slot', '${w.id}');
+&lt;/script&gt;</code></div>
+
+          <div style="font-size:12px; color:var(--ds-text-secondary); margin-bottom:6px;">Modal Launch:</div>
+          <div class="code-box"><button class="copy-btn" onclick="copyText(this.nextElementSibling.innerText)">Copy</button><code>gamify.launchModal('${w.id}', ${JSON.stringify(w.config, null, 2)});</code></div>
+        `;
+      } else {
+        draw.innerHTML = `
+          <h3 style="font-size:14px; font-weight:600; margin-bottom:10px;">Widget REST Schema (GET /api/v1/widgets/${w.id})</h3>
+          <div class="code-box"><button class="copy-btn" onclick="copyText(this.nextElementSibling.innerText)">Copy</button><code>${JSON.stringify(w, null, 2)}</code></div>
+        `;
+      }
+    }
+
+    function switchPage(page, el) {
+      document.querySelectorAll('aside .nav-link').forEach(n => n.classList.remove('active'));
+      el.classList.add('active');
+      document.getElementById('studioView').style.display = page === 'studio' ? 'grid' : 'none';
+      document.getElementById('eventsView').style.display = page === 'events' ? 'block' : 'none';
+      if (page === 'events') refreshStats();
+    }
+
+    function copyText(str) {
+      navigator.clipboard.writeText(str);
+    }
+
+    window.addEventListener('DOMContentLoaded', loadWidgets);
+  </script>
+</body>
+</html>

@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Embed SDK — Integration Test Environment</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    :root {
+      --ds-bg: #0F1117;
+      --ds-surface: #171B24;
+      --ds-card: #1C2230;
+      --ds-border: #2B3240;
+      --ds-text: #F1F3F5;
+      --ds-text-secondary: #9AA4B2;
+      --ds-accent: #4F83CC;
+      --ds-accent-hover: #6396D8;
+      --ds-font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      margin: 0;
+      font-family: var(--ds-font-sans);
+      background: var(--ds-bg);
+      color: var(--ds-text);
+      padding: 32px 20px;
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+      color: var(--ds-text);
+      margin-bottom: 6px;
+    }
+    p {
+      color: var(--ds-text-secondary);
+      font-size: 13px;
+      margin-bottom: 24px;
+    }
+    code {
+      font-family: 'IBM Plex Mono', monospace;
+      background: var(--ds-surface);
+      border: 1px solid var(--ds-border);
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--ds-accent);
+    }
+    .btn-grid {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+      margin: 20px auto 28px;
+      max-width: 820px;
+    }
+    button {
+      background: var(--ds-card);
+      color: var(--ds-text);
+      border: 1px solid var(--ds-border);
+      padding: 8px 14px;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      font-size: 13px;
+      font-family: var(--ds-font-sans);
+      transition: border-color 0.15s, background 0.15s;
+    }
+    button:hover {
+      border-color: var(--ds-accent);
+      background: #232A36;
+    }
+    .btn-primary {
+      background: var(--ds-accent);
+      border-color: var(--ds-accent);
+      color: #FFFFFF;
+    }
+    .btn-primary:hover {
+      background: var(--ds-accent-hover);
+    }
+    #inline-slot {
+      display: flex;
+      justify-content: center;
+      margin-top: 24px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Client Application Testbed (Gamify SDK)</h1>
+  <p>Trigger embedded gamification widgets using <code>gamify.launchModal(widgetId)</code></p>
+
+  <div class="btn-grid">
+    <button onclick="gamify.launchModal('cred_slot_09')">CRED Slot Machine</button>
+    <button onclick="gamify.launchModal('cred_wheel_07')">CRED Spin Wheel</button>
+    <button onclick="gamify.launchModal('mynaksh_checkin_02')">MyNaksh Streak &amp; Mantra</button>
+    <button onclick="gamify.launchModal('gamify_leaderboard_08')">Triple Podium Leaderboard</button>
+    <button onclick="gamify.launchModal('zepto_scratch_01')">Zepto Scratch Card</button>
+    <button onclick="gamify.launchModal('duolingo_flow_06')">Duolingo Lesson Flow</button>
+    <button onclick="gamify.launchModal('paytm_chest_04')">Paytm Mystery Chest</button>
+    <button onclick="gamify.launchModal('paytm_spin_05')">Paytm Spin &amp; Win</button>
+    <button onclick="gamify.launchModal('instaastro_points_03')">InstaAstro Points</button>
+    <button class="btn-primary" onclick="gamify.openStickerAlbum()">Open Sticker Album</button>
+    <button onclick="gamify.unlockSticker('binge_watcher')">Test Sticker Unlock</button>
+  </div>
+
+  <div id="inline-slot"></div>
+
+  <script src="/sdk/gamify.js" data-api-key="pk_live_duo_9821"></script>
+  <script>
+    const gamify = new Gamify();
+    gamify.identify('demo_user_001', { tier: 'pro' });
+    gamify.mount('#inline-slot', 'zepto_scratch_01');
+  </script>
+</body>
+</html>

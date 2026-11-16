@@ -1,0 +1,1090 @@
+{
+  "projects": [
+    {
+      "id": "proj_default",
+      "name": "Default Workspace",
+      "apiKey": "pk_live_duo_9821",
+      "createdAt": "2026-11-10T17:38:03.354Z"
+    }
+  ],
+  "widgets": [
+    {
+      "id": "zepto_scratch_01",
+      "type": "zepto_scratch",
+      "name": "Zepto Purple Scratch Card",
+      "appSource": "Zepto (ScreenRecording 11-09)",
+      "status": "active",
+      "config": {
+        "headerEyebrow": "Congratulations!",
+        "headerTitle": "Get Your *Reward* Inside!",
+        "foilTopColor": "#DF7DFF",
+        "foilBottomColor": "#7E35C6",
+        "brandWatermark": "zepto",
+        "brandBadge": "uni•",
+        "rewardTitle": "Lifetime Free Rupay Card",
+        "rewardSubtitle": "5% back on Zepto + 1% back on UPI!",
+        "rewardFootnote": "No minimum spends",
+        "couponCode": "NO CODE NEEDED",
+        "ctaColor": "#F93262",
+        "ctaText": "Claim now",
+        "scratchThresholdPercent": 45,
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 5420,
+        "claims": 4319,
+        "conversionRate": "79.7%"
+      }
+    },
+    {
+      "id": "mynaksh_checkin_02",
+      "type": "mynaksh_checkin",
+      "name": "MyNaksh Daily Streak & Rewards Hub",
+      "appSource": "MyNaksh (ScreenRecording 11-05 & Native App)",
+      "status": "active",
+      "config": {
+        "initialView": "rewards_hub",
+        "title": "Keep Your Streak Alive!",
+        "subtitle": "Collect your daily rewards here",
+        "currencySymbol": "₹",
+        "walletBalance": 30,
+        "dayRewards": [
+          5,
+          7,
+          9,
+          11,
+          13,
+          15,
+          17
+        ],
+        "activeDay": 1,
+        "referralBonus": 50,
+        "referralCode": "R8HKBD",
+        "mantraName": "Mars Mantra",
+        "mantraChant": "Om Am Angarakaya Namah",
+        "mantraReward": 1,
+        "highlightColor": "#22C55E",
+        "ctaColor": "#16A34A",
+        "ctaText": "Refer a friend",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 3290,
+        "claims": 2486,
+        "conversionRate": "75.6%"
+      }
+    },
+    {
+      "id": "instaastro_points_03",
+      "type": "instaastro_points",
+      "name": "InstaAstro Points & 7-Day Stepper",
+      "appSource": "InstaAstro (ScreenRecording 11-05 11:21)",
+      "status": "active",
+      "config": {
+        "initialView": "hub",
+        "startingPoints": 150,
+        "streakBonusPoints": 70,
+        "accentColor": "#FFC700",
+        "progressColor": "#22C55E",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 4180,
+        "claims": 3129,
+        "conversionRate": "74.9%"
+      }
+    },
+    {
+      "id": "paytm_chest_04",
+      "type": "paytm_chest_scratch",
+      "name": "Paytm Card-to-Chest Coin Odometer",
+      "appSource": "Paytm Cashback (ScreenRecording 11-10 pt1)",
+      "status": "active",
+      "config": {
+        "cardTheme": "maroon",
+        "startingCoins": 135,
+        "rewardCoins": 31,
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 6890,
+        "claims": 5943,
+        "conversionRate": "86.3%"
+      }
+    },
+    {
+      "id": "paytm_spin_05",
+      "type": "paytm_spin_win",
+      "name": "Paytm Spin & Win + Starburst",
+      "appSource": "Paytm Cashback (ScreenRecording 11-10 pt2)",
+      "status": "active",
+      "config": {
+        "spinsLeft": 3,
+        "starburstColor": "#FFC800",
+        "slices": [
+          {
+            "label": "30 Days Free Pro",
+            "color": "#2160F0",
+            "icon": "music"
+          },
+          {
+            "label": "Flat ₹5 Cashback",
+            "color": "#D81B6A",
+            "icon": "gift"
+          },
+          {
+            "label": "₹100 Off Deal",
+            "color": "#0FA9AE",
+            "icon": "headphones"
+          },
+          {
+            "label": "At Rs.549",
+            "color": "#7426DB",
+            "icon": "perfume"
+          }
+        ],
+        "soundEnabled": true,
+        "title": "Spin and Win",
+        "tabs": [
+          "Top Deals",
+          "Steal Deals",
+          "Electronics"
+        ]
+      },
+      "stats": {
+        "impressions": 7450,
+        "claims": 6329,
+        "conversionRate": "85.0%"
+      }
+    },
+    {
+      "id": "duolingo_flow_06",
+      "type": "duolingo_flow",
+      "name": "Duolingo Lesson → Streak → Rare Chest",
+      "appSource": "Duolingo (ScreenRecording 11-05 11:25)",
+      "status": "active",
+      "config": {
+        "startStep": 1,
+        "themeColor": "#58CC02",
+        "xpEarned": 12,
+        "accuracy": 78,
+        "durationText": "0:49",
+        "streakCount": 1,
+        "lottieTier": "gold",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 9120,
+        "claims": 8146,
+        "conversionRate": "89.3%"
+      }
+    },
+    {
+      "id": "cred_wheel_07",
+      "type": "cred_wheel",
+      "name": "CRED Spin the Wheel (Luxury Partner)",
+      "appSource": "CRED Rewards (ScreenRecording 11-16 20-31)",
+      "status": "active",
+      "config": {
+        "titleScript": "Spin",
+        "titleSerif": "The Wheel",
+        "partnerName": "BOMBAY SHAVING COMPANY",
+        "coins": 560052,
+        "cashback": 77,
+        "tickets": 4,
+        "spinCostCoins": 3000,
+        "segments": [
+          {
+            "label": "Trimmer at ₹1,199",
+            "color": "#1D6BF2"
+          },
+          {
+            "label": "Trimmer at ₹899",
+            "color": "#B321E8"
+          },
+          {
+            "label": "Trimmer at ₹999",
+            "color": "#F26A0C"
+          },
+          {
+            "label": "Trimmer at ₹1,099",
+            "color": "#5DB817"
+          }
+        ],
+        "couponCode": "CRED899",
+        "rewardImage": "https://images.unsplash.com/photo-1621607512214-68297480165e?auto=format&fit=crop&w=600&q=80",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 5800,
+        "claims": 4923,
+        "conversionRate": "84.9%"
+      }
+    },
+    {
+      "id": "cred_slot_09",
+      "type": "cred_slot_machine",
+      "name": "CRED 3D Arcade Slot Machine",
+      "appSource": "CRED Jackpot (ScreenRecording 11-16 20-30)",
+      "status": "active",
+      "config": {
+        "eyebrow": "win jackpot or get 30% off your next uber intercity ride",
+        "coins": 563052,
+        "cashback": 77,
+        "spinCost": 9000,
+        "spinsLeft": 9,
+        "maxSpins": 10,
+        "playersCount": "43,745",
+        "rewardTitle": "30% off your next uber intercity ride, up to ₹500",
+        "couponCode": "UBER30",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 7120,
+        "claims": 5897,
+        "conversionRate": "82.8%"
+      }
+    },
+    {
+      "id": "gamify_leaderboard_08",
+      "type": "gamify_leaderboard",
+      "name": "Triple Podium Gamified Leaderboard",
+      "appSource": "Competitive Tier Leaderboard (Region / National / Global)",
+      "status": "active",
+      "config": {
+        "title": "Leaderboard",
+        "activeTab": "Region",
+        "tabs": [
+          "Region",
+          "National",
+          "Global"
+        ],
+        "metricLabel": "PTS",
+        "topThree": [
+          {
+            "rank": 1,
+            "name": "Eiden",
+            "username": "@username",
+            "score": 2430,
+            "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
+            "color": "#F59E0B"
+          },
+          {
+            "rank": 2,
+            "name": "Jackson",
+            "username": "@username",
+            "score": 1847,
+            "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80",
+            "color": "#38BDF8"
+          },
+          {
+            "rank": 3,
+            "name": "Emma Aria",
+            "username": "@username",
+            "score": 1674,
+            "avatar": "https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80",
+            "color": "#22C55E"
+          }
+        ],
+        "listPlayers": [
+          {
+            "rank": 4,
+            "name": "Sebastian",
+            "username": "@username",
+            "score": 1124,
+            "trend": "up",
+            "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80"
+          },
+          {
+            "rank": 5,
+            "name": "Jason",
+            "username": "@username",
+            "score": 875,
+            "trend": "down",
+            "avatar": "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80"
+          },
+          {
+            "rank": 6,
+            "name": "Natalie",
+            "username": "@username",
+            "score": 774,
+            "trend": "up",
+            "avatar": "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80"
+          },
+          {
+            "rank": 7,
+            "name": "Serenity",
+            "username": "@username",
+            "score": 723,
+            "trend": "up",
+            "avatar": "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80"
+          }
+        ],
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 6120,
+        "claims": 4893,
+        "conversionRate": "80.0%"
+      }
+    },
+    {
+      "id": "fire_streak_10",
+      "type": "fire_streak",
+      "name": "Fire Streak & Celebration",
+      "appSource": "gamify-coins-streak (React)",
+      "status": "active",
+      "config": {
+        "eyebrow": "Keep the fire going",
+        "title": "Daily streak",
+        "streakCount": 6,
+        "longestStreak": 12,
+        "freezesAvailable": 1,
+        "nextMilestone": 7,
+        "flameState": "active",
+        "celebrationMessage": "You're on fire! Keep it going.",
+        "requireIgnite": true,
+        "showTiers": true,
+        "ctaText": "Complete today",
+        "primaryColor": "#FF6623",
+        "accentColor": "#FF9900",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 6,
+        "conversionRate": "0.6%"
+      }
+    },
+    {
+      "id": "coin_wallet_11",
+      "type": "coin_wallet",
+      "name": "Coin Wallet & Reward Burst",
+      "appSource": "gamify-coins-streak (React)",
+      "status": "active",
+      "config": {
+        "title": "Rewards",
+        "walletLabel": "Wallet",
+        "startingCoins": 155,
+        "taskLabel": "Daily task",
+        "taskTitle": "Watch one episode today",
+        "earnAmount": 10,
+        "flyCount": 8,
+        "rewardAmount": 50,
+        "rewardTitle": "You earned coins!",
+        "rewardMessage": "",
+        "ctaText": "Claim bonus reward",
+        "primaryColor": "#FF6623",
+        "accentColor": "#FF9900",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 9,
+        "conversionRate": "0.9%"
+      }
+    }
+  ],
+  "events": [
+    {
+      "id": "evt_1794334084936",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-10T18:08:04.938Z"
+    },
+    {
+      "id": "evt_1794334086459",
+      "userId": "studio_preview",
+      "event": "zepto_reward_claimed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-10T18:08:06.459Z"
+    },
+    {
+      "id": "evt_1794334091926",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-10T18:08:11.926Z"
+    },
+    {
+      "id": "evt_1794334104318",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 50
+      },
+      "timestamp": "2026-11-10T18:08:24.318Z"
+    },
+    {
+      "id": "evt_1794334105654",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 30
+      },
+      "timestamp": "2026-11-10T18:08:25.654Z"
+    },
+    {
+      "id": "evt_1794334106698",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 10
+      },
+      "timestamp": "2026-11-10T18:08:26.698Z"
+    },
+    {
+      "id": "evt_1794334115484",
+      "userId": "studio_preview",
+      "event": "paytm_chest_opened",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "rewardCoins": 31
+      },
+      "timestamp": "2026-11-10T18:08:35.484Z"
+    },
+    {
+      "id": "evt_1794334123176",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "4 at Rs. 549"
+      },
+      "timestamp": "2026-11-10T18:08:43.176Z"
+    },
+    {
+      "id": "evt_1794334130203",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "Flat ₹5 Cashback"
+      },
+      "timestamp": "2026-11-10T18:08:50.203Z"
+    },
+    {
+      "id": "evt_1794334145151",
+      "userId": "studio_preview",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-10T18:09:05.151Z"
+    },
+    {
+      "id": "evt_1794334157566",
+      "userId": "studio_preview",
+      "event": "cred_wheel_spun",
+      "metadata": {
+        "widgetId": "cred_wheel_07"
+      },
+      "timestamp": "2026-11-10T18:09:17.566Z"
+    },
+    {
+      "id": "evt_1794859004524",
+      "userId": "demo_user_001",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-16T19:56:44.524Z"
+    },
+    {
+      "id": "evt_1794859011034",
+      "userId": "demo_user_001",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T19:56:51.034Z"
+    },
+    {
+      "id": "evt_1794859035030",
+      "userId": "demo_user_001",
+      "event": "cred_wheel_won",
+      "metadata": {
+        "widgetId": "cred_wheel_07",
+        "prize": "2-in-1 trimmer at ₹1,099"
+      },
+      "timestamp": "2026-11-16T19:57:15.030Z"
+    },
+    {
+      "id": "evt_1794859047451",
+      "userId": "demo_user_001",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-16T19:57:27.451Z"
+    },
+    {
+      "id": "evt_1794859064010",
+      "userId": "demo_user_001",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 30
+      },
+      "timestamp": "2026-11-16T19:57:44.010Z"
+    },
+    {
+      "id": "evt_1794859066005",
+      "userId": "demo_user_001",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T19:57:46.005Z"
+    },
+    {
+      "id": "evt_1794859067297",
+      "userId": "demo_user_001",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 30
+      },
+      "timestamp": "2026-11-16T19:57:47.297Z"
+    },
+    {
+      "id": "evt_1794859075763",
+      "userId": "demo_user_001",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "₹100 Off Deal"
+      },
+      "timestamp": "2026-11-16T19:57:55.763Z"
+    },
+    {
+      "id": "evt_1794859087828",
+      "userId": "demo_user_001",
+      "event": "paytm_chest_opened",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "rewardCoins": 31
+      },
+      "timestamp": "2026-11-16T19:58:07.828Z"
+    },
+    {
+      "id": "evt_1794859111739",
+      "userId": "demo_user_001",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-16T19:58:31.739Z"
+    },
+    {
+      "id": "evt_1794859197938",
+      "userId": "demo_user_001",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-16T19:59:57.938Z"
+    },
+    {
+      "id": "evt_1794859237547",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T20:00:37.547Z"
+    },
+    {
+      "id": "evt_1794862529261",
+      "userId": "demo_user_001",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-16T20:55:29.262Z"
+    },
+    {
+      "id": "evt_1794862544991",
+      "userId": "demo_user_001",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T20:55:44.991Z"
+    },
+    {
+      "id": "evt_1794862566860",
+      "userId": "demo_user_001",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-16T20:56:06.860Z"
+    },
+    {
+      "id": "evt_1794862578029",
+      "userId": "demo_user_001",
+      "event": "paytm_chest_opened",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "rewardCoins": 31
+      },
+      "timestamp": "2026-11-16T20:56:18.029Z"
+    },
+    {
+      "id": "evt_1794862588645",
+      "userId": "demo_user_001",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "30 Days Free Pro"
+      },
+      "timestamp": "2026-11-16T20:56:28.645Z"
+    },
+    {
+      "id": "evt_1794862608271",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T20:56:48.271Z"
+    },
+    {
+      "id": "evt_1794862671998",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-16T20:57:51.998Z"
+    },
+    {
+      "id": "evt_1794862693199",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "4 at Rs. 549"
+      },
+      "timestamp": "2026-11-16T20:58:13.199Z"
+    },
+    {
+      "id": "evt_1794862718737",
+      "userId": "studio_preview",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-16T20:58:38.737Z"
+    },
+    {
+      "id": "evt_1794862737651",
+      "userId": "studio_preview",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-16T20:58:57.651Z"
+    },
+    {
+      "id": "evt_1794862862640",
+      "userId": "studio_preview",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-16T21:01:02.640Z"
+    },
+    {
+      "id": "evt_1794862876219",
+      "userId": "studio_preview",
+      "event": "cred_wheel_won",
+      "metadata": {
+        "widgetId": "cred_wheel_07",
+        "prize": "2-in-1 trimmer at ₹1,099"
+      },
+      "timestamp": "2026-11-16T21:01:16.219Z"
+    },
+    {
+      "id": "evt_1794862904156",
+      "userId": "studio_preview",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-16T21:01:44.156Z"
+    },
+    {
+      "id": "evt_1794862923642",
+      "userId": "studio_preview",
+      "event": "leaderboard_tab_switched",
+      "metadata": {
+        "widgetId": "gamify_leaderboard_08",
+        "tab": "National"
+      },
+      "timestamp": "2026-11-16T21:02:03.642Z"
+    },
+    {
+      "id": "evt_1794862924559",
+      "userId": "studio_preview",
+      "event": "leaderboard_tab_switched",
+      "metadata": {
+        "widgetId": "gamify_leaderboard_08",
+        "tab": "Global"
+      },
+      "timestamp": "2026-11-16T21:02:04.559Z"
+    },
+    {
+      "id": "evt_1794862925816",
+      "userId": "studio_preview",
+      "event": "leaderboard_tab_switched",
+      "metadata": {
+        "widgetId": "gamify_leaderboard_08",
+        "tab": "Region"
+      },
+      "timestamp": "2026-11-16T21:02:05.816Z"
+    },
+    {
+      "id": "evt_1794864052826",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 7
+      },
+      "timestamp": "2026-11-16T21:20:52.826Z"
+    },
+    {
+      "id": "evt_1794864227334",
+      "userId": "studio_preview",
+      "event": "coin_wallet_earned",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 10
+      },
+      "timestamp": "2026-11-16T21:23:47.334Z"
+    },
+    {
+      "id": "evt_1794864248526",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:24:08.526Z"
+    },
+    {
+      "id": "evt_1794864253452",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:24:13.452Z"
+    },
+    {
+      "id": "evt_1794864271023",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 7
+      },
+      "timestamp": "2026-11-16T21:24:31.023Z"
+    },
+    {
+      "id": "evt_1794864526301",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T21:28:46.301Z"
+    },
+    {
+      "id": "evt_1794864537751",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:28:57.751Z"
+    },
+    {
+      "id": "evt_1794864541348",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:29:01.348Z"
+    },
+    {
+      "id": "evt_1794864549430",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 7
+      },
+      "timestamp": "2026-11-16T21:29:09.430Z"
+    },
+    {
+      "id": "evt_1794864624301",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "30 Days Free Pro"
+      },
+      "timestamp": "2026-11-16T21:30:24.301Z"
+    },
+    {
+      "id": "evt_1794864686259",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:31:26.259Z"
+    },
+    {
+      "id": "evt_1794864687627",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 30
+      },
+      "timestamp": "2026-11-16T21:31:27.627Z"
+    },
+    {
+      "id": "evt_1794864688787",
+      "userId": "studio_preview",
+      "event": "instaastro_points_earned",
+      "metadata": {
+        "widgetId": "instaastro_points_03",
+        "amount": 10
+      },
+      "timestamp": "2026-11-16T21:31:28.787Z"
+    },
+    {
+      "id": "evt_1794865038133",
+      "userId": "studio_preview",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-16T21:37:18.133Z"
+    },
+    {
+      "id": "evt_1794865089192",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "Flat ₹5 Cashback"
+      },
+      "timestamp": "2026-11-16T21:38:09.192Z"
+    },
+    {
+      "id": "evt_1794865320561",
+      "userId": "studio_preview",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-16T21:42:00.561Z"
+    },
+    {
+      "id": "evt_1794865322736",
+      "userId": "studio_preview",
+      "event": "cred_slot_voucher_claimed",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "code": "UBER30"
+      },
+      "timestamp": "2026-11-16T21:42:02.736Z"
+    },
+    {
+      "id": "evt_1794865324322",
+      "userId": "studio_preview",
+      "event": "cred_slot_voucher_claimed",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "code": "UBER30"
+      },
+      "timestamp": "2026-11-16T21:42:04.322Z"
+    },
+    {
+      "id": "evt_1794865337272",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 7
+      },
+      "timestamp": "2026-11-16T21:42:17.272Z"
+    },
+    {
+      "id": "evt_1794865343280",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 8
+      },
+      "timestamp": "2026-11-16T21:42:23.280Z"
+    },
+    {
+      "id": "evt_1794865348860",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 9
+      },
+      "timestamp": "2026-11-16T21:42:28.860Z"
+    },
+    {
+      "id": "evt_1794865355282",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:42:35.282Z"
+    },
+    {
+      "id": "evt_1794865358255",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:42:38.255Z"
+    },
+    {
+      "id": "evt_1794865361470",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:42:41.470Z"
+    },
+    {
+      "id": "evt_1794865372406",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-16T21:42:52.406Z"
+    },
+    {
+      "id": "evt_1794865468195",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T21:44:28.195Z"
+    },
+    {
+      "id": "evt_1794865888773",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-16T21:51:28.773Z"
+    },
+    {
+      "id": "evt_1794865900520",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-16T21:51:40.520Z"
+    },
+    {
+      "id": "evt_1794865913987",
+      "userId": "studio_preview",
+      "event": "paytm_spin_won",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "At Rs.549"
+      },
+      "timestamp": "2026-11-16T21:51:53.987Z"
+    },
+    {
+      "id": "evt_1794865917423",
+      "userId": "studio_preview",
+      "event": "paytm_spin_redeemed",
+      "metadata": {
+        "widgetId": "paytm_spin_05",
+        "prize": "At Rs.549"
+      },
+      "timestamp": "2026-11-16T21:51:57.423Z"
+    },
+    {
+      "id": "evt_1794865927063",
+      "userId": "studio_preview",
+      "event": "cred_wheel_won",
+      "metadata": {
+        "widgetId": "cred_wheel_07",
+        "prize": "Trimmer at ₹899"
+      },
+      "timestamp": "2026-11-16T21:52:07.063Z"
+    },
+    {
+      "id": "evt_1794865943512",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-16T21:52:23.512Z"
+    }
+  ]
+}

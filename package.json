@@ -1,0 +1,22 @@
+{
+  "name": "gamify-saas",
+  "version": "1.0.0",
+  "description": "Gamification-as-a-Service Platform (like Trophy.so) with authentic reverse-engineered mechanics",
+  "main": "server/index.js",
+  "scripts": {
+    "start": "node server/index.js",
+    "build:coins": "esbuild packages/coins-streak/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --loader:.css=text --define:process.env.NODE_ENV=\\\"production\\\" --external:lottie-web/* --external:@rive-app/canvas --outfile=public/sdk/coins-streak.js",
+    "typecheck:coins": "tsc -p packages/coins-streak"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
+    "esbuild": "0.25.10",
+    "motion": "12.23.12",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "typescript": "5.9.2",
+    "zod": "^3.25.0"
+  }
+}

@@ -1,0 +1,105 @@
+/* @gamify/ui base styles. Everything is scoped under .gmf-root and driven by --game-* variables. */
+.gmf-root {
+  font-family: var(--game-font, Arial, "Helvetica Neue", Helvetica, sans-serif);
+  color: var(--game-text, #333333);
+  -webkit-font-smoothing: antialiased;
+  box-sizing: border-box;
+}
+.gmf-root *,
+.gmf-root *::before,
+.gmf-root *::after {
+  box-sizing: inherit;
+}
+
+/* Gate hover so touch devices do not get sticky false hovers after a tap. */
+@media (hover: hover) and (pointer: fine) {
+  .gmf-root .gmf-btn:not(:disabled):hover {
+    filter: brightness(1.05);
+  }
+}
+.gmf-root .gmf-btn:not(:disabled):active {
+  transform: translateY(var(--gmf-btn-edge, 4px)) !important;
+  box-shadow: 0 0 0 var(--gmf-btn-edge-color) !important;
+}
+.gmf-root .gmf-btn:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--game-primary) 45%, transparent);
+  outline-offset: 3px;
+}
+
+@keyframes gmf-shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+.gmf-skeleton { animation: gmf-shimmer 1.4s ease-in-out infinite; }
+
+@keyframes gmf-spin { to { transform: rotate(360deg); } }
+.gmf-spin { animation: gmf-spin 0.8s linear infinite; }
+
+@keyframes gmf-rotate { to { transform: rotate(360deg); } }
+.gmf-rotate-slow { animation: gmf-rotate 9s linear infinite; }
+
+@keyframes gmf-pulse {
+  0%, 100% { transform: scale(1); opacity: 0.85; }
+  50% { transform: scale(1.08); opacity: 1; }
+}
+.gmf-pulse { animation: gmf-pulse 1.8s ease-in-out infinite; }
+
+@keyframes gmf-at-risk {
+  0%, 100% { filter: saturate(1); opacity: 1; }
+  50% { filter: saturate(0.3); opacity: 0.6; }
+}
+.gmf-at-risk { animation: gmf-at-risk 1.2s ease-in-out infinite; }
+
+@keyframes gmf-shimmer-y {
+  0%, 100% { transform: translateY(0) rotate(0); }
+  50% { transform: translateY(-4px) rotate(-3deg); }
+}
+.gmf-shimmer-y { animation: gmf-shimmer-y 2.2s ease-in-out infinite; }
+
+@keyframes gmf-glow {
+  0% { box-shadow: 0 0 0 0 color-mix(in srgb, var(--game-accent) 70%, transparent); }
+  100% { box-shadow: 0 0 0 14px transparent; }
+}
+.gmf-glow-once { animation: gmf-glow 0.9s ease-out 1; }
+
+@keyframes gmf-shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-8px); }
+  40%, 80% { transform: translateX(8px); }
+}
+.gmf-shake-once { animation: gmf-shake 0.3s ease-in-out 1; }
+
+[data-gmf-reduced="true"] .gmf-skeleton,
+[data-gmf-reduced="true"] .gmf-rotate-slow,
+[data-gmf-reduced="true"] .gmf-pulse,
+[data-gmf-reduced="true"] .gmf-at-risk,
+[data-gmf-reduced="true"] .gmf-shimmer-y,
+[data-gmf-reduced="true"] .gmf-glow-once,
+[data-gmf-reduced="true"] .gmf-shake-once {
+  animation: none !important;
+}
+
+/* Arcade games: chasing rim bulbs, twinkles, press feedback. */
+@keyframes gmf-bulb { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+.gmf-root .gmf-bulb { animation: gmf-bulb 1.1s ease-in-out infinite; }
+.gmf-root .gmf-bulbs[data-spinning='true'] .gmf-bulb { animation-duration: 0.35s; }
+@keyframes gmf-twinkle { 0%, 100% { opacity: 0; transform: scale(0.6) rotate(0deg); } 50% { opacity: 1; transform: scale(1) rotate(45deg); } }
+.gmf-root .gmf-twinkle { animation: gmf-twinkle 2.6s ease-in-out infinite; }
+.gmf-root .gmf-press { transition: transform 140ms cubic-bezier(0.23, 1, 0.32, 1), filter 150ms ease; }
+.gmf-root .gmf-press:not(:disabled):active { transform: translate(-50%, -50%) scale(0.94) !important; }
+@media (hover: hover) and (pointer: fine) {
+  .gmf-root .gmf-press:not(:disabled):hover { filter: brightness(1.08); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gmf-root .gmf-bulb, .gmf-root .gmf-twinkle { animation: none; opacity: 1; }
+  .gmf-root .gmf-skeleton,
+  .gmf-root .gmf-rotate-slow,
+  .gmf-root .gmf-pulse,
+  .gmf-root .gmf-at-risk,
+  .gmf-root .gmf-shimmer-y,
+  .gmf-root .gmf-glow-once,
+  .gmf-root .gmf-shake-once {
+    animation: none !important;
+  }
+}
