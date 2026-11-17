@@ -2467,18 +2467,55 @@
       'Global': 2.85
     };
 
-    let topThree = JSON.parse(JSON.stringify(c.topThree || [
+    const baseTop = JSON.parse(JSON.stringify(c.topThree || [
       { rank: 1, name: 'Eiden', username: '@username', score: 2430, avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80', color: '#F59E0B' },
       { rank: 2, name: 'Jackson', username: '@username', score: 1847, avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=200&q=80', color: '#38BDF8' },
       { rank: 3, name: 'Emma Aria', username: '@username', score: 1674, avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&fit=crop&w=200&q=80', color: '#22C55E' }
     ]));
-
-    let listPlayers = JSON.parse(JSON.stringify(c.listPlayers || [
+    const baseList = JSON.parse(JSON.stringify(c.listPlayers || [
       { rank: 4, name: 'Sebastian', username: '@username', score: 1124, trend: 'up', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=150&q=80' },
       { rank: 5, name: 'Jason', username: '@username', score: 875, trend: 'down', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?auto=format&fit=crop&w=150&q=80' },
       { rank: 6, name: 'Natalie', username: '@username', score: 774, trend: 'up', avatar: 'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?auto=format&fit=crop&w=150&q=80' },
       { rank: 7, name: 'Serenity', username: '@username', score: 723, trend: 'up', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=150&q=80' }
     ]));
+
+    // Ranks come from sorting by score, so earning or losing points really moves people around.
+    const youName = String(c.youName || 'You').slice(0, 16);
+    const pointsStep = Math.max(1, Number(c.pointsStep) || 250);
+    const players = [...baseTop, ...baseList].map(p => ({ name: p.name, username: p.username || '@username', score: Number(p.score) || 0, trend: p.trend || 'up', avatar: p.avatar }));
+    players.push({ name: youName, username: '@you', score: Number(c.youScore ?? 700), trend: 'up', isYou: true, avatar: 'https://ui-avatars.com/api/?name=' + encodeURIComponent(youName) + '&background=F97316&color=FFF&bold=true' });
+    const ordered = () => players.slice().sort((a, b) => b.score - a.score);
+    const rankOfYou = () => ordered().findIndex(p => p.isYou) + 1;
+    let youMove = null; // { dir: 'up' | 'down', from, to } for the move that just happened
+
+    // Animations live in one stylesheet, added once. Reduced motion turns them off.
+    if (!document.getElementById('lb-anim-styles')) {
+      const st = document.createElement('style');
+      st.id = 'lb-anim-styles';
+      st.textContent = `
+        @keyframes lbFlashUp { 0% { background: rgba(34,197,94,.5); } 100% { background: rgba(249,115,22,.10); } }
+        @keyframes lbFlashDown { 0% { background: rgba(239,68,68,.5); } 100% { background: rgba(249,115,22,.10); } }
+        @keyframes lbShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(6px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(3px); } }
+        @keyframes lbBadge { 0% { transform: scale(.4); opacity: 0; } 45% { transform: scale(1.25); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
+        @keyframes lbPodPop { 0% { transform: translateY(20px) scale(.9); opacity: .4; } 60% { transform: translateY(-8px) scale(1.04); opacity: 1; } 100% { transform: none; opacity: 1; } }
+        @keyframes lbRing { 0% { box-shadow: 0 0 0 0 rgba(249,115,22,.75); } 100% { box-shadow: 0 0 0 20px rgba(249,115,22,0); } }
+        @keyframes lbDrop { from { transform: translateY(-24px); opacity: 0; } to { transform: none; opacity: 1; } }
+        .lb-flash-up { animation: lbFlashUp 1.4s ease-out both; }
+        .lb-flash-down { animation: lbFlashDown 1.4s ease-out both, lbShake .5s ease-in-out; }
+        .lb-move { display: inline-block; font-size: 11px; font-weight: 800; padding: 2px 7px; border-radius: 10px; animation: lbBadge .45s ease-out both; }
+        .lb-move.up { background: rgba(34,197,94,.18); color: #4ADE80; }
+        .lb-move.down { background: rgba(239,68,68,.18); color: #F87171; }
+        .lb-pod-pop { animation: lbPodPop .65s cubic-bezier(.2,1.2,.3,1) both; }
+        .lb-pod-pop > div:first-child { animation: lbRing 1s ease-out 2; border-radius: 50%; }
+        .lb-drop { animation: lbDrop .4s ease-out both; }
+        .lb-ctl { flex: 1; height: 34px; border-radius: 10px; border: 1px solid rgba(255,255,255,.12); background: rgba(255,255,255,.05); color: #E2E8F0; font-size: 12px; font-weight: 700; cursor: pointer; font-family: inherit; }
+        .lb-ctl:hover { background: rgba(255,255,255,.1); }
+        .lb-ctl.good { background: rgba(34,197,94,.16); border-color: rgba(34,197,94,.4); color: #86EFAC; }
+        .lb-ctl.bad { background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.35); color: #FCA5A5; }
+        @media (prefers-reduced-motion: reduce) { .lb-flash-up, .lb-flash-down, .lb-move, .lb-pod-pop, .lb-pod-pop > div:first-child, .lb-drop { animation: none !important; } }
+      `;
+      document.head.appendChild(st);
+    }
 
     function getAdjustedScore(baseScore) {
       const mult = tabMultipliers[currentTab] || 1;
@@ -2486,9 +2523,14 @@
     }
 
     function renderView() {
-      const rank1 = topThree.find(p => p.rank === 1) || topThree[0];
-      const rank2 = topThree.find(p => p.rank === 2) || topThree[1];
-      const rank3 = topThree.find(p => p.rank === 3) || topThree[2];
+      const board = ordered();
+      const rank1 = board[0];
+      const rank2 = board[1];
+      const rank3 = board[2];
+      const listPlayers = board.slice(3);
+      const myRank = rankOfYou();
+      const me = players.find(p => p.isYou);
+      const tag = (p) => (p.isYou ? ' (you)' : '');
 
       const tabsHtml = tabs.map(tab => {
         const isActive = tab === currentTab;
@@ -2506,20 +2548,23 @@
 
       const rowsHtml = listPlayers.map((player, idx) => {
         const score = getAdjustedScore(player.score);
-        const isUp = player.trend === 'up';
+        const isYou = !!player.isYou;
+        const isUp = isYou ? (youMove ? youMove.dir === 'up' : true) : player.trend === 'up';
         const isLast = idx === listPlayers.length - 1;
         return `
-          <div class="lb-player-row gw-btn-press" data-name="${player.name}" style="display: flex; align-items: center; justify-content: space-between; padding: 12px 4px; ${isLast ? '' : 'border-bottom: 1px solid rgba(255, 255, 255, 0.06);'} cursor: pointer; transition: background 0.15s;">
-            <div style="display: flex; align-items: center; gap: 14px;">
+          <div class="lb-player-row gw-btn-press" data-name="${player.name}" ${isYou ? 'data-you="1"' : ''} style="display: flex; align-items: center; justify-content: space-between; padding: 12px ${isYou ? '8px' : '4px'}; ${isYou ? 'background: rgba(249,115,22,0.10); border-radius: 12px;' : (isLast ? '' : 'border-bottom: 1px solid rgba(255, 255, 255, 0.06);')} cursor: pointer; transition: background 0.15s;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+              <span style="width: 18px; font-size: 12px; font-weight: 700; color: ${isYou ? '#FB923C' : '#64748B'}; font-variant-numeric: tabular-nums;">${idx + 4}</span>
               <img src="${player.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(player.name)}&background=1E293B&color=FFF';" style="width: 44px; height: 44px; border-radius: 50%; object-fit: cover; border: 1.5px solid rgba(255, 255, 255, 0.12);" alt="${player.name}" />
               <div>
-                <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.2px;">${player.name}</div>
+                <div style="font-size: 14px; font-weight: 700; color: #FFFFFF; letter-spacing: -0.2px;">${player.name}${isYou ? ' <span style="font-size: 10px; font-weight: 800; color: #FB923C;">YOU</span>' : ''}</div>
                 <div style="font-size: 11px; color: #64748B; margin-top: 2px;">${player.username}</div>
               </div>
             </div>
             <div style="display: flex; align-items: center; gap: 8px;">
+              ${isYou && youMove ? `<span class="lb-move ${youMove.dir}">${youMove.dir === 'up' ? '&#9650;' : '&#9660;'} ${Math.abs(youMove.from - youMove.to)}</span>` : ''}
               <span style="font-size: 14.5px; font-weight: 800; color: #FFFFFF; font-variant-numeric: tabular-nums;">${score.toLocaleString()}</span>
-              <span style="font-size: 9px; color: ${isUp ? '#22C55E' : '#EF4444'};">${isUp ? '▲' : '▼'}</span>
+              <span style="font-size: 9px; color: ${isUp ? '#22C55E' : '#EF4444'};">${isUp ? '&#9650;' : '&#9660;'}</span>
             </div>
           </div>
         `;
@@ -2558,7 +2603,7 @@
           <div style="padding: 0 14px; display: flex; align-items: flex-end; justify-content: center; gap: 8px; margin-top: 10px;">
             
             <!-- RANK 2: Jackson (Left) -->
-            <div class="lb-podium-col gw-btn-press" data-name="${rank2.name}" style="flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+            <div class="lb-podium-col gw-btn-press" data-slot="2" data-name="${rank2.name}" style="flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
               <div style="position: relative; margin-bottom: -10px; z-index: 2;">
                 <img src="${rank2.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(rank2.name)}&background=0284C7&color=FFF';" style="width: 66px; height: 66px; border-radius: 50%; object-fit: cover; border: 3px solid #38BDF8; box-shadow: 0 0 16px rgba(56, 189, 248, 0.45);" alt="${rank2.name}" />
                 <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 22px; height: 22px; background: #0284C7; border: 1.5px solid #38BDF8; border-radius: 5px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
@@ -2566,14 +2611,14 @@
                 </div>
               </div>
               <div style="width: 100%; height: 138px; background: #18223C; border-radius: 18px 18px 0 0; padding: 20px 6px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 1px solid rgba(56, 189, 248, 0.2);">
-                <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 84px;">${rank2.name}</div>
+                <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 84px;">${rank2.name}${tag(rank2)}</div>
                 <div style="font-size: 16px; font-weight: 800; color: #38BDF8; margin: 4px 0 2px; font-variant-numeric: tabular-nums;">${getAdjustedScore(rank2.score).toLocaleString()}</div>
                 <div style="font-size: 10.5px; color: #64748B;">${rank2.username}</div>
               </div>
             </div>
 
             <!-- RANK 1: Eiden (Center - Tallest & Crowned) -->
-            <div class="lb-podium-col gw-btn-press" data-name="${rank1.name}" style="flex: 1.15; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 5;">
+            <div class="lb-podium-col gw-btn-press" data-slot="1" data-name="${rank1.name}" style="flex: 1.15; display: flex; flex-direction: column; align-items: center; cursor: pointer; z-index: 5;">
               <!-- 5-Point Golden Crown -->
               <div style="margin-bottom: -4px; animation: gwFloatCoin 3s ease-in-out infinite;">
                 <svg width="34" height="26" viewBox="0 0 24 20" fill="none">
@@ -2599,14 +2644,14 @@
               </div>
 
               <div style="width: 100%; height: 172px; background: #1D2847; border-radius: 20px 20px 0 0; padding: 24px 8px 14px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 1px solid rgba(245, 158, 11, 0.35); box-shadow: 0 -8px 24px rgba(0,0,0,0.3);">
-                <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px;">${rank1.name}</div>
+                <div style="font-size: 15px; font-weight: 800; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px;">${rank1.name}${tag(rank1)}</div>
                 <div style="font-size: 19px; font-weight: 900; color: #F59E0B; margin: 4px 0 2px; font-variant-numeric: tabular-nums;">${getAdjustedScore(rank1.score).toLocaleString()}</div>
                 <div style="font-size: 11px; color: #64748B;">${rank1.username}</div>
               </div>
             </div>
 
             <!-- RANK 3: Emma Aria (Right) -->
-            <div class="lb-podium-col gw-btn-press" data-name="${rank3.name}" style="flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
+            <div class="lb-podium-col gw-btn-press" data-slot="3" data-name="${rank3.name}" style="flex: 1; display: flex; flex-direction: column; align-items: center; cursor: pointer;">
               <div style="position: relative; margin-bottom: -10px; z-index: 2;">
                 <img src="${rank3.avatar}" onerror="this.src='https://ui-avatars.com/api/?name=${encodeURIComponent(rank3.name)}&background=16A34A&color=FFF';" style="width: 66px; height: 66px; border-radius: 50%; object-fit: cover; border: 3px solid #22C55E; box-shadow: 0 0 16px rgba(34, 197, 94, 0.45);" alt="${rank3.name}" />
                 <div style="position: absolute; bottom: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 22px; height: 22px; background: #16A34A; border: 1.5px solid #86EFAC; border-radius: 5px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 6px rgba(0,0,0,0.3);">
@@ -2614,7 +2659,7 @@
                 </div>
               </div>
               <div style="width: 100%; height: 126px; background: #18223C; border-radius: 18px 18px 0 0; padding: 20px 6px 12px; display: flex; flex-direction: column; align-items: center; justify-content: center; border-top: 1px solid rgba(34, 197, 94, 0.2);">
-                <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 84px;">${rank3.name}</div>
+                <div style="font-size: 13.5px; font-weight: 700; color: #FFFFFF; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 84px;">${rank3.name}${tag(rank3)}</div>
                 <div style="font-size: 16px; font-weight: 800; color: #22C55E; margin: 4px 0 2px; font-variant-numeric: tabular-nums;">${getAdjustedScore(rank3.score).toLocaleString()}</div>
                 <div style="font-size: 10.5px; color: #64748B;">${rank3.username}</div>
               </div>
@@ -2624,6 +2669,19 @@
 
           <!-- Bottom Sheet (Ranks 4+) -->
           <div style="background: #141A2D; border-radius: 26px 26px 0 0; padding: 16px 18px 24px; box-shadow: 0 -10px 30px rgba(0,0,0,0.4); flex: 1; border-top: 1px solid rgba(255, 255, 255, 0.06);">
+            <div style="margin-bottom: 10px; padding: 12px 14px; border-radius: 14px; background: rgba(249,115,22,0.08); border: 1px solid rgba(249,115,22,0.22);">
+              <div style="display: flex; align-items: baseline; justify-content: space-between;">
+                <div style="font-size: 11px; font-weight: 600; color: #FDBA74;">Your position</div>
+                <div style="font-size: 12px; color: #CBD5E1; font-variant-numeric: tabular-nums;">${getAdjustedScore(me.score).toLocaleString()} pts</div>
+              </div>
+              <div id="lbYouRank" style="font-size: 30px; font-weight: 900; color: #FFFFFF; letter-spacing: -0.02em; line-height: 1.15;">#${myRank}<span style="font-size: 12px; font-weight: 600; color: ${myRank <= 3 ? '#FDE68A' : '#94A3B8'}; margin-left: 8px;">${myRank <= 3 ? 'On the podium' : 'of ' + board.length}</span>${youMove ? `<span class="lb-move ${youMove.dir}" style="margin-left: 8px; vertical-align: 4px;">${youMove.dir === 'up' ? '&#9650;' : '&#9660;'} ${Math.abs(youMove.from - youMove.to)}</span>` : ''}</div>
+              ${c.showDemoControls === false ? '' : `
+              <div style="display: flex; gap: 8px; margin-top: 10px;">
+                <button class="lb-ctl bad" id="lbLose">- ${pointsStep}</button>
+                <button class="lb-ctl good" id="lbEarn">+ ${pointsStep}</button>
+                <button class="lb-ctl good" id="lbBig">+ ${pointsStep * 3}</button>
+              </div>`}
+            </div>
             ${rowsHtml}
           </div>
 
@@ -2636,6 +2694,7 @@
           const tab = btn.getAttribute('data-tab');
           if (tab === currentTab) return;
           currentTab = tab;
+          youMove = null;
           if (c.soundEnabled !== false) snd.playToastPop();
           renderView();
           ctx.emit('leaderboard_tab_switched', { widgetId: widget.id, tab });
@@ -2659,9 +2718,99 @@
           ctx.emit('leaderboard_back_pressed', { widgetId: widget.id });
         };
       }
+
+      const earn = mount.querySelector('#lbEarn');
+      const big = mount.querySelector('#lbBig');
+      const lose = mount.querySelector('#lbLose');
+      if (earn) earn.onclick = () => changeScore(pointsStep);
+      if (big) big.onclick = () => changeScore(pointsStep * 3);
+      if (lose) lose.onclick = () => changeScore(-pointsStep);
+    }
+
+    const reduced = () => window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+    function bigConfetti() {
+      if (typeof window.confetti !== 'function') return;
+      const colors = ['#F59E0B', '#FDE047', '#38BDF8', '#22C55E', '#FFFFFF'];
+      window.confetti({ particleCount: 90, spread: 80, origin: { y: 0.45 }, colors });
+      setTimeout(() => {
+        window.confetti({ particleCount: 55, angle: 60, spread: 60, origin: { x: 0, y: 0.7 }, colors });
+        window.confetti({ particleCount: 55, angle: 120, spread: 60, origin: { x: 1, y: 0.7 }, colors });
+      }, 220);
+    }
+
+    // Earn or lose points, then show what happened: rows slide to their new places, the player's
+    // row flashes green (up) or red with a shake (down), a badge shows how many places moved, and
+    // reaching the top 3 pops the podium and fires confetti.
+    function changeScore(delta) {
+      const me = players.find(p => p.isYou);
+      const frame = mount.querySelector('.gw-phone-frame');
+      const scrollTop = frame ? frame.scrollTop : 0;
+      const before = {};
+      mount.querySelectorAll('[data-name]').forEach(el => {
+        before[el.getAttribute('data-name') + (el.classList.contains('lb-podium-col') ? '|pod' : '|row')] = el.getBoundingClientRect().top;
+      });
+      const prevSlots = {};
+      mount.querySelectorAll('.lb-podium-col').forEach(el => { prevSlots[el.getAttribute('data-slot')] = el.getAttribute('data-name'); });
+
+      const from = rankOfYou();
+      me.score = Math.max(0, me.score + delta);
+      const to = rankOfYou();
+      youMove = to === from ? null : { dir: to < from ? 'up' : 'down', from, to };
+      renderView();
+
+      const nowFrame = mount.querySelector('.gw-phone-frame');
+      if (nowFrame) nowFrame.scrollTop = scrollTop;
+      if (reduced()) { if (youMove) setTimeout(() => { youMove = null; }, 2200); return; }
+
+      // Rows slide from their old position to the new one.
+      mount.querySelectorAll('.lb-player-row').forEach(row => {
+        const name = row.getAttribute('data-name');
+        const oldTop = before[name + '|row'];
+        if (oldTop !== undefined) {
+          const dy = oldTop - row.getBoundingClientRect().top;
+          if (Math.abs(dy) > 1) {
+            row.style.transition = 'none';
+            row.style.transform = 'translateY(' + dy + 'px)';
+            row.style.position = 'relative';
+            row.style.zIndex = row.hasAttribute('data-you') ? '3' : '1';
+            void row.offsetHeight;
+            row.style.transition = 'transform 520ms cubic-bezier(.2,.8,.2,1)';
+            row.style.transform = 'none';
+          }
+        } else if (before[name + '|pod'] !== undefined) {
+          row.classList.add('lb-drop'); // knocked off the podium
+        }
+      });
+
+      const youRow = mount.querySelector('.lb-player-row[data-you]');
+      if (youRow && youMove) youRow.classList.add(youMove.dir === 'up' ? 'lb-flash-up' : 'lb-flash-down');
+
+      // Podium places that changed hands pop in.
+      mount.querySelectorAll('.lb-podium-col').forEach(col => {
+        if (prevSlots[col.getAttribute('data-slot')] !== col.getAttribute('data-name')) col.classList.add('lb-pod-pop');
+      });
+
+      const sound = c.soundEnabled !== false;
+      if (youMove && youMove.dir === 'up') {
+        ctx.emit('leaderboard_rank_up', { widgetId: widget.id, from: youMove.from, to: youMove.to });
+        if (to <= 3) {
+          if (sound) snd.playRewardChime();
+          bigConfetti();
+          ctx.emit('leaderboard_top3_reached', { widgetId: widget.id, rank: to });
+        } else if (sound) {
+          snd.playToastPop();
+        }
+      } else if (youMove && youMove.dir === 'down') {
+        ctx.emit('leaderboard_rank_down', { widgetId: widget.id, from: youMove.from, to: youMove.to });
+        if (sound) snd.playToastPop();
+      }
+      if (youMove) setTimeout(() => { youMove = null; }, 2200);
     }
 
     renderView();
+    // Starting on the podium earns the confetti too.
+    if (rankOfYou() <= 3 && !reduced()) setTimeout(bigConfetti, 500);
   }
 
   // Automatic sticker rewards are capped per browser session (default 2) so they stay special

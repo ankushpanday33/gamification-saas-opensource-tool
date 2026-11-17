@@ -882,6 +882,11 @@
         fields += fieldInput('rank2Score', 'Rank 2 Score', r2.score, 'number');
         fields += fieldInput('rank3Name', 'Rank 3 Name', r3.name);
         fields += fieldInput('rank3Score', 'Rank 3 Score', r3.score, 'number');
+        fields += fieldHeader('Your position');
+        fields += fieldInput('youName', 'Player Name', c.youName || 'You');
+        fields += fieldInput('youScore', 'Starting Points (700 = last place, 2000 = on the podium)', c.youScore ?? 700, 'number');
+        fields += fieldInput('pointsStep', 'Points per Button Press', c.pointsStep ?? 250, 'number');
+        fields += fieldInput('showDemoControls', 'Show Earn / Lose Buttons', c.showDemoControls !== false, 'boolean');
       } else if (w.type === 'fire_streak') {
         fields += fieldInput('eyebrow', 'Eyebrow Heading', c.eyebrow);
         fields += fieldInput('title', 'Title', c.title);
