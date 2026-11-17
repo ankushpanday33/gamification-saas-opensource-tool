@@ -2216,8 +2216,6 @@
     .csm-spin:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #A85F00, 0 0 12px rgba(255,200,40,.4), inset 0 2px 0 rgba(255,255,255,.6); }
     .csm-spin:disabled { cursor:default; filter: saturate(.55) brightness(.85); }
     .csm-spin .tri { width:0; height:0; border-top:10px solid transparent; border-bottom:10px solid transparent; border-left:15px solid #6B3A00; }
-    .csm-cost { flex:none; height:40px; padding: 0 12px 0 5px; border-radius:22px; border:2px solid #C79BFF; background: linear-gradient(180deg,#9A4BEF,#6D1FC0); box-shadow: 0 3px 0 #3E0C7A, inset 0 2px 0 rgba(255,255,255,.25); display:flex; align-items:center; gap:7px; font-weight:900; font-size:15px; color:#fff; }
-    .csm-cost svg { width:28px; height:28px; }
     .csm-status { display:flex; align-items:center; border-radius:16px; padding: 9px 12px; background: rgba(28,4,22,.75); border:1px solid rgba(255,255,255,.12); font-size:12px; font-weight:700; color:#F4E9F1; }
     .csm-status .sep { width:1px; height:16px; background: rgba(255,255,255,.25); margin: 0 10px; }
     .csm-status .players { display:flex; align-items:center; gap:6px; margin-left:auto; color:#E7DAE4; }
@@ -2333,9 +2331,7 @@
                   <rect x="28" y="20" width="8" height="38" fill="#FFC82A"/>
                   <path d="M32 20c-6-10-18-12-18-4 0 5 10 5 18 4zM32 20c6-10 18-12 18-4 0 5-10 5-18 4z" fill="#FFC82A" stroke="#D99A00" stroke-width="1.5"/>
                 </svg>
-                <button class="csm-spin" id="csmSpin"><span class="tri"></span><span id="csmSpinLabel">SPIN</span></button>
-                <div class="csm-cost" title="Coins per spin">${CSM_SYMBOLS.coin}<span>${Number(c.spinCost || 9000).toLocaleString('en-IN')} +</span></div>
-              </div>
+                <button class="csm-spin" id="csmSpin"><span class="tri"></span><span id="csmSpinLabel">SPIN</span></button>              </div>
 
               <div class="csm-status">
                 <span id="csmSpinsText">${spinsLeft} / ${maxSpins} SPINS LEFT</span>
