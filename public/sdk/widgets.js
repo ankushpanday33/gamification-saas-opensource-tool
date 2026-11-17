@@ -2604,27 +2604,37 @@
     return true;
   }
 
-  // Fire Streak and Coin Wallet are React components (packages/coins-streak),
-  // bundled into /sdk/coins-streak.js and loaded the first time one is shown.
-  const COINS_STREAK_TYPES = ['fire_streak', 'coin_wallet'];
-  let coinsStreakLoading = null;
-  function loadCoinsStreak(baseUrl) {
-    if (window.GamifyCoinsStreak) return Promise.resolve(window.GamifyCoinsStreak);
-    if (!coinsStreakLoading) {
-      coinsStreakLoading = new Promise((resolve, reject) => {
+  // Widgets built in React live in their own bundles and load the first time one is shown:
+  // Fire Streak and Coin Wallet (packages/coins-streak) and the Onboarding Tour nudge
+  // (packages/flow-kit, react-native-flow-kit running on react-native-web).
+  const REACT_KITS = [
+    { types: ['fire_streak', 'coin_wallet'], global: 'GamifyCoinsStreak', file: 'coins-streak.js' },
+    { types: ['nudge_tour'], global: 'GamifyFlowKit', file: 'flow-kit.js' }
+  ];
+  const kitLoading = {};
+  function loadKit(kit, baseUrl) {
+    if (window[kit.global]) return Promise.resolve(window[kit.global]);
+    if (!kitLoading[kit.file]) {
+      kitLoading[kit.file] = new Promise((resolve, reject) => {
         const s = document.createElement('script');
-        s.src = `${baseUrl}/sdk/coins-streak.js`;
-        s.onload = () => resolve(window.GamifyCoinsStreak);
-        s.onerror = () => { coinsStreakLoading = null; reject(new Error('Failed to load coins-streak.js')); };
+        s.src = `${baseUrl}/sdk/${kit.file}`;
+        s.onload = () => resolve(window[kit.global]);
+        s.onerror = () => { kitLoading[kit.file] = null; reject(new Error(`Failed to load ${kit.file}`)); };
         document.head.appendChild(s);
       });
     }
-    return coinsStreakLoading;
+    return kitLoading[kit.file];
   }
-  function renderCoinsStreak(mount, widget, ctx) {
+  function loadCoinsStreak(baseUrl) { return loadKit(REACT_KITS[0], baseUrl); }
+  // A React widget may own this mount; release it before another widget replaces its content.
+  function releaseReactKits(mountEl, except) {
+    REACT_KITS.forEach((k) => { if (k !== except && window[k.global]) window[k.global].unmount(mountEl); });
+  }
+  function renderReactKit(kit, mount, widget, ctx) {
+    releaseReactKits(mount, kit);
     mount.dataset.gmfPending = widget.id;
-    if (!window.GamifyCoinsStreak) mount.innerHTML = '<div style="color:#94A3B8;">Loading widget...</div>';
-    loadCoinsStreak(ctx.baseUrl)
+    if (!window[kit.global]) mount.innerHTML = '<div style="color:#94A3B8;">Loading widget...</div>';
+    loadKit(kit, ctx.baseUrl)
       .then((lib) => {
         // Skip if another widget was selected while the bundle was loading.
         if (mount.dataset.gmfPending !== widget.id) return;
@@ -2654,7 +2664,8 @@
             'paytm_scratch_revealed': 'wildlife_explorer',
             'paytm_spin_won': 'sci_fi_geek',
             'fire_streak_extended': 'binge_watcher',
-            'coin_reward_claimed': 'award_winner'
+            'coin_reward_claimed': 'award_winner',
+            'nudge_tour_completed': 'award_winner'
           };
           const targetSticker = STICKER_EVENT_MAP[ev];
           if (targetSticker && takeAutoStickerSlot(opts.maxStickersPerSession)) {
@@ -2669,10 +2680,10 @@
       };
       const ctx = { sound, emit, baseUrl: opts.baseUrl || '' };
 
-      if (COINS_STREAK_TYPES.includes(widget.type)) return renderCoinsStreak(mountEl, widget, ctx);
-      // A React widget may own this mount; release it before plain HTML widgets replace its content.
+      const kit = REACT_KITS.find((k) => k.types.includes(widget.type));
+      if (kit) return renderReactKit(kit, mountEl, widget, ctx);
       delete mountEl.dataset.gmfPending;
-      if (window.GamifyCoinsStreak) window.GamifyCoinsStreak.unmount(mountEl);
+      releaseReactKits(mountEl);
 
       switch (widget.type) {
         case 'zepto_scratch': return renderZeptoScratch(mountEl, widget, ctx);

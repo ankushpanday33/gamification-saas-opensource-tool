@@ -45,6 +45,18 @@ npm install
 npm run build:coins
 ```
 
+## 👉 Nudges: Onboarding Tour
+
+The **Nudges** section in the Studio has an Onboarding Tour widget (`nudge_tour_12`, type `nudge_tour`). It dims the screen, spotlights one element at a time and shows a tooltip with Back / Next / Skip, then rewards coins when the tour is finished.
+
+It runs [react-native-flow-kit](https://github.com/headbranch/react-native-flow-kit) (MIT, by Hy Phan), vendored unmodified in `packages/flow-kit/src` with its `LICENSE`, on the web through `react-native-web`. The demo app screen is in `packages/flow-kit/demo/browser.tsx` and is bundled to `public/sdk/flow-kit.js`:
+
+```bash
+npm run build:flowkit
+```
+
+Events: `nudge_tour_started`, `nudge_tour_step`, `nudge_tour_completed`.
+
 Automatic sticker rewards show at most 2 times per browser session. Change it with `maxStickersPerSession` in the `GamifyWidgets.render` options.
 
 To run on another port: `PORT=4010 npm start` (macOS/Linux) or `$env:PORT=4010; npm start` (PowerShell).

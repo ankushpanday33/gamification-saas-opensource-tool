@@ -199,6 +199,23 @@ function getDefaultWidgets() {
         soundEnabled: true
       },
       stats: { impressions: 1000, claims: 0, conversionRate: '0.0%' }
+    },
+    {
+      id: 'nudge_tour_12',
+      type: 'nudge_tour',
+      name: 'Onboarding Tour (Spotlight Nudges)',
+      appSource: 'react-native-flow-kit (React Native Web)',
+      status: 'active',
+      config: {
+        tourTitle: 'New here? Take a 20 second tour',
+        accentColor: '#FF6623',
+        overlayOpacity: 0.72,
+        completionReward: 50,
+        startingCoins: 1250,
+        autoStart: false,
+        soundEnabled: true
+      },
+      stats: { impressions: 1000, claims: 0, conversionRate: '0.0%' }
     }
   ];
 }

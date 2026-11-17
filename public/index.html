@@ -609,6 +609,9 @@
     <div class="nav-link" onclick="selectWidget('fire_streak_10')"><i class="fa-solid fa-fire"></i> Fire Streak <span class="badge-subtle">NEW</span></div>
     <div class="nav-link" onclick="selectWidget('coin_wallet_11')"><i class="fa-solid fa-wallet"></i> Coin Wallet <span class="badge-subtle">NEW</span></div>
 
+    <div class="nav-group-label">Nudges</div>
+    <div class="nav-link" onclick="selectWidget('nudge_tour_12')"><i class="fa-solid fa-hand-pointer"></i> Onboarding Tour <span class="badge-subtle">NEW</span></div>
+
     <div class="nav-group-label">Playground &amp; Rewards</div>
     <div class="nav-link" onclick="window.location.href='/live'"><i class="fa-solid fa-gamepad"></i> Live PlayZone App <span class="badge-subtle">HOT</span></div>
     <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openAlbum()"><i class="fa-solid fa-book-bookmark"></i> Sticker Album (15)</div>
@@ -749,7 +752,8 @@
         cred_slot_machine: 'fa-dice',
         gamify_leaderboard: 'fa-ranking-star',
         fire_streak: 'fa-fire',
-        coin_wallet: 'fa-wallet'
+        coin_wallet: 'fa-wallet',
+        nudge_tour: 'fa-hand-pointer'
       };
       document.getElementById('widgetsListContainer').innerHTML = widgetsData.map(w => {
         const ic = iconMap[w.type] || 'fa-gift';
@@ -928,6 +932,16 @@
         fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
         fields += fieldInput('requireIgnite', 'Swipe / Tap to Ignite', c.requireIgnite, 'boolean');
         fields += fieldInput('showTiers', 'Show Flame Tiers', c.showTiers, 'boolean');
+      } else if (w.type === 'nudge_tour') {
+        fields += fieldInput('tourTitle', 'Tour Invite Text', c.tourTitle || 'New here? Take a 20 second tour');
+        fields += fieldInput('accentColor', 'Accent Color', c.accentColor || '#FF6623', 'color');
+        fields += fieldInput('overlayOpacity', 'Spotlight Dimming (0.2 to 0.95)', c.overlayOpacity ?? 0.72, 'number');
+        fields += fieldInput('completionReward', 'Coins for Finishing', c.completionReward ?? 50, 'number');
+        fields += fieldInput('autoStart', 'Start Tour Automatically', c.autoStart === true, 'boolean');
+        [['Wallet', 'Your coin wallet'], ['Streak card', 'Keep your streak alive'], ['Games', 'Play to earn'], ['Claim button', 'Claim your daily reward']].forEach(([target, title], i) => {
+          fields += fieldInput(`step${i + 1}Title`, `Step ${i + 1} (${target}) Title`, c[`step${i + 1}Title`] || title);
+          fields += fieldInput(`step${i + 1}Body`, `Step ${i + 1} Text`, c[`step${i + 1}Body`] || '');
+        });
       } else if (w.type === 'coin_wallet') {
         fields += fieldInput('title', 'Title', c.title);
         fields += fieldInput('walletLabel', 'Wallet Label', c.walletLabel);
