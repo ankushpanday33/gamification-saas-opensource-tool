@@ -45,7 +45,7 @@ function getDefaultWidgets() {
         subtitle: 'Collect your daily rewards here',
         currencySymbol: '₹',
         dayRewards: [5, 7, 9, 11, 13, 15, 17],
-        activeDay: 1,
+        activeDay: 2,
         highlightColor: '#F59E0B',
         ctaColor: '#FF6623',
         ctaText: 'Claim Now',

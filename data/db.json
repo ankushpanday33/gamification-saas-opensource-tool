@@ -43,8 +43,8 @@
       "appSource": "MyNaksh (ScreenRecording 11-05 & Native App)",
       "status": "active",
       "config": {
-        "initialView": "rewards_hub",
-        "title": "Keep Your Streak Alive!",
+        "initialView": "modal",
+        "title": "Daily check-in",
         "subtitle": "Collect your daily rewards here",
         "currencySymbol": "₹",
         "walletBalance": 30,
@@ -57,7 +57,7 @@
           15,
           17
         ],
-        "activeDay": 1,
+        "activeDay": 2,
         "referralBonus": 50,
         "referralCode": "R8HKBD",
         "mantraName": "Mars Mantra",
@@ -70,8 +70,8 @@
       },
       "stats": {
         "impressions": 3290,
-        "claims": 2494,
-        "conversionRate": "75.8%"
+        "claims": 2496,
+        "conversionRate": "75.9%"
       }
     },
     {
@@ -1949,6 +1949,28 @@
         "amount": 5
       },
       "timestamp": "2026-11-17T09:04:16.050Z"
+    },
+    {
+      "id": "evt_1794906570623",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T09:09:30.623Z"
+    },
+    {
+      "id": "evt_1794906581818",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T09:09:41.818Z"
     }
   ]
 }

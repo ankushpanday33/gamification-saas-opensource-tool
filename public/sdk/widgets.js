@@ -409,58 +409,103 @@
         showClaimBurst();
         return;
       } else if (viewState === 'modal') {
-        // Bottom Sheet modal view
-        const makeDayBox = (idx) => {
+        // Daily check-in bottom sheet over the dimmed MyNaksh home screen (matches the real app):
+        // cream sheet with a green glow top-left and a dotted star pattern at the bottom, day cards
+        // (claimed = green with a check, today = green outline with a gold star coin, upcoming = grey
+        // with a silver star coin) and a full width claim button.
+        const A = '/assets/mynaksh';
+        const makeDay = (idx) => {
           const dayNum = idx + 1;
-          const isDone = dayNum < activeDay;
-          const isToday = dayNum === activeDay;
+          const state = dayNum < activeDay ? 'done' : dayNum === activeDay ? 'today' : 'next';
           const amt = rewards[idx] ?? 5;
-          const border = isToday ? `2px solid ${c.highlightColor || '#22C55E'}` : '1px solid #EAE5DC';
-          const bg = isToday ? '#FFFFFF' : '#F8F6F2';
+          const box = {
+            done: 'background: linear-gradient(180deg, #D6EED2 0%, #A8D8A2 100%);',
+            today: `background: #F1F1F0; border: 2.5px solid ${c.highlightColor || '#6CBB6C'};`,
+            next: 'background: linear-gradient(180deg, #F2F2F1 0%, #E3E3E2 100%);'
+          }[state];
+          const badge = state === 'done'
+            ? '<span style="position:absolute; left:50%; bottom:-11px; transform:translateX(-50%); width:22px; height:22px; border-radius:50%; background:#1E8E2A; border:2px solid #FBFAF7; box-sizing:border-box; display:flex; align-items:center; justify-content:center; color:#FFF; font-size:12px; font-weight:900; line-height:1;">&#10003;</span>'
+            : `<img src="${A}/${state === 'today' ? 'coincurrent' : 'coinupcoming'}.png" alt="" style="position:absolute; left:50%; bottom:-12px; transform:translateX(-50%); width:24px; height:auto;" />`;
           return `
-            <div style="background: ${bg}; border: ${border}; border-radius: 14px; padding: 10px 4px; display: flex; flex-direction: column; align-items: center; gap: 6px; ${isToday ? 'box-shadow: 0 0 10px rgba(34, 197, 94, 0.35);' : ''}">
-              <span style="font-size: 10.5px; color: #64748B; font-weight: 600;">Day ${dayNum}</span>
-              <span style="font-size: 13.5px; font-weight: 800; color: #1E293B;">${cur}${amt}</span>
-              <div style="width: 24px; height: 24px; border-radius: 50%; background: ${isToday ? 'linear-gradient(135deg, #FBBF24, #D97706)' : isDone ? '#22C55E' : '#CBD5E1'}; color: #FFF; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 900;">${isDone ? '✓' : isToday ? '★' : '+'}</div>
-            </div>
-          `;
+            <div style="display:flex; flex-direction:column; align-items:center; gap:5px;">
+              <span style="font-size:10px; font-weight:700; color:#B07F54;">Day ${dayNum}</span>
+              <div style="position:relative; width:50px; height:54px; border-radius:10px; box-sizing:border-box; display:flex; align-items:center; justify-content:center; ${box}">
+                <span style="font-size:15px; font-weight:800; color:#1B1B1B; margin-top:-6px;">${cur}${amt}</span>
+                ${badge}
+              </div>
+            </div>`;
         };
+        const story = (label, bg, inner) => `
+          <div style="flex:none; width:56px; text-align:center;">
+            <div style="width:54px; height:70px; border-radius:27px; box-sizing:border-box; padding:3px; background:linear-gradient(180deg,#B8683F,#7A3C28);">
+              <div style="width:100%; height:100%; border-radius:24px; background:${bg}; display:flex; align-items:center; justify-content:center; overflow:hidden; font-size:18px;">${inner}</div>
+            </div>
+            <div style="margin-top:7px; font-size:10px; color:#C9D0E8; white-space:nowrap;">${label}</div>
+          </div>`;
 
         mount.innerHTML = `
-          <div class="gw-phone-frame" style="background: #EFE9DF; justify-content: flex-end; position: relative;">
-            <button class="gw-replay-chip" id="mnSwitchHubToPage" style="z-index: 10;"><i class="fa-solid fa-mobile-screen"></i> Rewards Page</button>
-            
-            <div style="padding: 18px 18px 0; opacity: 0.45;">
-              <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
-                <span style="font-size: 16px; font-weight: 800; color: #1E1B18;">Namaste Ankush</span>
-                <span style="background: #1C1917; color: #FFF; padding: 4px 10px; border-radius: 14px; font-size: 11px; font-weight: 700;">Wallet ${cur}${walletBalance} +</span>
+          <div class="gw-phone-frame" style="background:#F4F2ED; height:640px; position:relative; overflow:hidden; font-family: Arial, 'Helvetica Neue', Helvetica, sans-serif;">
+            <!-- Home screen behind the sheet -->
+            <div style="background:linear-gradient(180deg,#242D56 0%,#1B2342 100%); border-radius:0 0 16px 16px; padding:16px 14px 14px; height:250px; box-sizing:border-box; position:relative;">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:22px;">
+                <div style="display:flex; align-items:center; gap:9px;">
+                  <div style="width:34px; height:34px; border-radius:50%; background:#8F4B3A; position:relative; overflow:hidden; border:1.5px solid rgba(255,255,255,0.15);">
+                    <div style="position:absolute; left:11px; top:6px; width:12px; height:12px; border-radius:50%; background:#2B1712;"></div>
+                    <div style="position:absolute; left:5px; top:19px; width:24px; height:20px; border-radius:50%; background:#2B1712;"></div>
+                  </div>
+                  <div>
+                    <div style="font-size:12.5px; font-weight:700; color:#FFFFFF; line-height:1.25;">Namaste Ankush,</div>
+                    <div style="font-size:10.5px; color:#AEB6D3; line-height:1.3;">Good Afternoon</div>
+                  </div>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px; background:rgba(255,255,255,0.09); border-radius:10px; padding:6px 7px 6px 11px;">
+                  <div style="line-height:1.15;"><div style="font-size:8.5px; color:#AEB6D3;">Wallet</div><div style="font-size:14px; font-weight:800; color:#FFFFFF;">${cur}${walletBalance}</div></div>
+                  <div style="width:24px; height:24px; border-radius:7px; background:#A0482B; color:#FFF; font-size:17px; display:flex; align-items:center; justify-content:center;">+</div>
+                </div>
               </div>
-              <div style="height: 60px; background: #141210; border-radius: 14px;"></div>
+              <div style="display:flex; align-items:center; justify-content:center; gap:8px; margin-bottom:14px; color:#B9A27F; font-size:9.5px; letter-spacing:2.6px; font-weight:700;">
+                <span style="flex:1; height:1px; background:rgba(255,255,255,0.14);"></span>&#10022; YOUR DAILY NAKSH &#10022;<span style="flex:1; height:1px; background:rgba(255,255,255,0.14);"></span>
+              </div>
+              <div style="display:flex; gap:6px; overflow:hidden; margin-right:-14px;">
+                ${story('Rashifal', 'radial-gradient(circle at 50% 55%, #D8D2C4 0 28%, #BDB3A0 29% 55%, #8E8573 56%)', '<span style="width:20px;height:20px;border-radius:50%;background:#8B2F8F;display:block;margin-top:14px;"></span>')}
+                ${story('Panchang', '#6A5A48', '<span style="font-size:20px;">&#128209;</span>')}
+                ${story('New', `url(${A}/rudraksh.png) center/cover, #3E4A33`, '')}
+                ${story('Mere Dev', 'linear-gradient(180deg,#5A2E1E,#8C4A1E)', '<span style="font-size:20px;">&#128591;</span>')}
+                ${story('Sadhana', '#141A2C', '')}
+              </div>
+            </div>
+            <div style="padding:16px 14px;">
+              <div style="display:flex; align-items:center; gap:9px; margin-bottom:12px;">
+                <div style="width:26px; height:26px; border-radius:50%; background:#E39A3A; color:#FFF; font-size:13px; font-weight:900; display:flex; align-items:center; justify-content:center;">%</div>
+                <div style="font-size:16px; font-weight:800; color:#1E1B18;">Today for you</div>
+              </div>
+              <div style="background:#FFF6E8; border-radius:14px; height:110px; padding:12px; display:flex; gap:12px;">
+                <div style="width:70px; height:70px; border-radius:10px; background:linear-gradient(135deg,#C98B52,#8E4B2E);"></div>
+                <div style="font-size:17px; font-weight:800; color:#1E1B18;">Marriage Report</div>
+              </div>
             </div>
 
-            <!-- White Rounded Bottom Sheet -->
-            <div style="background: #FFFFFF; border-radius: 26px 26px 0 0; padding: 22px 18px 24px; box-shadow: 0 -10px 40px rgba(0,0,0,0.22); animation: gwSlideUp 0.35s ease;">
-              <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
-                <div style="width: 42px; height: 42px; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FDE047, #F59E0B 60%, #B45309 100%); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.4); flex-shrink: 0;">
-                  <img src="/assets/mynaksh/dailystreakcardicon.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 30px; height: 30px; object-fit: contain;" />
-                  <span style="display: none; font-size: 20px; color: #FFF; font-weight: 900;">${cur}</span>
-                </div>
+            <div style="position:absolute; inset:0; background:rgba(0,0,0,0.42);"></div>
+            <button class="gw-replay-chip" id="mnSwitchHubToPage" style="z-index:12; top:auto; bottom:2px; right:8px;"><i class="fa-solid fa-mobile-screen"></i> Rewards Page</button>
+
+            <!-- Bottom sheet -->
+            <div style="position:absolute; left:14px; right:14px; bottom:26px; z-index:10; border-radius:18px; box-sizing:border-box; padding:16px 16px 16px; background: url(${A}/topglow.png) top left / 150px auto no-repeat, url(${A}/bottompattern.png) bottom center / 100% auto no-repeat, #FBFAF7; box-shadow:0 -6px 30px rgba(0,0,0,0.25); animation: gwSlideUp 0.35s ease;">
+              <div style="display:flex; align-items:center; gap:12px; margin-bottom:22px;">
+                <img src="${A}/dailystreakcardicon.png" alt="" style="width:38px; height:38px; flex:none; filter: drop-shadow(0 3px 5px rgba(180,110,0,0.25));" />
                 <div>
-                  <div style="font-size: 17px; font-weight: 800; color: #111827;">${c.title || 'Daily check-in'}</div>
-                  <div style="font-size: 12px; color: #6B7280;">${c.subtitle || 'Collect your daily rewards here'}</div>
+                  <div style="font-size:16.5px; font-weight:800; color:#1F1F1F; line-height:1.2;">${c.title || 'Daily check-in'}</div>
+                  <div style="font-size:11px; color:#6D6D6D; margin-top:3px;">${c.subtitle || 'Collect your daily rewards here'}</div>
                 </div>
               </div>
 
-              <!-- Row 1: Days 1-4 -->
-              <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 8px;">
-                ${[0, 1, 2, 3].map(makeDayBox).join('')}
+              <div style="display:flex; justify-content:center; gap:19px; margin-bottom:26px;">
+                ${[0, 1, 2, 3].map(makeDay).join('')}
               </div>
-              <!-- Row 2: Days 5-7 Centered -->
-              <div style="display: grid; grid-template-columns: repeat(3, 76px); justify-content: center; gap: 8px; margin-bottom: 20px;">
-                ${[4, 5, 6].map(makeDayBox).join('')}
+              <div style="display:flex; justify-content:center; gap:22px; margin-bottom:24px;">
+                ${[4, 5, 6].map(makeDay).join('')}
               </div>
 
-              <button id="mnClaimModalBtn" class="gw-btn-press" style="width: 100%; height: 48px; border-radius: 24px; border: none; background: ${c.ctaColor || '#FF6623'}; color: #FFFFFF; font-size: 14.5px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(255, 102, 35, 0.35);">
+              <button id="mnClaimModalBtn" class="gw-btn-press" style="width:100%; height:42px; border-radius:21px; border:none; background:${c.ctaColor || '#FF6623'}; color:#FFFFFF; font-family:inherit; font-size:14.5px; font-weight:700; cursor:pointer; box-shadow:0 5px 14px rgba(255,102,35,0.32);">
                 ${c.ctaText || 'Claim Now'}
               </button>
             </div>
