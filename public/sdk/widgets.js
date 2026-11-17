@@ -618,8 +618,8 @@
                     <i class="fa-solid fa-share-nodes"></i>
                   </button>
 
-                  <button id="mnWhatsappBtn" class="gw-btn-press" style="flex: 1; height: 46px; border-radius: 12px; border: none; background: #16A34A; color: #FFFFFF; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(22, 163, 74, 0.28);">
-                    <i class="fa-brands fa-whatsapp" style="font-size: 20px;"></i> Refer a friend
+                  <button id="mnWhatsappBtn" class="gw-btn-press" style="flex: 1; height: 46px; border-radius: 12px; border: none; background: ${c.referralCtaColor || '#FF6623'}; color: #FFFFFF; font-size: 14px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; box-shadow: 0 4px 14px rgba(255, 102, 35, 0.3);">
+                    ${c.referralCtaText || 'Claim Now'}
                   </button>
                 </div>
 

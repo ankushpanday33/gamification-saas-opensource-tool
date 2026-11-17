@@ -924,6 +924,8 @@
         fields += fieldInput('dayRewardsCsv', '7-Day Rewards (comma separated)', (c.dayRewards || []).join(','));
         fields += fieldInput('referralBonus', 'Referral Bonus (₹)', c.referralBonus, 'number');
         fields += fieldInput('referralCode', 'Referral Code', c.referralCode);
+        fields += fieldInput('referralCtaText', 'Referral Button Text', c.referralCtaText || 'Claim Now');
+        fields += fieldInput('referralCtaColor', 'Referral Button Color', c.referralCtaColor || '#FF6623', 'color');
         fields += fieldInput('mantraName', 'Mantra Card Title', c.mantraName);
         fields += fieldInput('mantraChant', 'Mantra Chant Text', c.mantraChant);
         fields += fieldInput('mantraReward', 'Mantra Reward (₹)', c.mantraReward, 'number');
