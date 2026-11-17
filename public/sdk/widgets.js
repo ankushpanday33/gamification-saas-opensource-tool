@@ -1837,12 +1837,45 @@
   // Spin The Wheel (partner deals): purple stage, wallet pills, gold italic title with gifts,
   // gold bulb rim on a glowing panel, product slices with drawn trimmers, partner hub,
   // lit pedestal, SPIN pill and Details. Win opens a voucher in the same theme.
+  // Each slice: label, color, and either `icon` (a key of CRW icon set below) or `image` (a product
+  // image URL). Without either, the icon is guessed from the label.
   const CRW_DEFAULT_SEGMENTS = [
-    { label: 'Trimmer at ₹1,199', color: '#1D6BF2' },
-    { label: 'Trimmer at ₹899', color: '#B321E8' },
-    { label: 'Trimmer at ₹999', color: '#F26A0C' },
-    { label: 'Trimmer at ₹1,099', color: '#5DB817' }
+    { label: 'Headphones at ₹999', color: '#1D6BF2', icon: 'headphones' },
+    { label: 'Flat ₹100 Cashback', color: '#B321E8', icon: 'cashback' },
+    { label: 'Mystery Gift Box', color: '#F26A0C', icon: 'gift' },
+    { label: '500 Bonus Coins', color: '#5DB817', icon: 'coin' }
   ];
+
+  const CRW_EXTRA_ICONS = {
+    cashback: `<svg viewBox="0 0 48 48"><rect x="3" y="12" width="42" height="26" rx="4" fill="#2DB24A" stroke="#1E7A33" stroke-width="1.5"/><rect x="7" y="16" width="34" height="18" rx="2" fill="none" stroke="#9BE5A8" stroke-width="1.2"/><circle cx="24" cy="25" r="7.5" fill="#FFD84A"/><text x="24" y="29.5" text-anchor="middle" font-family="Arial" font-weight="900" font-size="11" fill="#7A4A00">₹</text></svg>`,
+    coupon: `<svg viewBox="0 0 48 48"><path d="M4 14h40v7a4 4 0 0 0 0 8v7H4v-7a4 4 0 0 0 0-8z" fill="#FF4F8B" stroke="#C2185B" stroke-width="1.5"/><path d="M17 15v20" stroke="#FFC1D6" stroke-width="1.6" stroke-dasharray="2 2"/><text x="31" y="30" text-anchor="middle" font-family="Arial" font-weight="900" font-size="12" fill="#fff">%</text></svg>`,
+    phone: `<svg viewBox="0 0 48 48"><rect x="13" y="3" width="22" height="42" rx="5" fill="#23232B" stroke="#8C949E" stroke-width="1.5"/><rect x="16" y="8" width="16" height="30" rx="2" fill="url(#pswGlass)"/><circle cx="24" cy="41.5" r="1.6" fill="#8C949E"/></svg>`
+  };
+  const CRW_ICON_KEYS = ['headphones', 'gift', 'coin', 'cashback', 'coupon', 'phone', 'music', 'perfume', 'trimmer'];
+
+  // Picks a slice's icon: explicit `icon`, else a guess from the label, else a gift.
+  function crwIconKey(seg) {
+    if (seg.icon && CRW_ICON_KEYS.includes(seg.icon)) return seg.icon;
+    const l = String(seg.label || '').toLowerCase();
+    if (/trimmer|shav|razor/.test(l)) return 'trimmer';
+    if (/head|ear|audio|speaker/.test(l)) return 'headphones';
+    if (/cashback|cash back|upi|wallet/.test(l)) return 'cashback';
+    if (/coin|point/.test(l)) return 'coin';
+    if (/coupon|voucher|%|off/.test(l)) return 'coupon';
+    if (/phone|mobile/.test(l)) return 'phone';
+    if (/music|song|pro|premium/.test(l)) return 'music';
+    if (/perfume|fragrance|scent/.test(l)) return 'perfume';
+    return 'gift';
+  }
+  // Only http(s) or same-site paths are used as images.
+  function crwImageUrl(seg) {
+    const u = String(seg.image || '').trim();
+    return /^(https?:\/\/|\/)/i.test(u) ? u : '';
+  }
+  function crwIconSvg(key, accent) {
+    if (key === 'trimmer') return crwTrimmer(accent);
+    return CRW_EXTRA_ICONS[key] || PSW_ICONS[key] || PSW_ICONS.gift;
+  }
 
   const CRW_CSS = `
     .crw-stage { background: radial-gradient(ellipse at 50% 45%, #4A1B7E 0%, #2C0D52 50%, #160628 100%) !important; color:#fff; padding: 14px 14px 18px !important; position:relative; overflow:hidden; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; display:flex; flex-direction:column; align-items:center; }
@@ -1957,7 +1990,13 @@
       return `
         <path d="M150 150 L${x1.toFixed(2)} ${y1.toFixed(2)} A${R} ${R} 0 ${arc > 180 ? 1 : 0} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z" fill="url(#crwSeg${i})" stroke="#FFD24A" stroke-opacity=".6" stroke-width="1.4"/>
         <g transform="translate(${lx.toFixed(1)} ${ly.toFixed(1)})">
-          <g transform="translate(-8 -52) rotate(24 11 18)">${crwTrimmer(pswShade(s.color, 0.25)).replace('<svg ', '<svg width="22" height="36" ')}</g>
+          ${(() => {
+            const img = crwImageUrl(s);
+            if (img) return `<image href="${esc(img)}" x="-18" y="-52" width="36" height="36" preserveAspectRatio="xMidYMid meet"/>`;
+            const key = crwIconKey(s);
+            if (key === 'trimmer') return `<g transform="translate(-8 -52) rotate(24 11 18)">${crwTrimmer(pswShade(s.color, 0.25)).replace('<svg ', '<svg width="22" height="36" ')}</g>`;
+            return `<g transform="translate(-16 -50)">${crwIconSvg(key).replace('<svg ', '<svg width="32" height="32" ')}</g>`;
+          })()}
           <text text-anchor="middle" font-family="Arial" font-weight="900" font-size="13.5" fill="#fff" stroke="rgba(20,0,30,.35)" stroke-width="2.5" paint-order="stroke">
             ${lines.map((l, k) => `<tspan x="0" dy="${k === 0 ? 2 : 16}">${esc(l)}</tspan>`).join('')}
           </text>
@@ -2064,9 +2103,14 @@
     }
 
     function renderVoucher(prize) {
-      const hero = c.rewardImage
-        ? `<img src="${esc(c.rewardImage)}" alt="${esc(prize.label)}">`
-        : `<div class="rays"></div><div style="position:relative; width:90px; height:144px; transform: rotate(18deg); filter: drop-shadow(0 10px 16px rgba(0,0,0,.5));">${crwTrimmer(pswShade(prize.color, 0.25)).replace('<svg ', '<svg width="90" height="144" ')}</div>`;
+      // The won slice's own image, else its icon drawn large on sunburst rays.
+      const prizeImg = crwImageUrl(prize);
+      const prizeKey = crwIconKey(prize);
+      const hero = prizeImg
+        ? `<img src="${esc(prizeImg)}" alt="${esc(prize.label)}" style="object-fit:contain; padding:18px;">`
+        : prizeKey === 'trimmer'
+          ? `<div class="rays"></div><div style="position:relative; width:90px; height:144px; transform: rotate(18deg); filter: drop-shadow(0 10px 16px rgba(0,0,0,.5));">${crwTrimmer(pswShade(prize.color, 0.25)).replace('<svg ', '<svg width="90" height="144" ')}</div>`
+          : `<div class="rays"></div><div style="position:relative; width:120px; height:120px; filter: drop-shadow(0 10px 16px rgba(0,0,0,.5));">${crwIconSvg(prizeKey).replace('<svg ', '<svg width="120" height="120" ')}</div>`;
       mount.innerHTML = `
         <div class="gw-phone-frame crw-stage">
           ${PSW_DEFS}

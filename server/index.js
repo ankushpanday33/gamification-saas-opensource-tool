@@ -135,18 +135,19 @@ function getDefaultWidgets() {
       config: {
         titleScript: 'Spin',
         titleSerif: 'The Wheel',
-        partnerName: 'BOMBAY SHAVING COMPANY',
+        partnerName: 'MEGA REWARDS',
         couponCode: 'CRED899',
         coins: 560052,
         cashback: 77,
         tickets: 4,
         spinCostCoins: 1000,
-        // Clockwise from the top pointer.
+        // Clockwise from the top pointer. icon: headphones | gift | coin | cashback | coupon | phone |
+        // music | perfume | trimmer, or image: a product image URL.
         segments: [
-          { label: 'Trimmer at ₹1,199', color: '#1D6BF2' },
-          { label: 'Trimmer at ₹899', color: '#B321E8' },
-          { label: 'Trimmer at ₹999', color: '#F26A0C' },
-          { label: 'Trimmer at ₹1,099', color: '#5DB817' }
+          { label: 'Headphones at ₹999', color: '#1D6BF2', icon: 'headphones' },
+          { label: 'Flat ₹100 Cashback', color: '#B321E8', icon: 'cashback' },
+          { label: 'Mystery Gift Box', color: '#F26A0C', icon: 'gift' },
+          { label: '500 Bonus Coins', color: '#5DB817', icon: 'coin' }
         ],
         soundEnabled: true
       },

@@ -804,6 +804,10 @@
         </div>`;
     }
 
+    function fieldHeader(text) {
+      return `<div style="margin:18px 0 8px; padding-top:12px; border-top:1px solid var(--ds-border, rgba(255,255,255,0.08)); font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--ds-accent);">${text}</div>`;
+    }
+
     function fieldSelect(key, label, val, options) {
       return `
         <div class="form-group">
@@ -814,14 +818,15 @@
         </div>`;
     }
 
-    // Wheel fields like "slice2Label" / "slice2Color" edit config.slices[2] (Spin & Win) or config.segments[2] (CRED wheel).
+    // Wheel fields like "slice2Label" / "slice2Color" / "slice2Icon" / "slice2Image" edit
+    // config.slices[2] (Spin & Win) or config.segments[2] (CRED wheel).
     function applySliceKey(k, value) {
-      const m = /^slice(\d+)(Label|Color)$/.exec(k);
+      const m = /^slice(\d+)(Label|Color|Icon|Image)$/.exec(k);
       const list = selectedWidget.config.slices || selectedWidget.config.segments;
       if (!m || !Array.isArray(list)) return false;
       const s = list[Number(m[1])];
       if (!s) return false;
-      s[m[2] === 'Label' ? 'label' : 'color'] = value;
+      s[m[2].toLowerCase()] = value;
       return true;
     }
 
@@ -893,9 +898,13 @@
         fields += fieldInput('couponCode', 'Winning Promo Code', c.couponCode || 'CRED899');
         fields += fieldInput('spinCostCoins', 'Spin Cost (Coins)', c.spinCostCoins ?? 1000, 'number');
         fields += fieldInput('coins', 'Coin Balance', c.coins ?? 560052, 'number');
+        const prizeIcons = [['', 'Auto (from prize name)'], ['headphones', 'Headphones'], ['gift', 'Gift box'], ['coin', 'Coins'], ['cashback', 'Cashback note'], ['coupon', 'Coupon'], ['phone', 'Phone'], ['music', 'Music'], ['perfume', 'Perfume'], ['trimmer', 'Trimmer']];
         (c.segments || []).forEach((s, i) => {
-          fields += fieldInput(`slice${i}Label`, `Slice ${i + 1} Prize`, s.label);
-          fields += fieldInput(`slice${i}Color`, `Slice ${i + 1} Color`, s.color, 'color');
+          fields += fieldHeader(`Slice ${i + 1}`);
+          fields += fieldInput(`slice${i}Label`, 'Prize', s.label);
+          fields += fieldInput(`slice${i}Color`, 'Color', s.color, 'color');
+          fields += fieldSelect(`slice${i}Icon`, 'Icon', s.icon || '', prizeIcons);
+          fields += fieldInput(`slice${i}Image`, 'Product Image URL (overrides icon)', s.image || '');
         });
       } else if (w.type === 'cred_slot_machine') {
         fields += fieldInput('headline', 'Sign Headline', c.headline || 'WIN JACKPOT');
@@ -933,15 +942,90 @@
         fields += fieldInput('requireIgnite', 'Swipe / Tap to Ignite', c.requireIgnite, 'boolean');
         fields += fieldInput('showTiers', 'Show Flame Tiers', c.showTiers, 'boolean');
       } else if (w.type === 'nudge_tour') {
-        fields += fieldInput('tourTitle', 'Tour Invite Text', c.tourTitle || 'New here? Take a 20 second tour');
-        fields += fieldInput('accentColor', 'Accent Color', c.accentColor || '#FF6623', 'color');
-        fields += fieldInput('overlayOpacity', 'Spotlight Dimming (0.2 to 0.95)', c.overlayOpacity ?? 0.72, 'number');
-        fields += fieldInput('completionReward', 'Coins for Finishing', c.completionReward ?? 50, 'number');
+        // Defaults here mirror resolveConfig() in packages/flow-kit/demo/browser.tsx.
+        const v = (k, d) => (c[k] === undefined || c[k] === '' ? d : c[k]);
+        const sides = [['auto', 'Auto (most space)'], ['top', 'Above'], ['bottom', 'Below'], ['left', 'Left'], ['right', 'Right']];
+        const aligns = [['start', 'Start'], ['center', 'Center'], ['end', 'End']];
+
+        fields += fieldHeader('Tour');
+        fields += fieldInput('stepOrder', 'Step Order (wallet, streak, games, claim)', v('stepOrder', 'wallet,streak,games,claim'));
         fields += fieldInput('autoStart', 'Start Tour Automatically', c.autoStart === true, 'boolean');
-        [['Wallet', 'Your coin wallet'], ['Streak card', 'Keep your streak alive'], ['Games', 'Play to earn'], ['Claim button', 'Claim your daily reward']].forEach(([target, title], i) => {
-          fields += fieldInput(`step${i + 1}Title`, `Step ${i + 1} (${target}) Title`, c[`step${i + 1}Title`] || title);
-          fields += fieldInput(`step${i + 1}Body`, `Step ${i + 1} Text`, c[`step${i + 1}Body`] || '');
+        fields += fieldInput('tapOverlayToAdvance', 'Tap Dimmed Area to Go Next', v('tapOverlayToAdvance', true), 'boolean');
+        fields += fieldInput('completionReward', 'Coins for Finishing', v('completionReward', 50), 'number');
+        fields += fieldInput('rewardOnSkip', 'Give Coins Even if Skipped', c.rewardOnSkip === true, 'boolean');
+        [
+          ['wallet', 'Wallet', 'Your coin wallet', 'Every reward you win lands here. Tap it any time to see your history.', 'bottom', 'end'],
+          ['streak', 'Streak Card', 'Keep your streak alive', 'Come back daily to grow the flame and unlock bigger rewards.', 'bottom', 'center'],
+          ['games', 'Games Row', 'Play to earn', 'Spin, scratch and hit the jackpot for coins and coupons.', 'auto', 'center'],
+          ['claim', 'Claim Button', 'Claim your daily reward', 'Tap here once a day to collect free coins.', 'top', 'center']
+        ].forEach(([id, name, title, body, side, align], i) => {
+          fields += fieldHeader(`Step: ${name}`);
+          fields += fieldInput(`${id}Enabled`, 'Include This Step', v(`${id}Enabled`, true), 'boolean');
+          fields += fieldInput(`${id}Title`, 'Title', v(`${id}Title`, v(`step${i + 1}Title`, title)));
+          fields += fieldInput(`${id}Body`, 'Text', v(`${id}Body`, v(`step${i + 1}Body`, body)));
+          fields += fieldSelect(`${id}Side`, 'Tooltip Position', v(`${id}Side`, side), sides);
+          fields += fieldSelect(`${id}Align`, 'Tooltip Alignment', v(`${id}Align`, align), aligns);
         });
+
+        fields += fieldHeader('Spotlight');
+        fields += fieldInput('overlayColor', 'Dim Color', v('overlayColor', '#0B0618'), 'color');
+        fields += fieldInput('overlayOpacity', 'Dim Strength (0.1 to 0.95)', v('overlayOpacity', 0.72), 'number');
+        fields += fieldInput('spotlightPadding', 'Padding Around Highlight (px)', v('spotlightPadding', 8), 'number');
+
+        fields += fieldHeader('Tooltip');
+        fields += fieldInput('tooltipBg', 'Background', v('tooltipBg', '#FFFFFF'), 'color');
+        fields += fieldInput('tooltipTitleColor', 'Title Color', v('tooltipTitleColor', '#22123A'), 'color');
+        fields += fieldInput('tooltipTextColor', 'Text Color', v('tooltipTextColor', '#4A3D5E'), 'color');
+        fields += fieldInput('tooltipButtonColor', 'Button Color', v('tooltipButtonColor', v('accentColor', '#FF6623')), 'color');
+        fields += fieldInput('tooltipButtonTextColor', 'Button Text Color', v('tooltipButtonTextColor', '#FFFFFF'), 'color');
+        fields += fieldInput('tooltipWidth', 'Width (180 to 360 px)', v('tooltipWidth', 260), 'number');
+        fields += fieldInput('tooltipRadius', 'Corner Radius (px)', v('tooltipRadius', 16), 'number');
+        fields += fieldInput('tooltipOffset', 'Gap From Highlight (px)', v('tooltipOffset', 14), 'number');
+        fields += fieldInput('showCounter', 'Show Step Counter', v('showCounter', true), 'boolean');
+        fields += fieldInput('counterText', 'Counter Text ({n}, {total})', v('counterText', '{n} of {total}'));
+        fields += fieldInput('nextText', 'Next Button', v('nextText', 'Next'));
+        fields += fieldInput('doneText', 'Last Step Button', v('doneText', 'Got it'));
+        fields += fieldInput('showBack', 'Show Back Button', v('showBack', true), 'boolean');
+        fields += fieldInput('backText', 'Back Button', v('backText', 'Back'));
+        fields += fieldInput('showSkip', 'Show Skip', v('showSkip', true), 'boolean');
+        fields += fieldInput('skipText', 'Skip Text', v('skipText', 'Skip'));
+
+        fields += fieldHeader('Invite & Finish');
+        fields += fieldInput('showInvite', 'Show Tour Invite', v('showInvite', true), 'boolean');
+        fields += fieldInput('tourTitle', 'Invite Text', v('tourTitle', 'New here? Take a 20 second tour'));
+        fields += fieldInput('startButtonText', 'Start Button', v('startButtonText', 'Start tour'));
+        fields += fieldInput('showFinishBanner', 'Show Finish Message', v('showFinishBanner', true), 'boolean');
+        fields += fieldInput('finishMessage', 'Finish Message ({reward})', v('finishMessage', "You're all set! +{reward} coins added"));
+        fields += fieldInput('finishColor', 'Finish Color', v('finishColor', '#2DB24A'), 'color');
+        fields += fieldInput('showReplay', 'Show Replay Button', v('showReplay', true), 'boolean');
+        fields += fieldInput('replayText', 'Replay Button', v('replayText', 'Replay tour'));
+
+        fields += fieldHeader('App Screen');
+        fields += fieldInput('greeting', 'Greeting', v('greeting', 'Welcome back'));
+        fields += fieldInput('appTitle', 'Screen Title', v('appTitle', 'Rewards'));
+        fields += fieldInput('startingCoins', 'Coin Balance', v('startingCoins', 1250), 'number');
+        fields += fieldInput('coinSymbol', 'Coin Symbol', v('coinSymbol', 'C'));
+        fields += fieldInput('coinColor', 'Coin Color', v('coinColor', '#F7BE1A'), 'color');
+        fields += fieldInput('streakLabel', 'Streak Label', v('streakLabel', 'Daily streak'));
+        fields += fieldInput('streakDays', 'Streak Days Done', v('streakDays', 6), 'number');
+        fields += fieldInput('streakGoal', 'Streak Goal (dots)', v('streakGoal', 7), 'number');
+        fields += fieldInput('streakUnit', 'Streak Unit Word', v('streakUnit', 'days'));
+        fields += fieldInput('streakColor', 'Streak Color', v('streakColor', '#FF8A1F'), 'color');
+        [['Spin & Win', '#7426DB'], ['Scratch', '#C8102E'], ['Jackpot', '#F2A007']].forEach(([label, color], i) => {
+          fields += fieldInput(`game${i + 1}Label`, `Game ${i + 1} Name (empty hides it)`, c[`game${i + 1}Label`] ?? label);
+          fields += fieldInput(`game${i + 1}Color`, `Game ${i + 1} Color`, v(`game${i + 1}Color`, color), 'color');
+        });
+        fields += fieldInput('claimText', 'Claim Button Text', v('claimText', "Claim today's reward"));
+
+        fields += fieldHeader('Theme');
+        fields += fieldInput('accentColor', 'Accent Color', v('accentColor', '#FF6623'), 'color');
+        fields += fieldInput('screenBg', 'Screen Background', v('screenBg', '#F7F2FF'), 'color');
+        fields += fieldInput('cardBg', 'Card Background', v('cardBg', '#FFFFFF'), 'color');
+        fields += fieldInput('cardBorder', 'Card Border', v('cardBorder', '#EADFF8'), 'color');
+        fields += fieldInput('textColor', 'Text Color', v('textColor', '#22123A'), 'color');
+        fields += fieldInput('mutedColor', 'Secondary Text Color', v('mutedColor', '#7A6A92'), 'color');
+        fields += fieldSelect('fontFamily', 'Font', v('fontFamily', 'arial'), [['arial', 'Arial'], ['system', 'System UI'], ['georgia', 'Georgia (serif)'], ['mono', 'Monospace']]);
+        fields += fieldInput('cornerRadius', 'Corner Radius (px)', v('cornerRadius', 18), 'number');
       } else if (w.type === 'coin_wallet') {
         fields += fieldInput('title', 'Title', c.title);
         fields += fieldInput('walletLabel', 'Wallet Label', c.walletLabel);
