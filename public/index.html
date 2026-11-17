@@ -851,6 +851,8 @@
         fields += fieldInput('mantraReward', 'Mantra Reward (₹)', c.mantraReward, 'number');
         fields += fieldInput('highlightColor', 'Active Border Color', c.highlightColor, 'color');
         fields += fieldInput('ctaColor', 'CTA Color', c.ctaColor, 'color');
+        fields += fieldInput('claimPopupTitle', 'Claim Popup Title', c.claimPopupTitle || 'You earned coins!');
+        fields += fieldInput('claimPopupColor', 'Claim Popup Button Color', c.claimPopupColor || '#FF6623', 'color');
       } else if (w.type === 'instaastro_points') {
         fields += fieldSelect('initialView', 'Preview Mode', c.initialView, [['hub', 'Points Hub & Milestone Track'], ['stepper', '7-Day Streak Stepper Sheet']]);
         fields += fieldInput('startingPoints', 'Starting Points', c.startingPoints, 'number');

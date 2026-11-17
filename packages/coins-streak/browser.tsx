@@ -284,4 +284,55 @@ function render(mountEl: Element, widget: Widget, ctx: Ctx = {}) {
   return true;
 }
 
-(window as any).GamifyCoinsStreak = { render, unmount, types: Object.keys(views) };
+interface BurstOptions {
+  amount: number;
+  prefix?: string;
+  title?: string;
+  message?: string;
+  ctaLabel?: string;
+  sound?: boolean;
+  primaryColor?: string;
+  onClose?: () => void;
+}
+
+/**
+ * Shows the coin reward popup (RewardBurstModal) over `host`, for plain-JS widgets.
+ * `host` should be the widget's positioned frame; the popup stays inside it.
+ */
+function showRewardBurst(host: Element, opts: BurstOptions) {
+  injectCss();
+  const container = document.createElement('div');
+  container.style.cssText = 'position:absolute;inset:0;z-index:60;';
+  host.appendChild(container);
+  const root = createRoot(container);
+  let closed = false;
+  const close = () => {
+    if (closed) return;
+    closed = true;
+    root.unmount();
+    container.remove();
+    opts.onClose?.();
+  };
+  root.render(
+    <GamifyThemeProvider
+      tokens={{ primary: opts.primaryColor || '#FF6623' }}
+      animation={{ sound: opts.sound !== false }}
+      style={{ position: 'absolute', inset: 0 }}
+    >
+      <RewardBurstModal
+        open
+        contained
+        amount={opts.amount}
+        prefix={opts.prefix ?? '+'}
+        title={opts.title || 'You earned coins!'}
+        message={opts.message}
+        ctaLabel={opts.ctaLabel || 'OK'}
+        icon="coin"
+        onClose={close}
+      />
+    </GamifyThemeProvider>,
+  );
+  return close;
+}
+
+(window as any).GamifyCoinsStreak = { render, unmount, showRewardBurst, types: Object.keys(views) };

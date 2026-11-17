@@ -372,48 +372,42 @@
     let mantraClaimed = false;
     let viewState = c.initialView || 'rewards_hub'; // 'rewards_hub' | 'celebrate' | 'modal'
 
+    // Claim celebration: the coin reward popup from the Coin Wallet kit (RewardBurstModal in
+    // packages/coins-streak), shown over the rewards page. OK adds the amount to the wallet.
+    let burstOpen = false;
+    function showClaimBurst() {
+      if (burstOpen) return;
+      const earned = Number(rewards[activeDay - 1] ?? 5);
+      const frame = mount.querySelector('.gw-phone-frame');
+      const done = () => {
+        burstOpen = false;
+        walletBalance += earned;
+        if (c.soundEnabled !== false) snd.playToastPop();
+        renderView();
+      };
+      burstOpen = true;
+      loadCoinsStreak(ctx.baseUrl)
+        .then((lib) => {
+          if (!frame || !frame.isConnected) { burstOpen = false; return; }
+          lib.showRewardBurst(frame, {
+            amount: earned,
+            prefix: '+' + cur,
+            title: c.claimPopupTitle || 'You earned coins!',
+            ctaLabel: c.claimPopupCta || 'OK',
+            primaryColor: c.claimPopupColor || '#FF6623',
+            sound: false, // the claim already plays the coin cascade sound
+            onClose: done
+          });
+        })
+        .catch(done);
+    }
+
     function renderView() {
       if (viewState === 'celebrate') {
-        const earned = rewards[activeDay - 1] ?? 5;
-        mount.innerHTML = `
-          <div class="gw-phone-frame" style="background: rgba(8, 11, 20, 0.96); justify-content: center; align-items: center; padding: 24px; text-align: center; position: relative; overflow: hidden;">
-            <button id="mnCloseCel" style="position: absolute; top: 18px; right: 18px; width: 32px; height: 32px; border-radius: 50%; background: rgba(255,255,255,0.14); border: none; color: #FFF; font-size: 18px; cursor: pointer; display: flex; align-items: center; justify-content: center;">&times;</button>
-
-            <div style="position: relative; width: 160px; height: 160px; margin: 0 auto 16px;">
-              <!-- Rotating Golden Sunburst Rays -->
-              <div style="position: absolute; top: -30px; left: -30px; width: 220px; height: 220px; border-radius: 50%; background: repeating-conic-gradient(from 0deg, rgba(251, 191, 36, 0.32) 0deg 12deg, transparent 12deg 24deg); -webkit-mask-image: radial-gradient(circle, black 35%, transparent 72%); animation: gwSunburstSpin 14s linear infinite;"></div>
-              
-              <!-- Floating 3D Gold Coin with Glow -->
-              <div style="position: relative; z-index: 2; width: 120px; height: 120px; margin: 20px auto; border-radius: 50%; background: radial-gradient(circle at 35% 30%, #FEF08A 0%, #F59E0B 55%, #B45309 100%); border: 5px solid #FDE68A; box-shadow: 0 14px 40px rgba(245, 158, 11, 0.7); display: flex; align-items: center; justify-content: center; animation: gwFloatCoin 2.4s ease-in-out infinite;">
-                <img src="/assets/mynaksh/wincoin.png" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';" style="width: 100px; height: 100px; object-fit: contain;" alt="Coin" />
-                <span style="display: none; font-size: 58px; font-weight: 900; color: #78350F; text-shadow: 0 2px 0 rgba(255,255,255,0.6);">${cur}</span>
-              </div>
-            </div>
-
-            <div style="font-size: 24px; font-weight: 900; color: #FFFFFF; margin-bottom: 6px; letter-spacing: -0.3px; animation: gwPopIn 0.35s ease;">
-              ${activeDay} Day Streak!
-            </div>
-            <div style="font-size: 16px; font-weight: 800; color: #FACC15; margin-bottom: 8px;">
-              You earned ${cur}${earned} today
-            </div>
-            <div style="font-size: 12.5px; color: #94A3B8; max-width: 250px; line-height: 1.45; margin: 0 auto 26px;">
-              Collect your daily reward and keep your streak going.
-            </div>
-
-            <button id="mnOkBtn" class="gw-btn-press" style="width: 150px; height: 44px; border-radius: 22px; border: none; background: rgba(255, 255, 255, 0.22); color: #FFFFFF; font-size: 14.5px; font-weight: 800; cursor: pointer; transition: background 0.2s;">
-              OK
-            </button>
-          </div>
-        `;
-
-        const goHub = () => {
-          if (c.soundEnabled !== false) snd.playToastPop();
-          viewState = 'rewards_hub';
-          renderView();
-        };
-        mount.querySelector('#mnOkBtn').onclick = goHub;
-        mount.querySelector('#mnCloseCel').onclick = goHub;
-
+        viewState = 'rewards_hub';
+        renderView();
+        showClaimBurst();
+        return;
       } else if (viewState === 'modal') {
         // Bottom Sheet modal view
         const makeDayBox = (idx) => {
@@ -477,7 +471,6 @@
           if (c.soundEnabled !== false) snd.playCoinCascade(6);
           viewState = 'celebrate';
           renderView();
-          fireConfetti(['#FBBF24', '#22C55E', '#FFFFFF']);
           ctx.emit('mynaksh_streak_claimed', { widgetId: widget.id, day: activeDay, amount: rewards[activeDay - 1] });
         };
         mount.querySelector('#mnSwitchHubToPage').onclick = () => { viewState = 'rewards_hub'; renderView(); };
@@ -732,7 +725,6 @@
           if (c.soundEnabled !== false) snd.playCoinCascade(6);
           viewState = 'celebrate';
           renderView();
-          fireConfetti(['#FBBF24', '#22C55E', '#FFFFFF']);
           ctx.emit('mynaksh_streak_claimed', { widgetId: widget.id, day: activeDay, amount: rewards[activeDay - 1] });
         };
 
