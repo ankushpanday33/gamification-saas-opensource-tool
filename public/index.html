@@ -586,6 +586,18 @@
       font-family: var(--ds-font-mono);
       font-size: 12px;
     }
+
+    /* Never scroll the Studio sideways; on narrow windows stack the columns instead. */
+    .content-area { overflow-x: hidden; }
+    @media (max-width: 1100px) {
+      .content-area { padding: 16px 12px 28px; }
+      .metrics-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .saas-layout { grid-template-columns: minmax(0, 1fr); min-height: 0; }
+      .widgets-pane { max-height: 340px; }
+      .studio-body { grid-template-columns: minmax(0, 1fr); overflow: visible; }
+      .customizer-form { border-right: none; border-bottom: 1px solid var(--ds-border); max-height: 480px; }
+      .preview-sandbox { min-height: 660px; }
+    }
   </style>
 </head>
 <body>
