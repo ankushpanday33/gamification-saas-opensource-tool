@@ -2211,7 +2211,6 @@
     .csm-lever.pull .csm-lever-rod { transform: scaleY(.45); }
     .csm-lever.pull .csm-lever-knob { transform: translateY(54px); }
     .csm-controls { display:flex; align-items:center; gap:8px; margin: 14px 0 12px; }
-    .csm-gift { width:46px; height:46px; flex:none; filter: drop-shadow(0 4px 6px rgba(0,0,0,.45)); animation: gwFloatCoin 2.6s ease-in-out infinite; cursor:pointer; }
     .csm-spin { flex:1; height:56px; border-radius:30px; border:3px solid #FFF0A6; cursor:pointer; background: linear-gradient(180deg,#FFEB7A 0%,#FFC82A 50%,#F2A007 100%); box-shadow: 0 5px 0 #A85F00, 0 0 18px rgba(255,200,40,.55), inset 0 2px 0 rgba(255,255,255,.6); display:flex; align-items:center; justify-content:center; gap:10px; color:#6B3A00; font-weight:900; font-size:25px; letter-spacing:.5px; font-family:inherit; transition: transform .08s, box-shadow .08s; }
     .csm-spin:active:not(:disabled) { transform: translateY(4px); box-shadow: 0 1px 0 #A85F00, 0 0 12px rgba(255,200,40,.4), inset 0 2px 0 rgba(255,255,255,.6); }
     .csm-spin:disabled { cursor:default; filter: saturate(.55) brightness(.85); }
@@ -2254,7 +2253,6 @@
     const maxSpins = Number(c.maxSpins) || 10;
     let spinsLeft = Math.min(Number(c.spinsLeft ?? 9), maxSpins);
     let isSpinning = false;
-    let hasWon = false;
     const CELL = 58;
     const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
     // Offer line: wrap the gold highlight in *stars*, e.g. "or get *30% OFF* your next ride".
@@ -2325,12 +2323,6 @@
               </div>
 
               <div class="csm-controls">
-                <svg class="csm-gift" id="csmGift" viewBox="0 0 64 64">
-                  <rect x="8" y="28" width="48" height="30" rx="4" fill="#E2358C"/><rect x="8" y="28" width="48" height="8" fill="#B81F6C" opacity=".6"/>
-                  <rect x="5" y="20" width="54" height="11" rx="3" fill="#F2489E"/>
-                  <rect x="28" y="20" width="8" height="38" fill="#FFC82A"/>
-                  <path d="M32 20c-6-10-18-12-18-4 0 5 10 5 18 4zM32 20c6-10 18-12 18-4 0 5-10 5-18 4z" fill="#FFC82A" stroke="#D99A00" stroke-width="1.5"/>
-                </svg>
                 <button class="csm-spin" id="csmSpin"><span class="tri"></span><span id="csmSpinLabel">SPIN</span></button>              </div>
 
               <div class="csm-status">
@@ -2396,7 +2388,6 @@
 
       setTimeout(() => {
         isSpinning = false;
-        hasWon = true;
         updateSpinsUi();
         mount.querySelectorAll('.payline-cell').forEach((el) => el.classList.add('win'));
         if (soundOn) snd.playCredSlotWin();
@@ -2408,8 +2399,6 @@
 
     spinBtn.onclick = triggerSpin;
     $('#csmLever').onclick = triggerSpin;
-    // Gift box reopens the won reward after it was dismissed by a new spin.
-    $('#csmGift').onclick = () => { if (hasWon && !isSpinning) $('#csmWin').classList.add('show'); };
     $('#csmClaim').onclick = () => {
       navigator.clipboard?.writeText(couponCode).catch(() => {});
       $('#csmClaim').textContent = `CODE ${couponCode} COPIED`;
