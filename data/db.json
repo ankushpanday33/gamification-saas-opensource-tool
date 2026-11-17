@@ -32,8 +32,8 @@
       },
       "stats": {
         "impressions": 5420,
-        "claims": 4319,
-        "conversionRate": "79.7%"
+        "claims": 4323,
+        "conversionRate": "79.8%"
       }
     },
     {
@@ -70,7 +70,7 @@
       },
       "stats": {
         "impressions": 3290,
-        "claims": 2486,
+        "claims": 2488,
         "conversionRate": "75.6%"
       }
     },
@@ -104,11 +104,18 @@
         "cardTheme": "maroon",
         "startingCoins": 135,
         "rewardCoins": 31,
-        "soundEnabled": true
+        "soundEnabled": true,
+        "brandName": "Your Brand",
+        "offerBrand": "Skullcandy",
+        "offerTitle": "80% OFF",
+        "offerSubtitle": "on headphones & earbuds",
+        "couponCode": "SKULL80",
+        "footerText": "Tap to Scratch & Win Rewards",
+        "scratchThresholdPercent": 45
       },
       "stats": {
         "impressions": 6890,
-        "claims": 5943,
+        "claims": 5944,
         "conversionRate": "86.3%"
       }
     },
@@ -188,27 +195,31 @@
       "config": {
         "titleScript": "Spin",
         "titleSerif": "The Wheel",
-        "partnerName": "BOMBAY SHAVING COMPANY",
+        "partnerName": "MEGA REWARDS",
         "coins": 560052,
         "cashback": 77,
         "tickets": 4,
         "spinCostCoins": 3000,
         "segments": [
           {
-            "label": "Trimmer at ₹1,199",
-            "color": "#1D6BF2"
+            "label": "Headphones at ₹999",
+            "color": "#1D6BF2",
+            "icon": "headphones"
           },
           {
-            "label": "Trimmer at ₹899",
-            "color": "#B321E8"
+            "label": "Flat ₹100 Cashback",
+            "color": "#B321E8",
+            "icon": "cashback"
           },
           {
-            "label": "Trimmer at ₹999",
-            "color": "#F26A0C"
+            "label": "Mystery Gift Box",
+            "color": "#F26A0C",
+            "icon": "gift"
           },
           {
-            "label": "Trimmer at ₹1,099",
-            "color": "#5DB817"
+            "label": "500 Bonus Coins",
+            "color": "#5DB817",
+            "icon": "coin"
           }
         ],
         "couponCode": "CRED899",
@@ -217,7 +228,7 @@
       },
       "stats": {
         "impressions": 5800,
-        "claims": 4923,
+        "claims": 4925,
         "conversionRate": "84.9%"
       }
     },
@@ -241,8 +252,8 @@
       },
       "stats": {
         "impressions": 7120,
-        "claims": 5897,
-        "conversionRate": "82.8%"
+        "claims": 5899,
+        "conversionRate": "82.9%"
       }
     },
     {
@@ -324,7 +335,7 @@
       },
       "stats": {
         "impressions": 6120,
-        "claims": 4893,
+        "claims": 4895,
         "conversionRate": "80.0%"
       }
     },
@@ -380,8 +391,29 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 9,
-        "conversionRate": "0.9%"
+        "claims": 10,
+        "conversionRate": "1.0%"
+      }
+    },
+    {
+      "id": "nudge_tour_12",
+      "type": "nudge_tour",
+      "name": "Onboarding Tour (Spotlight Nudges)",
+      "appSource": "react-native-flow-kit (React Native Web)",
+      "status": "active",
+      "config": {
+        "tourTitle": "New here? Take a 20 second tour",
+        "accentColor": "#FF6623",
+        "overlayOpacity": 0.72,
+        "completionReward": 50,
+        "startingCoins": 1250,
+        "autoStart": false,
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 31,
+        "conversionRate": "3.1%"
       }
     }
   ],
@@ -1085,6 +1117,442 @@
         "amount": 50
       },
       "timestamp": "2026-11-16T21:52:23.512Z"
+    },
+    {
+      "id": "evt_1794895269363",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T06:01:09.363Z"
+    },
+    {
+      "id": "evt_1794895285137",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T06:01:25.137Z"
+    },
+    {
+      "id": "evt_1794895309115",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-17T06:01:49.115Z"
+    },
+    {
+      "id": "evt_1794895412391",
+      "userId": "studio_preview",
+      "event": "leaderboard_tab_switched",
+      "metadata": {
+        "widgetId": "gamify_leaderboard_08",
+        "tab": "National"
+      },
+      "timestamp": "2026-11-17T06:03:32.391Z"
+    },
+    {
+      "id": "evt_1794895414404",
+      "userId": "studio_preview",
+      "event": "leaderboard_tab_switched",
+      "metadata": {
+        "widgetId": "gamify_leaderboard_08",
+        "tab": "Global"
+      },
+      "timestamp": "2026-11-17T06:03:34.404Z"
+    },
+    {
+      "id": "evt_1794895434253",
+      "userId": "studio_preview",
+      "event": "cred_slot_won",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "reward": "30% off your next uber intercity ride, up to ₹500"
+      },
+      "timestamp": "2026-11-17T06:03:54.253Z"
+    },
+    {
+      "id": "evt_1794895439471",
+      "userId": "studio_preview",
+      "event": "cred_slot_voucher_claimed",
+      "metadata": {
+        "widgetId": "cred_slot_09",
+        "code": "UBER30"
+      },
+      "timestamp": "2026-11-17T06:03:59.471Z"
+    },
+    {
+      "id": "evt_1794895452445",
+      "userId": "studio_preview",
+      "event": "cred_wheel_won",
+      "metadata": {
+        "widgetId": "cred_wheel_07",
+        "prize": "Trimmer at ₹899"
+      },
+      "timestamp": "2026-11-17T06:04:12.445Z"
+    },
+    {
+      "id": "evt_1794895663793",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T06:07:43.793Z"
+    },
+    {
+      "id": "evt_1794896741810",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:25:41.810Z"
+    },
+    {
+      "id": "evt_1794896843577",
+      "userId": "studio_preview",
+      "event": "paytm_scratch_revealed",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "offer": "80% OFF Skullcandy",
+        "code": "SKULL80"
+      },
+      "timestamp": "2026-11-17T06:27:23.577Z"
+    },
+    {
+      "id": "evt_1794896883053",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:28:03.053Z"
+    },
+    {
+      "id": "evt_1794896883965",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak"
+      },
+      "timestamp": "2026-11-17T06:28:03.965Z"
+    },
+    {
+      "id": "evt_1794896884868",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games"
+      },
+      "timestamp": "2026-11-17T06:28:04.868Z"
+    },
+    {
+      "id": "evt_1794896885782",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim"
+      },
+      "timestamp": "2026-11-17T06:28:05.782Z"
+    },
+    {
+      "id": "evt_1794896961870",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:29:21.870Z"
+    },
+    {
+      "id": "evt_1794896996844",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:29:56.844Z"
+    },
+    {
+      "id": "evt_1794896997764",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak"
+      },
+      "timestamp": "2026-11-17T06:29:57.764Z"
+    },
+    {
+      "id": "evt_1794896998678",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games"
+      },
+      "timestamp": "2026-11-17T06:29:58.678Z"
+    },
+    {
+      "id": "evt_1794896999588",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim"
+      },
+      "timestamp": "2026-11-17T06:29:59.588Z"
+    },
+    {
+      "id": "evt_1794897026932",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:30:26.932Z"
+    },
+    {
+      "id": "evt_1794897121115",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:32:01.115Z"
+    },
+    {
+      "id": "evt_1794897122324",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak"
+      },
+      "timestamp": "2026-11-17T06:32:02.324Z"
+    },
+    {
+      "id": "evt_1794897123538",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games"
+      },
+      "timestamp": "2026-11-17T06:32:03.538Z"
+    },
+    {
+      "id": "evt_1794897124741",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim"
+      },
+      "timestamp": "2026-11-17T06:32:04.741Z"
+    },
+    {
+      "id": "evt_1794897125949",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:32:05.949Z"
+    },
+    {
+      "id": "evt_1794897152069",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:32:32.069Z"
+    },
+    {
+      "id": "evt_1794897152972",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak"
+      },
+      "timestamp": "2026-11-17T06:32:32.972Z"
+    },
+    {
+      "id": "evt_1794897153675",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games"
+      },
+      "timestamp": "2026-11-17T06:32:33.675Z"
+    },
+    {
+      "id": "evt_1794897154382",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim"
+      },
+      "timestamp": "2026-11-17T06:32:34.382Z"
+    },
+    {
+      "id": "evt_1794897155093",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:32:35.093Z"
+    },
+    {
+      "id": "evt_1794897208155",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:33:28.155Z"
+    },
+    {
+      "id": "evt_1794897209373",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak"
+      },
+      "timestamp": "2026-11-17T06:33:29.373Z"
+    },
+    {
+      "id": "evt_1794897210585",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games"
+      },
+      "timestamp": "2026-11-17T06:33:30.585Z"
+    },
+    {
+      "id": "evt_1794897211800",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim"
+      },
+      "timestamp": "2026-11-17T06:33:31.800Z"
+    },
+    {
+      "id": "evt_1794897213005",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:33:33.005Z"
+    },
+    {
+      "id": "evt_1794897213619",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:33:33.619Z"
+    },
+    {
+      "id": "evt_1794897214820",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:33:34.820Z"
+    },
+    {
+      "id": "evt_1794897836397",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T06:43:56.397Z"
+    },
+    {
+      "id": "evt_1794897858551",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T06:44:18.551Z"
+    },
+    {
+      "id": "evt_1794897867161",
+      "userId": "studio_preview",
+      "event": "zepto_reward_claimed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T06:44:27.161Z"
+    },
+    {
+      "id": "evt_1794897872464",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "steps": 2
+      },
+      "timestamp": "2026-11-17T06:44:32.464Z"
+    },
+    {
+      "id": "evt_1794897873668",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "wallet",
+        "index": 1
+      },
+      "timestamp": "2026-11-17T06:44:33.668Z"
+    },
+    {
+      "id": "evt_1794897874880",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T06:44:34.880Z"
+    },
+    {
+      "id": "evt_1794898243062",
+      "userId": "studio_preview",
+      "event": "cred_wheel_won",
+      "metadata": {
+        "widgetId": "cred_wheel_07",
+        "prize": "Headphones at ₹999"
+      },
+      "timestamp": "2026-11-17T06:50:43.063Z"
     }
   ]
 }
