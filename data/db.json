@@ -32,7 +32,7 @@
       },
       "stats": {
         "impressions": 5420,
-        "claims": 4323,
+        "claims": 4326,
         "conversionRate": "79.8%"
       }
     },
@@ -64,14 +64,14 @@
         "mantraChant": "Om Am Angarakaya Namah",
         "mantraReward": 1,
         "highlightColor": "#22C55E",
-        "ctaColor": "#16A34A",
-        "ctaText": "Refer a friend",
+        "ctaColor": "#FF6623",
+        "ctaText": "Claim Now",
         "soundEnabled": true
       },
       "stats": {
         "impressions": 3290,
-        "claims": 2488,
-        "conversionRate": "75.6%"
+        "claims": 2494,
+        "conversionRate": "75.8%"
       }
     },
     {
@@ -115,7 +115,7 @@
       },
       "stats": {
         "impressions": 6890,
-        "claims": 5944,
+        "claims": 5946,
         "conversionRate": "86.3%"
       }
     },
@@ -182,7 +182,7 @@
       },
       "stats": {
         "impressions": 9120,
-        "claims": 8146,
+        "claims": 8147,
         "conversionRate": "89.3%"
       }
     },
@@ -363,8 +363,8 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 6,
-        "conversionRate": "0.6%"
+        "claims": 8,
+        "conversionRate": "0.8%"
       }
     },
     {
@@ -391,8 +391,8 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 10,
-        "conversionRate": "1.0%"
+        "claims": 15,
+        "conversionRate": "1.5%"
       }
     },
     {
@@ -412,8 +412,8 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 31,
-        "conversionRate": "3.1%"
+        "claims": 36,
+        "conversionRate": "3.6%"
       }
     },
     {
@@ -463,8 +463,8 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 0,
-        "conversionRate": "0.0%"
+        "claims": 5,
+        "conversionRate": "0.5%"
       }
     },
     {
@@ -495,8 +495,8 @@
       },
       "stats": {
         "impressions": 1000,
-        "claims": 0,
-        "conversionRate": "0.0%"
+        "claims": 2,
+        "conversionRate": "0.2%"
       }
     }
   ],
@@ -1636,6 +1636,319 @@
         "prize": "Headphones at ₹999"
       },
       "timestamp": "2026-11-17T06:50:43.063Z"
+    },
+    {
+      "id": "evt_1794899680019",
+      "userId": "studio_preview",
+      "event": "nudge_tour_started",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "steps": 4
+      },
+      "timestamp": "2026-11-17T07:14:40.019Z"
+    },
+    {
+      "id": "evt_1794899682906",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "streak",
+        "index": 1
+      },
+      "timestamp": "2026-11-17T07:14:42.906Z"
+    },
+    {
+      "id": "evt_1794899683897",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "games",
+        "index": 2
+      },
+      "timestamp": "2026-11-17T07:14:43.897Z"
+    },
+    {
+      "id": "evt_1794899685264",
+      "userId": "studio_preview",
+      "event": "nudge_tour_step",
+      "metadata": {
+        "widgetId": "nudge_tour_12",
+        "step": "claim",
+        "index": 3
+      },
+      "timestamp": "2026-11-17T07:14:45.264Z"
+    },
+    {
+      "id": "evt_1794899686806",
+      "userId": "studio_preview",
+      "event": "nudge_tour_completed",
+      "metadata": {
+        "widgetId": "nudge_tour_12"
+      },
+      "timestamp": "2026-11-17T07:14:46.806Z"
+    },
+    {
+      "id": "evt_1794899705009",
+      "userId": "studio_preview",
+      "event": "claw_machine_started",
+      "metadata": {
+        "widgetId": "claw_machine_15"
+      },
+      "timestamp": "2026-11-17T07:15:05.009Z"
+    },
+    {
+      "id": "evt_1794899706611",
+      "userId": "studio_preview",
+      "event": "claw_machine_won",
+      "metadata": {
+        "widgetId": "claw_machine_15",
+        "prize": "₹100 Voucher"
+      },
+      "timestamp": "2026-11-17T07:15:06.611Z"
+    },
+    {
+      "id": "evt_1794899713286",
+      "userId": "studio_preview",
+      "event": "smash_egg_started",
+      "metadata": {
+        "widgetId": "smash_egg_14"
+      },
+      "timestamp": "2026-11-17T07:15:13.286Z"
+    },
+    {
+      "id": "evt_1794899714696",
+      "userId": "studio_preview",
+      "event": "smash_egg_lost",
+      "metadata": {
+        "widgetId": "smash_egg_14",
+        "prize": "Better luck next time"
+      },
+      "timestamp": "2026-11-17T07:15:14.696Z"
+    },
+    {
+      "id": "evt_1794899716429",
+      "userId": "studio_preview",
+      "event": "smash_egg_started",
+      "metadata": {
+        "widgetId": "smash_egg_14"
+      },
+      "timestamp": "2026-11-17T07:15:16.429Z"
+    },
+    {
+      "id": "evt_1794899717835",
+      "userId": "studio_preview",
+      "event": "smash_egg_won",
+      "metadata": {
+        "widgetId": "smash_egg_14",
+        "prize": "100 Coins"
+      },
+      "timestamp": "2026-11-17T07:15:17.835Z"
+    },
+    {
+      "id": "evt_1794899719421",
+      "userId": "studio_preview",
+      "event": "smash_egg_claimed",
+      "metadata": {
+        "widgetId": "smash_egg_14",
+        "prize": "100 Coins"
+      },
+      "timestamp": "2026-11-17T07:15:19.421Z"
+    },
+    {
+      "id": "evt_1794900919866",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T07:35:19.866Z"
+    },
+    {
+      "id": "evt_1794900933386",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T07:35:33.386Z"
+    },
+    {
+      "id": "evt_1794900960457",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 7
+      },
+      "timestamp": "2026-11-17T07:36:00.457Z"
+    },
+    {
+      "id": "evt_1794900967608",
+      "userId": "studio_preview",
+      "event": "fire_streak_extended",
+      "metadata": {
+        "widgetId": "fire_streak_10",
+        "streak": 8
+      },
+      "timestamp": "2026-11-17T07:36:07.608Z"
+    },
+    {
+      "id": "evt_1794900985718",
+      "userId": "studio_preview",
+      "event": "paytm_scratch_revealed",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "offer": "80% OFF Skullcandy",
+        "code": "SKULL80"
+      },
+      "timestamp": "2026-11-17T07:36:25.718Z"
+    },
+    {
+      "id": "evt_1794901298232",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T07:41:38.232Z"
+    },
+    {
+      "id": "evt_1794901307364",
+      "userId": "studio_preview",
+      "event": "paytm_scratch_revealed",
+      "metadata": {
+        "widgetId": "paytm_chest_04",
+        "offer": "80% OFF Skullcandy",
+        "code": "SKULL80"
+      },
+      "timestamp": "2026-11-17T07:41:47.364Z"
+    },
+    {
+      "id": "evt_1794901331815",
+      "userId": "studio_preview",
+      "event": "duolingo_flow_completed",
+      "metadata": {
+        "widgetId": "duolingo_flow_06"
+      },
+      "timestamp": "2026-11-17T07:42:11.815Z"
+    },
+    {
+      "id": "evt_1794905884418",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T08:58:04.418Z"
+    },
+    {
+      "id": "evt_1794905925499",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T08:58:45.499Z"
+    },
+    {
+      "id": "evt_1794906030773",
+      "userId": "studio_preview",
+      "event": "coin_wallet_earned",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 10
+      },
+      "timestamp": "2026-11-17T09:00:30.773Z"
+    },
+    {
+      "id": "evt_1794906033418",
+      "userId": "studio_preview",
+      "event": "coin_wallet_earned",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 10
+      },
+      "timestamp": "2026-11-17T09:00:33.418Z"
+    },
+    {
+      "id": "evt_1794906036612",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-17T09:00:36.612Z"
+    },
+    {
+      "id": "evt_1794906133292",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T09:02:13.292Z"
+    },
+    {
+      "id": "evt_1794906178082",
+      "userId": "studio_preview",
+      "event": "coin_reward_claimed",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 50
+      },
+      "timestamp": "2026-11-17T09:02:58.082Z"
+    },
+    {
+      "id": "evt_1794906180468",
+      "userId": "studio_preview",
+      "event": "coin_wallet_earned",
+      "metadata": {
+        "widgetId": "coin_wallet_11",
+        "amount": 10
+      },
+      "timestamp": "2026-11-17T09:03:00.468Z"
+    },
+    {
+      "id": "evt_1794906206202",
+      "userId": "studio_preview",
+      "event": "zepto_scratch_revealed",
+      "metadata": {
+        "widgetId": "zepto_scratch_01"
+      },
+      "timestamp": "2026-11-17T09:03:26.202Z"
+    },
+    {
+      "id": "evt_1794906248883",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T09:04:08.883Z"
+    },
+    {
+      "id": "evt_1794906256050",
+      "userId": "studio_preview",
+      "event": "mynaksh_streak_claimed",
+      "metadata": {
+        "widgetId": "mynaksh_checkin_02",
+        "day": 1,
+        "amount": 5
+      },
+      "timestamp": "2026-11-17T09:04:16.050Z"
     }
   ]
 }

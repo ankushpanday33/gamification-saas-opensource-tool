@@ -47,8 +47,8 @@ function getDefaultWidgets() {
         dayRewards: [5, 7, 9, 11, 13, 15, 17],
         activeDay: 1,
         highlightColor: '#F59E0B',
-        ctaColor: '#0E6B38',
-        ctaText: "Claim Today's Reward",
+        ctaColor: '#FF6623',
+        ctaText: 'Claim Now',
         soundEnabled: true
       },
       stats: { impressions: 3290, claims: 2480, conversionRate: '75.4%' }

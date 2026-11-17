@@ -505,10 +505,15 @@
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      padding: 20px;
+      padding: 20px 4px;
       position: relative;
       overflow-y: auto;
+      overflow-x: hidden;
+      /* The phone frame is 340px wide: no sideways scrollbar, and no scrollbar line that flashes
+         at the edge when a widget animates or re-renders. The preview still scrolls by wheel/touch. */
+      scrollbar-width: none;
     }
+    .preview-sandbox::-webkit-scrollbar { display: none; }
 
     .sandbox-badge {
       position: absolute;

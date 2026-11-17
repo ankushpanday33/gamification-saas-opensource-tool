@@ -51,7 +51,7 @@ function Frame({ config, children }: { config: Config; children: ReactNode }) {
       <div
         style={{
           position: 'relative',
-          width: 360,
+          width: 340,
           maxWidth: '100%',
           minHeight: 600,
           overflow: 'hidden',

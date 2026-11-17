@@ -460,8 +460,8 @@
                 ${[4, 5, 6].map(makeDayBox).join('')}
               </div>
 
-              <button id="mnClaimModalBtn" class="gw-btn-press" style="width: 100%; height: 48px; border-radius: 24px; border: none; background: ${c.ctaColor || '#0E6B38'}; color: #FFFFFF; font-size: 14.5px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(14, 107, 56, 0.35);">
-                ${c.ctaText || "Claim Today's Reward"}
+              <button id="mnClaimModalBtn" class="gw-btn-press" style="width: 100%; height: 48px; border-radius: 24px; border: none; background: ${c.ctaColor || '#FF6623'}; color: #FFFFFF; font-size: 14.5px; font-weight: 800; cursor: pointer; box-shadow: 0 6px 18px rgba(255, 102, 35, 0.35);">
+                ${c.ctaText || 'Claim Now'}
               </button>
             </div>
           </div>
