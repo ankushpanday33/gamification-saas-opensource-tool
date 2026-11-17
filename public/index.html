@@ -4,10 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gamify — Gamification Platform &amp; Embed SDK</title>
-  <!-- Google Fonts: IBM Plex Sans & IBM Plex Mono -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
@@ -15,492 +14,343 @@
   <script src="/sdk/stickers.js"></script>
   <script src="/sdk/widgets.js"></script>
   <style>
+
+    /* Studio design tokens. Everything below reads from these six, plus a few derived values. */
     :root {
-      --ds-bg: #0F1117;
-      --ds-sidebar: #171B24;
-      --ds-card: #1C2230;
-      --ds-card-hover: #222938;
-      --ds-border: #2B3240;
-      --ds-border-subtle: #222836;
-      --ds-accent: #4F83CC;
-      --ds-accent-hover: #6396D8;
-      --ds-success: #22A06B;
-      --ds-warning: #D99A35;
-      --ds-error: #D65B62;
-      --ds-text: #F1F3F5;
-      --ds-text-secondary: #9AA4B2;
-      --ds-text-tertiary: #6B7280;
-      --ds-font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      --ds-font-mono: 'IBM Plex Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --bg: #14110F;
+      --surface: #1A1714;
+      --border: #2B2621;
+      --text: #EDE8E1;
+      --muted: #8C847A;
+      --accent: #FF6623;
+
+      --surface-raised: #221E1A;
+      --faint: #5F584F;
+      --ok: #8DB27F;
+      --warn: #D9A441;
+      --danger: #E0705F;
+      --font: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+      --mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      --ease: 150ms ease-out;
+
+      /* Older names still used by widget previews and the script below. */
+      --ds-bg: var(--bg);
+      --ds-sidebar: var(--surface);
+      --ds-card: var(--surface);
+      --ds-card-hover: var(--surface-raised);
+      --ds-border: var(--border);
+      --ds-border-subtle: var(--border);
+      --ds-accent: var(--accent);
+      --ds-accent-hover: #FF7F47;
+      --ds-success: var(--ok);
+      --ds-warning: var(--warn);
+      --ds-error: var(--danger);
+      --ds-text: var(--text);
+      --ds-text-secondary: var(--muted);
+      --ds-text-tertiary: var(--faint);
+      --ds-bg-hover: var(--surface-raised);
+      --ds-font-sans: var(--font);
+      --ds-font-mono: var(--mono);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      background: var(--ds-bg);
-      color: var(--ds-text);
-      font-family: var(--ds-font-sans);
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
       font-size: 14px;
       line-height: 1.5;
       display: flex;
       height: 100vh;
       overflow: hidden;
       -webkit-font-smoothing: antialiased;
+      font-variant-numeric: tabular-nums;
     }
+    h1, h2, h3, h4 { letter-spacing: -0.02em; font-weight: 600; }
+    button, input, select { font-family: inherit; transition: background-color var(--ease), color var(--ease), border-color var(--ease); }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+    aside, .content-area, .widgets-list, .customizer-form, .embed-drawer { scrollbar-width: thin; scrollbar-color: var(--border) transparent; }
 
     /* Sidebar */
     aside {
-      width: 250px;
-      background: var(--ds-sidebar);
-      border-right: 1px solid var(--ds-border);
+      width: 236px;
+      background: var(--bg);
+      border-right: 1px solid var(--border);
       display: flex;
       flex-direction: column;
-      padding: 16px 12px;
+      padding: 22px 12px 14px;
       flex-shrink: 0;
+      overflow-y: auto;
     }
 
     .brand-wrap {
       display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 4px 6px 14px;
-      border-bottom: 1px solid var(--ds-border);
-      margin-bottom: 12px;
+      align-items: baseline;
+      gap: 8px;
+      padding: 0 10px 18px;
     }
+    .brand-title { font-size: 16px; font-weight: 600; letter-spacing: -0.02em; color: var(--text); }
+    .brand-tag { font-size: 12px; color: var(--faint); font-weight: 400; margin-left: 6px; }
 
-    .brand-logo {
-      width: 28px;
-      height: 28px;
-      border-radius: 6px;
-      background: var(--ds-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 14px;
-      color: #FFFFFF;
-    }
-
-    .brand-title {
-      font-size: 14px;
-      font-weight: 600;
-      letter-spacing: -0.2px;
-      color: var(--ds-text);
-    }
-
-    .brand-tag {
-      font-size: 11px;
-      font-family: var(--ds-font-mono);
-      background: rgba(79, 131, 204, 0.15);
-      color: var(--ds-accent);
-      padding: 1px 6px;
-      border-radius: 4px;
-      font-weight: 500;
-      margin-left: 6px;
-    }
+    .ic { width: 16px; height: 16px; flex: none; fill: none; stroke: currentColor; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
 
     .nav-group-label {
-      font-size: 11px;
-      text-transform: uppercase;
-      color: var(--ds-text-tertiary);
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      margin: 14px 0 6px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--faint);
+      margin: 24px 0 6px 10px;
     }
+    .nav-group-label:first-of-type { margin-top: 4px; }
 
     .nav-link {
       display: flex;
       align-items: center;
-      gap: 9px;
-      padding: 7px 10px;
+      gap: 10px;
+      height: 32px;
+      padding: 0 10px;
       border-radius: 6px;
-      color: var(--ds-text-secondary);
-      font-size: 13px;
-      font-weight: 500;
+      color: var(--muted);
+      font-size: 13.5px;
+      font-weight: 400;
       cursor: pointer;
-      transition: background 0.15s, color 0.15s;
-      margin-bottom: 2px;
-      border: 1px solid transparent;
+      user-select: none;
+      transition: background-color var(--ease), color var(--ease);
     }
+    .nav-link:hover { background: var(--surface); color: var(--text); }
+    .nav-link.active { background: var(--surface); color: var(--text); font-weight: 500; }
+    .nav-link.active .ic { color: var(--accent); }
 
-    .nav-link i {
-      font-size: 13px;
-      color: var(--ds-text-secondary);
-      width: 16px;
-      text-align: center;
-    }
-
-    .nav-link:hover {
-      background: var(--ds-card);
-      color: var(--ds-text);
-    }
-
-    .nav-link.active {
-      background: rgba(79, 131, 204, 0.12);
-      border-color: rgba(79, 131, 204, 0.25);
-      color: var(--ds-text);
-      font-weight: 600;
-    }
-
-    .nav-link.active i {
-      color: var(--ds-accent);
-    }
-
+    /* "new" and "hot": plain accent text, no pill */
     .badge-subtle {
-      font-size: 10px;
-      font-weight: 600;
-      padding: 1px 5px;
-      border-radius: 4px;
       margin-left: auto;
-      background: rgba(79, 131, 204, 0.18);
-      color: var(--ds-accent);
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--accent);
+      text-transform: lowercase;
+      background: none;
+      padding: 0;
     }
 
     .sidebar-api-key {
       margin-top: auto;
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      border-radius: 8px;
-      padding: 10px 12px;
+      padding: 16px 10px 4px;
+      border-top: 1px solid var(--border);
     }
-
     .api-key-label {
-      font-size: 11px;
-      color: var(--ds-text-tertiary);
+      font-size: 12px;
+      color: var(--muted);
       margin-bottom: 6px;
       display: flex;
       justify-content: space-between;
+      align-items: center;
       font-weight: 500;
     }
-
+    .api-key-label .state { display: inline-flex; align-items: center; gap: 6px; color: var(--ok); font-weight: 400; }
+    .api-key-label .state::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
     .api-key-box {
-      font-family: var(--ds-font-mono);
-      font-size: 11px;
-      color: var(--ds-accent);
-      background: var(--ds-bg);
-      border: 1px solid var(--ds-border);
-      padding: 6px 8px;
-      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 12px;
+      color: var(--text);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 7px 9px;
+      border-radius: 4px;
       cursor: pointer;
       word-break: break-all;
     }
-    .api-key-box:hover {
-      border-color: var(--ds-accent);
-    }
+    .api-key-box:hover { border-color: var(--faint); }
 
-    /* Main Area */
-    main {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      background: var(--ds-bg);
-    }
+    /* Main area */
+    main { flex: 1; display: flex; flex-direction: column; overflow: hidden; background: var(--bg); }
 
     header {
-      height: 52px;
-      border-bottom: 1px solid var(--ds-border);
-      padding: 0 24px;
+      height: 56px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 32px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: var(--ds-sidebar);
+      background: var(--bg);
       flex-shrink: 0;
     }
+    .page-title h2 { font-size: 16px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; }
 
-    .page-title h2 {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--ds-text);
-      letter-spacing: -0.1px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
+    .header-actions { display: flex; align-items: center; gap: 8px; }
     .hdr-btn {
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      color: var(--ds-text-secondary);
-      padding: 6px 12px;
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--muted);
+      height: 32px;
+      padding: 0 12px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 13px;
       font-weight: 500;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
       gap: 6px;
-      transition: border-color 0.15s, color 0.15s;
     }
+    .hdr-btn:hover { border-color: var(--faint); color: var(--text); }
 
-    .hdr-btn:hover {
-      border-color: var(--ds-accent);
-      color: var(--ds-text);
-    }
+    .content-area { flex: 1; overflow-y: auto; padding: 28px 32px 48px; }
 
-    .content-area {
-      flex: 1;
-      overflow-y: auto;
-      padding: 20px 24px 32px;
-    }
-
-    /* Metrics Grid */
+    /* Numbers: hairline dividers, not four boxes. The first figure is deliberately the largest. */
     .metrics-row {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin-bottom: 20px;
+      grid-template-columns: 1.4fr 1fr 1fr 1fr;
+      margin-bottom: 36px;
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 24px;
     }
+    .metric-card { padding: 0 24px; border-left: 1px solid var(--border); background: none; }
+    .metric-card:first-child { padding-left: 0; border-left: none; }
+    .metric-title { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
+    .metric-val { font-size: 22px; font-weight: 500; color: var(--text); letter-spacing: -0.02em; line-height: 1.2; }
+    .metric-card:first-child .metric-val { font-size: 36px; font-weight: 600; }
 
-    .metric-card {
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      border-radius: 8px;
-      padding: 14px 16px;
-    }
-
-    .metric-title {
-      font-size: 11px;
-      color: var(--ds-text-tertiary);
-      font-weight: 600;
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 4px;
-      letter-spacing: 0.3px;
-    }
-
-    .metric-val {
-      font-family: var(--ds-font-mono);
-      font-size: 20px;
-      font-weight: 600;
-      color: var(--ds-text);
-    }
-
-    /* Studio Layout */
-    .saas-layout {
-      display: grid;
-      grid-template-columns: 290px 1fr;
-      gap: 16px;
-      min-height: 620px;
-    }
+    /* Studio layout */
+    .saas-layout { display: grid; grid-template-columns: 280px 1fr; gap: 24px; min-height: 620px; }
 
     .widgets-pane, .studio-pane {
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      border-radius: 10px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
       display: flex;
       flex-direction: column;
       overflow: hidden;
     }
 
     .pane-header {
-      padding: 12px 16px;
-      border-bottom: 1px solid var(--ds-border);
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
       font-size: 13px;
-      font-weight: 600;
+      font-weight: 500;
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: var(--ds-sidebar);
+      color: var(--text);
     }
+    .pane-header span + span { color: var(--faint); font-weight: 400; font-size: 12px; }
 
-    .widgets-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: 8px;
-    }
+    .widgets-list { flex: 1; overflow-y: auto; padding: 6px 8px 10px; }
 
     .widget-item-btn {
       width: 100%;
       background: transparent;
-      border: 1px solid transparent;
+      border: none;
       border-radius: 6px;
-      padding: 9px 10px;
+      padding: 8px 10px;
       text-align: left;
       cursor: pointer;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       gap: 10px;
-      margin-bottom: 4px;
-      transition: background 0.15s, border-color 0.15s;
+      margin-bottom: 2px;
+      color: inherit;
+      transition: background-color var(--ease);
     }
+    .widget-item-btn:hover { background: var(--surface-raised); }
+    .widget-item-btn.selected { background: var(--surface-raised); box-shadow: inset 2px 0 0 var(--accent); }
 
-    .widget-item-btn:hover {
-      background: var(--ds-bg-hover);
-    }
+    .widget-icon { color: var(--faint); padding-top: 2px; flex-shrink: 0; transition: color var(--ease); }
+    .widget-item-btn.selected .widget-icon { color: var(--accent); }
 
-    .widget-item-btn.selected {
-      background: rgba(79, 131, 204, 0.12);
-      border-color: var(--ds-accent);
-    }
+    .widget-info h4 { font-size: 13.5px; font-weight: 500; color: var(--text); margin-bottom: 1px; letter-spacing: -0.01em; }
+    .widget-info p { font-size: 12px; color: var(--faint); line-height: 1.4; }
 
-    .widget-icon {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      background: var(--ds-sidebar);
-      border: 1px solid var(--ds-border);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 13px;
-      color: var(--ds-accent);
-      flex-shrink: 0;
-    }
-
-    .widget-info h4 {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--ds-text);
-      margin-bottom: 1px;
-    }
-
-    .widget-info p {
-      font-size: 11px;
-      color: var(--ds-text-secondary);
-    }
-
-    /* Studio Header Tabs */
+    /* Studio tabs */
     .studio-tabs {
       display: flex;
-      border-bottom: 1px solid var(--ds-border);
-      background: var(--ds-sidebar);
-      padding: 0 10px;
+      border-bottom: 1px solid var(--border);
+      padding: 0 16px;
       justify-content: space-between;
       align-items: center;
     }
-
     .studio-tab-btn {
       background: transparent;
       border: none;
-      padding: 11px 14px;
+      border-bottom: 2px solid transparent;
+      padding: 13px 2px;
+      margin-right: 20px;
       font-size: 13px;
       font-weight: 500;
-      color: var(--ds-text-secondary);
+      color: var(--muted);
       cursor: pointer;
-      border-bottom: 2px solid transparent;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
       border-radius: 0;
     }
+    .studio-tab-btn:hover { color: var(--text); }
+    .studio-tab-btn.active { color: var(--text); border-bottom-color: var(--accent); }
 
-    .studio-tab-btn:hover {
-      color: var(--ds-text);
-    }
-
-    .studio-tab-btn.active {
-      color: var(--ds-accent);
-      border-bottom-color: var(--ds-accent);
-      font-weight: 600;
-    }
-
-    .studio-body {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 310px 1fr;
-      overflow: hidden;
-    }
+    .studio-body { flex: 1; display: grid; grid-template-columns: 320px 1fr; overflow: hidden; }
 
     .customizer-form {
-      padding: 16px;
-      border-right: 1px solid var(--ds-border);
+      padding: 20px 20px 24px;
+      border-right: 1px solid var(--border);
       overflow-y: auto;
-      background: var(--ds-sidebar);
+      background: var(--surface);
     }
+    .customizer-form > h3 { font-size: 15px !important; font-weight: 600 !important; letter-spacing: -0.02em; color: var(--text) !important; margin-bottom: 4px !important; }
 
-    .form-group {
-      margin-bottom: 12px;
-    }
-
-    .form-group label {
-      display: block;
-      font-size: 11px;
-      font-weight: 600;
-      color: var(--ds-text-secondary);
-      text-transform: uppercase;
-      letter-spacing: 0.4px;
-      margin-bottom: 5px;
-    }
+    .form-group { margin-bottom: 14px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 6px; }
 
     .form-input {
       width: 100%;
-      background: var(--ds-bg);
-      border: 1px solid var(--ds-border);
-      border-radius: 6px;
-      padding: 7px 10px;
-      color: var(--ds-text);
-      font-family: var(--ds-font-sans);
-      font-size: 13px;
+      height: 36px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0 10px;
+      color: var(--text);
+      font-size: 13.5px;
       outline: none;
     }
+    .form-input:hover { border-color: var(--faint); }
+    .form-input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-color: var(--border); }
+    select.form-input { padding-right: 6px; }
 
-    .form-input:focus {
-      border-color: var(--ds-accent);
-    }
+    .customizer-form input[type="checkbox"] { accent-color: var(--accent); width: 16px; height: 16px; }
 
-    .color-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
+    .color-row { display: flex; gap: 8px; align-items: center; }
+    .color-swatch { width: 36px; height: 36px; border-radius: 4px; border: 1px solid var(--border); cursor: pointer; background: none; padding: 2px; flex: none; }
 
-    .color-swatch {
-      width: 32px;
-      height: 32px;
-      border-radius: 6px;
-      border: 1px solid var(--ds-border);
-      cursor: pointer;
-      background: none;
-      padding: 0;
-    }
-
-    .btn-row {
-      display: flex;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
+    .btn-row { display: flex; gap: 8px; margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--border); }
     .save-config-btn {
       flex: 1;
       height: 36px;
-      background: var(--ds-accent);
-      color: #FFFFFF;
+      background: var(--accent);
+      color: #14110F;
       border: none;
       border-radius: 6px;
-      font-weight: 500;
-      font-size: 13px;
+      font-weight: 600;
+      font-size: 13.5px;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      transition: background 0.15s;
     }
-
-    .save-config-btn:hover {
-      background: var(--ds-accent-hover);
-    }
+    .save-config-btn:hover { background: var(--ds-accent-hover); }
 
     .reset-config-btn {
       height: 36px;
       padding: 0 12px;
-      background: var(--ds-card);
-      color: var(--ds-text-secondary);
-      border: 1px solid var(--ds-border);
+      background: transparent;
+      color: var(--muted);
+      border: 1px solid var(--border);
       border-radius: 6px;
       font-weight: 500;
-      font-size: 12px;
+      font-size: 13px;
       cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
     }
-    .reset-config-btn:hover {
-      border-color: var(--ds-border);
-      color: var(--ds-text);
-    }
+    .reset-config-btn:hover { border-color: var(--faint); color: var(--text); }
 
     .preview-sandbox {
-      background: var(--ds-bg);
+      background: var(--bg);
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -516,143 +366,160 @@
     .preview-sandbox::-webkit-scrollbar { display: none; }
 
     .sandbox-badge {
-      position: absolute;
-      top: 12px;
-      left: 16px;
-      font-size: 11px;
-      font-weight: 500;
-      color: var(--ds-text-tertiary);
-      display: flex;
-      align-items: center;
-      gap: 6px;
+      align-self: flex-start;
+      margin: 0 16px 14px;
+      font-size: 12px;
+      color: var(--faint);
+      line-height: 1.4;
     }
+    .sandbox-badge::before { content: ''; display: inline-block; width: 6px; height: 6px; border-radius: 50%; background: var(--ok); margin-right: 8px; vertical-align: 1px; }
 
-    .embed-drawer {
-      display: none;
-      padding: 20px;
-      overflow-y: auto;
-      grid-column: 1 / -1;
-      background: var(--ds-sidebar);
-    }
+    .embed-drawer { display: none; padding: 24px; overflow-y: auto; grid-column: 1 / -1; background: var(--surface); }
 
     .code-box {
-      background: var(--ds-bg);
-      border: 1px solid var(--ds-border);
-      border-radius: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 6px;
       padding: 14px;
-      font-family: var(--ds-font-mono);
+      font-family: var(--mono);
       font-size: 12px;
       line-height: 1.6;
-      color: var(--ds-text);
+      color: var(--text);
       margin-bottom: 16px;
       position: relative;
       white-space: pre-wrap;
     }
-
     .copy-btn {
       position: absolute;
-      top: 10px;
-      right: 10px;
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      color: var(--ds-text-secondary);
-      padding: 3px 8px;
+      top: 8px;
+      right: 8px;
+      background: transparent;
+      border: none;
+      color: var(--accent);
+      padding: 3px 6px;
       border-radius: 4px;
-      font-size: 11px;
+      font-size: 12px;
+      font-weight: 500;
       cursor: pointer;
     }
-    .copy-btn:hover {
-      color: var(--ds-text);
-      border-color: var(--ds-accent);
-    }
+    .copy-btn:hover { color: var(--text); }
 
-    /* Events Log Drawer */
+    /* Live events: rows split by hairlines, not boxed */
     .events-panel {
       display: none;
-      background: var(--ds-card);
-      border: 1px solid var(--ds-border);
-      border-radius: 10px;
-      padding: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 24px;
     }
-
     .event-row {
       display: flex;
       justify-content: space-between;
-      padding: 8px 12px;
-      background: var(--ds-sidebar);
-      border: 1px solid var(--ds-border);
-      border-radius: 6px;
-      margin-bottom: 6px;
-      font-family: var(--ds-font-mono);
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+      font-family: var(--mono);
       font-size: 12px;
+      color: var(--muted);
     }
+    .event-row:last-child { border-bottom: none; }
+    .event-row b { color: var(--text) !important; font-weight: 500 !important; }
 
     /* Never scroll the Studio sideways; on narrow windows stack the columns instead. */
     .content-area { overflow-x: hidden; }
     @media (max-width: 1100px) {
-      .content-area { padding: 16px 12px 28px; }
-      .metrics-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .content-area { padding: 20px 14px 32px; }
+      .metrics-row { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 20px; }
+      .metric-card:nth-child(3) { padding-left: 0; border-left: none; }
+      .metric-card:first-child .metric-val { font-size: 30px; }
       .saas-layout { grid-template-columns: minmax(0, 1fr); min-height: 0; }
       .widgets-pane { max-height: 340px; }
       .studio-body { grid-template-columns: minmax(0, 1fr); overflow: visible; }
-      .customizer-form { border-right: none; border-bottom: 1px solid var(--ds-border); max-height: 480px; }
+      .customizer-form { border-right: none; border-bottom: 1px solid var(--border); max-height: 480px; }
       .preview-sandbox { min-height: 660px; }
     }
   </style>
 </head>
 <body>
 
+  <!-- Line icons, 24px grid, 1.5 stroke, round caps. Used with <svg class="ic"><use href="#i-name"/></svg>. -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM17 5h3v2a3 3 0 0 1-3 3M7 5H4v2a3 3 0 0 0 3 3"/></symbol>
+      <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M3 7h11M18 7h3M3 17h3M10 17h11M14 4v6M6 14v6"/></symbol>
+      <symbol id="i-zap" viewBox="0 0 24 24"><path d="M13 3 5 13h6l-1 8 8-10h-6l1-8z"/></symbol>
+      <symbol id="i-code" viewBox="0 0 24 24"><path d="m8 8-4 4 4 4M16 8l4 4-4 4M14 5l-4 14"/></symbol>
+      <symbol id="i-dice" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h.01M15 9h.01M12 12h.01M9 15h.01M15 15h.01"/></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><path d="M12 12h.01"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="4" y="5" width="16" height="15" rx="2"/><path d="M8 3v4M16 3v4M4 10h16M9.5 15l2 2 3.5-3.5"/></symbol>
+      <symbol id="i-podium" viewBox="0 0 24 24"><path d="M3 21h18M5 21v-6h4v6M10 21V9h4v12M15 21v-8h4v8"/></symbol>
+      <symbol id="i-sparkles" viewBox="0 0 24 24"><path d="M11 3l1.8 4.7L17.5 9.5l-4.7 1.8L11 16l-1.8-4.7L4.5 9.5l4.7-1.8L11 3zM18 15l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2z"/></symbol>
+      <symbol id="i-route" viewBox="0 0 24 24"><circle cx="6" cy="19" r="2"/><circle cx="18" cy="5" r="2"/><path d="M8 19h5.5a3.5 3.5 0 0 0 0-7h-3a3.5 3.5 0 0 1 0-7H16"/></symbol>
+      <symbol id="i-ticket" viewBox="0 0 24 24"><path d="M4 8a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-2a2 2 0 0 0 0-4V8zM14 6v2M14 11v2M14 16v2"/></symbol>
+      <symbol id="i-rotate" viewBox="0 0 24 24"><path d="M20 11a8 8 0 1 0-2.3 5.7M20 5v6h-6"/></symbol>
+      <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9L12 3z"/></symbol>
+      <symbol id="i-flame" viewBox="0 0 24 24"><path d="M12 3c1 3.5 5 5.5 5 10a5 5 0 0 1-10 0c0-2 1-3 2-4 0 2 1 2.5 1.5 2C10.5 8 11 5.5 12 3z"/></symbol>
+      <symbol id="i-wallet" viewBox="0 0 24 24"><path d="M4 7h14a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V7zM4 7a2 2 0 0 1 2-2h10M16 13.5h.01"/></symbol>
+      <symbol id="i-pointer" viewBox="0 0 24 24"><path d="M9 11V5.5a1.5 1.5 0 0 1 3 0V10l5 1a2 2 0 0 1 1.5 2.4l-1 5A2 2 0 0 1 15.5 20H11a2 2 0 0 1-1.6-.8L6 14.5a1.5 1.5 0 0 1 2.4-1.8L9 14"/></symbol>
+      <symbol id="i-cloud" viewBox="0 0 24 24"><path d="M7 14a4 4 0 0 1 .5-8A5.5 5.5 0 0 1 18 7.5a3.5 3.5 0 0 1-.5 6.5M9 17v3M13 16v3M17 17v3"/></symbol>
+      <symbol id="i-egg" viewBox="0 0 24 24"><path d="M12 3c3.5 0 6 5 6 10a6 6 0 0 1-12 0c0-5 2.5-10 6-10z"/></symbol>
+      <symbol id="i-grab" viewBox="0 0 24 24"><path d="M12 3v8M7 11h10M7 11c0 4 2 7 2 9M17 11c0 4-2 7-2 9"/></symbol>
+      <symbol id="i-gamepad" viewBox="0 0 24 24"><path d="M6 8h12a4 4 0 0 1 4 4v2a3 3 0 0 1-5 2l-1-1H8l-1 1a3 3 0 0 1-5-2v-2a4 4 0 0 1 4-4zM8 11v3M6.5 12.5h3M15 12h.01M17 13.5h.01"/></symbol>
+      <symbol id="i-passport" viewBox="0 0 24 24"><path d="M6 3h12v18H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM9 3v18M12.5 9h3"/></symbol>
+      <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-2-4-5-3-4.5-1s3 1 4.5 1zM12 7c2-4 5-3 4.5-1s-3 1-4.5 1z"/></symbol>
+    </defs>
+  </svg>
+
   <aside>
     <div class="brand-wrap">
-      <div class="brand-logo"><i class="fa-solid fa-trophy"></i></div>
-      <div class="brand-title">Gamify<span class="brand-tag">v2.1</span></div>
+      <div class="brand-title">Gamify</div>
+      <span class="brand-tag">v2.1</span>
     </div>
 
     <div class="nav-group-label">Platform</div>
-    <div class="nav-link active" id="navStudio" onclick="switchPage('studio', this)"><i class="fa-solid fa-sliders"></i> Widget Studio</div>
-    <div class="nav-link" id="navEvents" onclick="switchPage('events', this)"><i class="fa-solid fa-bolt"></i> Live Event Log</div>
-    <div class="nav-link" onclick="switchStudioTab('embed')"><i class="fa-solid fa-code"></i> Embed SDK</div>
+    <div class="nav-link active" id="navStudio" onclick="switchPage('studio', this)"><svg class="ic"><use href="#i-sliders"/></svg> Widget studio</div>
+    <div class="nav-link" id="navEvents" onclick="switchPage('events', this)"><svg class="ic"><use href="#i-zap"/></svg> Live event log</div>
+    <div class="nav-link" onclick="switchStudioTab('embed')"><svg class="ic"><use href="#i-code"/></svg> Embed SDK</div>
 
-    <div class="nav-group-label">Screen-Recorded Kits</div>
-    <div class="nav-link" onclick="selectWidget('cred_slot_09')"><i class="fa-solid fa-dice"></i> CRED Slot Machine <span class="badge-subtle">NEW</span></div>
-    <div class="nav-link" onclick="selectWidget('cred_wheel_07')"><i class="fa-solid fa-gem"></i> CRED Luxury Wheel</div>
-    <div class="nav-link" onclick="selectWidget('mynaksh_checkin_02')"><i class="fa-solid fa-coins"></i> MyNaksh 1:1 Streaks</div>
-    <div class="nav-link" onclick="selectWidget('gamify_leaderboard_08')"><i class="fa-solid fa-ranking-star"></i> Triple Podium Ranks</div>
-    <div class="nav-link" onclick="selectWidget('zepto_scratch_01')"><i class="fa-solid fa-wand-magic-sparkles"></i> Zepto Scratch</div>
-    <div class="nav-link" onclick="selectWidget('duolingo_flow_06')"><i class="fa-solid fa-feather-pointed"></i> Duolingo Flow</div>
-    <div class="nav-link" onclick="selectWidget('paytm_chest_04')"><i class="fa-solid fa-ticket"></i> Paytm Scratch Card</div>
-    <div class="nav-link" onclick="selectWidget('paytm_spin_05')"><i class="fa-solid fa-dharmachakra"></i> Paytm Spin &amp; Win</div>
-    <div class="nav-link" onclick="selectWidget('instaastro_points_03')"><i class="fa-solid fa-star"></i> InstaAstro Points</div>
-    <div class="nav-link" onclick="selectWidget('fire_streak_10')"><i class="fa-solid fa-fire"></i> Fire Streak <span class="badge-subtle">NEW</span></div>
-    <div class="nav-link" onclick="selectWidget('coin_wallet_11')"><i class="fa-solid fa-wallet"></i> Coin Wallet <span class="badge-subtle">NEW</span></div>
+    <div class="nav-group-label">Screen-recorded kits</div>
+    <div class="nav-link" onclick="selectWidget('cred_slot_09')"><svg class="ic"><use href="#i-dice"/></svg> CRED slot machine <span class="badge-subtle">new</span></div>
+    <div class="nav-link" onclick="selectWidget('cred_wheel_07')"><svg class="ic"><use href="#i-target"/></svg> CRED luxury wheel</div>
+    <div class="nav-link" onclick="selectWidget('mynaksh_checkin_02')"><svg class="ic"><use href="#i-calendar"/></svg> MyNaksh 1:1 streaks</div>
+    <div class="nav-link" onclick="selectWidget('gamify_leaderboard_08')"><svg class="ic"><use href="#i-podium"/></svg> Triple podium ranks</div>
+    <div class="nav-link" onclick="selectWidget('zepto_scratch_01')"><svg class="ic"><use href="#i-sparkles"/></svg> Zepto scratch</div>
+    <div class="nav-link" onclick="selectWidget('duolingo_flow_06')"><svg class="ic"><use href="#i-route"/></svg> Duolingo flow</div>
+    <div class="nav-link" onclick="selectWidget('paytm_chest_04')"><svg class="ic"><use href="#i-ticket"/></svg> Paytm scratch card</div>
+    <div class="nav-link" onclick="selectWidget('paytm_spin_05')"><svg class="ic"><use href="#i-rotate"/></svg> Paytm spin &amp; win</div>
+    <div class="nav-link" onclick="selectWidget('instaastro_points_03')"><svg class="ic"><use href="#i-star"/></svg> InstaAstro points</div>
+    <div class="nav-link" onclick="selectWidget('fire_streak_10')"><svg class="ic"><use href="#i-flame"/></svg> Fire streak <span class="badge-subtle">new</span></div>
+    <div class="nav-link" onclick="selectWidget('coin_wallet_11')"><svg class="ic"><use href="#i-wallet"/></svg> Coin wallet <span class="badge-subtle">new</span></div>
 
     <div class="nav-group-label">Nudges</div>
-    <div class="nav-link" onclick="selectWidget('nudge_tour_12')"><i class="fa-solid fa-hand-pointer"></i> Onboarding Tour <span class="badge-subtle">NEW</span></div>
+    <div class="nav-link" onclick="selectWidget('nudge_tour_12')"><svg class="ic"><use href="#i-pointer"/></svg> Onboarding tour <span class="badge-subtle">new</span></div>
 
-    <div class="nav-group-label">Arcade Games</div>
-    <div class="nav-link" onclick="selectWidget('gift_rain_13')"><i class="fa-solid fa-cloud-rain"></i> Gift Rain <span class="badge-subtle">NEW</span></div>
-    <div class="nav-link" onclick="selectWidget('smash_egg_14')"><i class="fa-solid fa-egg"></i> Smash the Egg <span class="badge-subtle">NEW</span></div>
-    <div class="nav-link" onclick="selectWidget('claw_machine_15')"><i class="fa-solid fa-hand-back-fist"></i> Claw Machine <span class="badge-subtle">NEW</span></div>
+    <div class="nav-group-label">Arcade games</div>
+    <div class="nav-link" onclick="selectWidget('gift_rain_13')"><svg class="ic"><use href="#i-cloud"/></svg> Gift rain <span class="badge-subtle">new</span></div>
+    <div class="nav-link" onclick="selectWidget('smash_egg_14')"><svg class="ic"><use href="#i-egg"/></svg> Smash the egg <span class="badge-subtle">new</span></div>
+    <div class="nav-link" onclick="selectWidget('claw_machine_15')"><svg class="ic"><use href="#i-grab"/></svg> Claw machine <span class="badge-subtle">new</span></div>
 
-    <div class="nav-group-label">Playground &amp; Rewards</div>
-    <div class="nav-link" onclick="window.location.href='/live'"><i class="fa-solid fa-gamepad"></i> Live PlayZone App <span class="badge-subtle">HOT</span></div>
-    <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openPassport()"><i class="fa-solid fa-passport"></i> Sticker Passport <span class="badge-subtle">NEW</span></div>
+    <div class="nav-group-label">Playground and rewards</div>
+    <div class="nav-link" onclick="window.location.href='/live'"><svg class="ic"><use href="#i-gamepad"/></svg> Live PlayZone app</div>
+    <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openPassport()"><svg class="ic"><use href="#i-passport"/></svg> Sticker passport</div>
 
     <div class="sidebar-api-key">
-      <div class="api-key-label"><span>API KEY</span><span style="color:var(--ds-success);">ACTIVE</span></div>
-      <div class="api-key-box" onclick="copyText('pk_live_duo_9821')">pk_live_duo_9821</div>
+      <div class="api-key-label"><span>API key</span><span class="state">Active</span></div>
+      <div class="api-key-box" onclick="copyText('pk_live_duo_9821')" title="Click to copy">pk_live_duo_9821</div>
     </div>
   </aside>
 
   <main>
     <header>
-      <div class="page-title"><h2>Gamification Management Studio</h2></div>
+      <div class="page-title"><h2>Widget studio</h2></div>
       <div class="header-actions">
         <button class="hdr-btn" id="globalMuteBtn" onclick="toggleGlobalSound()">
-          <i class="fa-solid fa-volume-high" style="color:var(--ds-accent);"></i> Sound: ON
+          Sound on
         </button>
         <button class="hdr-btn" onclick="switchStudioTab('embed')">
-          <i class="fa-solid fa-code"></i> Embed Code
+          Embed code
         </button>
       </div>
     </header>
@@ -661,38 +528,38 @@
       <!-- Top Metrics -->
       <div class="metrics-row">
         <div class="metric-card">
-          <div class="metric-title">IMPRESSIONS <i class="fa-solid fa-eye" style="color:var(--ds-accent);"></i></div>
+          <div class="metric-title">Impressions</div>
           <div class="metric-val" id="mImpressions">-</div>
         </div>
         <div class="metric-card">
-          <div class="metric-title">REWARDS CLAIMED <i class="fa-solid fa-gift" style="color:var(--ds-success);"></i></div>
+          <div class="metric-title">Rewards claimed</div>
           <div class="metric-val" id="mClaims">-</div>
         </div>
         <div class="metric-card">
-          <div class="metric-title">CONVERSION <i class="fa-solid fa-arrow-trend-up" style="color:var(--ds-accent);"></i></div>
+          <div class="metric-title">Conversion</div>
           <div class="metric-val" id="mConversion">-</div>
         </div>
         <div class="metric-card">
-          <div class="metric-title">RECORDED KITS <i class="fa-solid fa-cubes" style="color:var(--ds-warning);"></i></div>
-          <div class="metric-val" id="mCount">9 Kits</div>
+          <div class="metric-title">Kits</div>
+          <div class="metric-val" id="mCount">-</div>
         </div>
       </div>
 
       <!-- Studio View -->
       <div class="saas-layout" id="studioView">
         <div class="widgets-pane">
-          <div class="pane-header"><span>Gamification Kits</span><span style="font-size:11px; color:var(--ds-text-tertiary);">9 Kits</span></div>
+          <div class="pane-header"><span>Kits</span><span id="kitCount">9</span></div>
           <div class="widgets-list" id="widgetsListContainer"></div>
         </div>
 
         <div class="studio-pane">
           <div class="studio-tabs">
             <div>
-              <button class="studio-tab-btn active" id="tabDesign" onclick="switchStudioTab('design')"><i class="fa-solid fa-sliders"></i> Customize &amp; Test</button>
-              <button class="studio-tab-btn" id="tabEmbed" onclick="switchStudioTab('embed')"><i class="fa-solid fa-code"></i> Embed SDK</button>
-              <button class="studio-tab-btn" id="tabJson" onclick="switchStudioTab('json')"><i class="fa-solid fa-file-code"></i> JSON Schema</button>
+              <button class="studio-tab-btn active" id="tabDesign" onclick="switchStudioTab('design')">Customize</button>
+              <button class="studio-tab-btn" id="tabEmbed" onclick="switchStudioTab('embed')">Embed SDK</button>
+              <button class="studio-tab-btn" id="tabJson" onclick="switchStudioTab('json')">JSON</button>
             </div>
-            <span id="saveToast" style="font-size:11px; font-weight:600; color:var(--ds-success); opacity:0; transition:opacity 0.2s;">✓ Configuration Saved</span>
+            <span id="saveToast" style="font-size:12px; color:var(--ds-success); opacity:0; transition:opacity 150ms ease-out;">Saved</span>
           </div>
 
           <div class="studio-body">
@@ -700,8 +567,7 @@
 
             <div class="preview-sandbox" id="previewSandbox">
               <div class="sandbox-badge">
-                <i class="fa-solid fa-circle" style="color:var(--ds-success); font-size:7px;"></i>
-                Interactive Canvas Preview
+                Live preview. Edits stay here until you press Save.
               </div>
               <div id="sandboxMount"></div>
             </div>
@@ -714,8 +580,8 @@
       <!-- Events View -->
       <div class="events-panel" id="eventsView">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-          <h3 style="font-size:14px; font-weight:600;">Live Triggered Events</h3>
-          <button class="hdr-btn" onclick="refreshStats()"><i class="fa-solid fa-rotate"></i> Refresh</button>
+          <h3 style="font-size:15px;">Live events</h3>
+          <button class="hdr-btn" onclick="refreshStats()">Refresh</button>
         </div>
         <div id="eventsList"></div>
       </div>
@@ -733,8 +599,8 @@
       soundEngine.setMuted(muted);
       const btn = document.getElementById('globalMuteBtn');
       btn.innerHTML = muted
-        ? '<i class="fa-solid fa-volume-xmark" style="color:var(--ds-error);"></i> Sound: OFF'
-        : '<i class="fa-solid fa-volume-high" style="color:var(--ds-accent);"></i> Sound: ON';
+        ? 'Sound off'
+        : 'Sound on';
     }
 
     async function loadWidgets() {
@@ -753,39 +619,41 @@
       document.getElementById('mImpressions').innerText = json.stats.totalImpressions.toLocaleString();
       document.getElementById('mClaims').innerText = json.stats.totalClaims.toLocaleString();
       document.getElementById('mConversion').innerText = json.stats.avgConversion;
-      document.getElementById('mCount').innerText = json.stats.totalWidgets + ' Kits';
+      document.getElementById('mCount').innerText = json.stats.totalWidgets;
 
       const evBox = document.getElementById('eventsList');
       const evs = (json.stats.recentEvents || []).slice().reverse();
       evBox.innerHTML = evs.length
-        ? evs.map(e => `<div class="event-row"><span><b style="color:var(--ds-accent); font-weight:500;">${e.event}</b> &bull; ${JSON.stringify(e.metadata || {})}</span><span style="color:var(--ds-text-tertiary);">${new Date(e.timestamp).toLocaleTimeString()}</span></div>`).join('')
+        ? evs.map(e => `<div class="event-row"><span><b>${e.event}</b> &nbsp; ${JSON.stringify(e.metadata || {})}</span><span style="color:var(--faint);">${new Date(e.timestamp).toLocaleTimeString()}</span></div>`).join('')
         : '<div style="color:var(--ds-text-tertiary); font-size:13px;">Interact with any widget in the studio sandbox to record live telemetry events.</div>';
     }
 
     function renderWidgetsList() {
       const iconMap = {
-        zepto_scratch: 'fa-wand-magic-sparkles',
-        mynaksh_checkin: 'fa-coins',
-        instaastro_points: 'fa-star',
-        paytm_chest_scratch: 'fa-box-open',
-        paytm_spin_win: 'fa-dharmachakra',
-        duolingo_flow: 'fa-feather-pointed',
-        cred_wheel: 'fa-gem',
-        cred_slot_machine: 'fa-dice',
-        gamify_leaderboard: 'fa-ranking-star',
-        fire_streak: 'fa-fire',
-        coin_wallet: 'fa-wallet',
-        nudge_tour: 'fa-hand-pointer',
-        gift_rain: 'fa-cloud-rain',
-        smash_egg: 'fa-egg',
-        claw_machine: 'fa-hand-back-fist'
+        zepto_scratch: 'sparkles',
+        mynaksh_checkin: 'calendar',
+        instaastro_points: 'star',
+        paytm_chest_scratch: 'ticket',
+        paytm_spin_win: 'rotate',
+        duolingo_flow: 'route',
+        cred_wheel: 'target',
+        cred_slot_machine: 'dice',
+        gamify_leaderboard: 'podium',
+        fire_streak: 'flame',
+        coin_wallet: 'wallet',
+        nudge_tour: 'pointer',
+        gift_rain: 'cloud',
+        smash_egg: 'egg',
+        claw_machine: 'grab'
       };
+      const kitCount = document.getElementById('kitCount');
+      if (kitCount) kitCount.textContent = widgetsData.length;
       document.getElementById('widgetsListContainer').innerHTML = widgetsData.map(w => {
-        const ic = iconMap[w.type] || 'fa-gift';
+        const ic = iconMap[w.type] || 'gift';
         const sel = selectedWidget && selectedWidget.id === w.id;
         return `
           <button class="widget-item-btn ${sel ? 'selected' : ''}" onclick="selectWidget('${w.id}')">
-            <div class="widget-icon"><i class="fa-solid ${ic}"></i></div>
+            <div class="widget-icon"><svg class="ic"><use href="#i-${ic}"/></svg></div>
             <div class="widget-info">
               <h4>${w.name}</h4>
               <p>${w.appSource}</p>
@@ -879,19 +747,19 @@
         const patch = {};
         LOGO_KEYS.forEach((k) => { if (selectedWidget.config[k] !== undefined) patch[k] = selectedWidget.config[k]; });
         applyAll.disabled = true;
-        applyAll.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Applying...';
+        applyAll.innerHTML = 'Applying...';
         await Promise.all(widgetsData.map((w) => fetch(`/api/v1/widgets/${w.id}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ config: patch })
         }).then(() => { Object.assign(w.config, patch); })));
         applyAll.disabled = false;
-        applyAll.innerHTML = `<i class="fa-solid fa-check"></i> Logo saved on all ${widgetsData.length} widgets`;
+        applyAll.innerHTML = `Saved on all ${widgetsData.length} widgets`;
       };
     }
 
     function fieldHeader(text) {
-      return `<div style="margin:18px 0 8px; padding-top:12px; border-top:1px solid var(--ds-border, rgba(255,255,255,0.08)); font-size:11px; font-weight:700; letter-spacing:0.8px; text-transform:uppercase; color:var(--ds-accent);">${text}</div>`;
+      return `<div style="margin:28px 0 12px; padding-top:14px; border-top:1px solid var(--border); font-size:12px; font-weight:500; color:var(--muted);">${text}</div>`;
     }
 
     function fieldSelect(key, label, val, options) {
@@ -1200,10 +1068,10 @@
               ${logo ? `<img id="gmfLogoPreview" src="${logo.replace(/"/g, '&quot;')}" style="max-width:60px; max-height:36px; object-fit:contain;">` : '<span style="font-size:10px; color:var(--ds-text-tertiary);">none</span>'}
             </div>
             <label class="reset-config-btn" style="cursor:pointer; padding:6px 10px; width:auto;">
-              <i class="fa-solid fa-upload"></i> Upload
+              Upload logo
               <input type="file" id="gmfLogoFile" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display:none;">
             </label>
-            ${logo ? '<button type="button" class="reset-config-btn" id="gmfLogoRemove" style="width:auto; padding:6px 10px;" title="Remove logo"><i class="fa-solid fa-trash"></i></button>' : ''}
+            ${logo ? '<button type="button" class="reset-config-btn" id="gmfLogoRemove" style="width:auto; padding:6px 10px;" title="Remove logo">Remove</button>' : ''}
           </div>
         </div>
         <div class="form-group">
@@ -1214,13 +1082,13 @@
       fields += fieldInput('logoSize', 'Height (px)', c.logoSize ?? 28, 'number');
       fields += fieldInput('logoOpacity', 'Opacity (0.1 to 1)', c.logoOpacity ?? 1, 'number');
       fields += fieldInput('logoBadge', 'White Badge Behind Logo', c.logoBadge === true, 'boolean');
-      fields += `<button type="button" class="reset-config-btn" id="gmfLogoApplyAll" style="width:100%; margin:4px 0 8px; padding:8px;"><i class="fa-solid fa-clone"></i> Use this logo on all widgets</button>`;
+      fields += `<button type="button" class="reset-config-btn" id="gmfLogoApplyAll" style="width:100%; margin:4px 0 8px; padding:8px;">Use this logo on all widgets</button>`;
 
       fields += fieldInput('soundEnabled', 'Enable Sound Effects', c.soundEnabled, 'boolean');
       fields += `
         <div class="btn-row">
-          <button class="save-config-btn" onclick="saveCurrentWidget()"><i class="fa-solid fa-cloud-arrow-up"></i> Save Changes</button>
-          <button class="reset-config-btn" onclick="resetCurrentWidget()" title="Reset to Defaults"><i class="fa-solid fa-rotate-left"></i></button>
+          <button class="save-config-btn" onclick="saveCurrentWidget()">Save changes</button>
+          <button class="reset-config-btn" onclick="resetCurrentWidget()" title="Reset to defaults">Reset</button>
         </div>
       `;
 
