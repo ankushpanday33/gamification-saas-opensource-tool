@@ -213,13 +213,8 @@
       const raw = localStorage.getItem(STORAGE_KEY);
       if (raw) return JSON.parse(raw);
     } catch (e) {}
-    // default unlocked sample stickers for fun onboarding
-    const initial = {
-      kids_zone: { unlockedAt: Date.now() - 86400000 * 2, count: 1 },
-      binge_watcher: { unlockedAt: Date.now() - 3600000 * 5, count: 1 }
-    };
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(initial)); } catch(e) {}
-    return initial;
+    // New players start with an empty passport; stamps are only added by earning them.
+    return {};
   }
 
   function saveStorage(data) {
@@ -561,203 +556,216 @@
     },
 
     /**
-     * Unlock a sticker reward with celebration modal
+     * Stamp a sticker into the passport. Each sticker is earned once: if it is already stamped
+     * nothing is shown and { isNew: false } is returned. A new stamp shows the celebration
+     * (unless opts.silent) and returns { isNew: true }.
      */
-    unlock(stickerId, opts = {}) {
-      injectStickerStyles();
-      const sticker = this.get(stickerId);
+    stamp(stickerId, opts = {}) {
+      const sticker = STICKER_DATA.find(s => s.id === stickerId);
+      if (!sticker) return { sticker: null, isNew: false };
       const store = getStorage();
-
-      const isFirstTime = !store[sticker.id];
-      store[sticker.id] = {
-        unlockedAt: Date.now(),
-        count: (store[sticker.id]?.count || 0) + 1
-      };
+      if (store[sticker.id]) return { sticker, isNew: false };
+      store[sticker.id] = { unlockedAt: Date.now(), count: 1 };
       saveStorage(store);
+      if (!opts.silent) showStampModal(sticker, store, opts);
+      if (typeof opts.onStamp === 'function') opts.onStamp(sticker);
+      return { sticker, isNew: true };
+    },
 
-      const tier = TIER_CONFIG[sticker.tier] || TIER_CONFIG.common;
-      const baseUrl = opts.baseUrl || '';
-      const iconPath = `${baseUrl}/assets/stickers/${sticker.icon}`;
+    /** Kept for older callers: same as stamp(), returns the sticker. */
+    unlock(stickerId, opts = {}) {
+      return this.stamp(stickerId, opts).sticker;
+    },
 
-      playCelebrationSound(opts.sound);
-
-      // Create modal overlay
-      const backdrop = document.createElement('div');
-      backdrop.className = 'gmf-sticker-modal-backdrop';
-
-      backdrop.innerHTML = `
-        <div class="gmf-sticker-card-wrap">
-          <div class="gmf-rays-bg"></div>
-
-          <div class="gmf-sticker-tier-badge" style="background:${tier.bg}; border:1px solid ${tier.color}; color:${tier.color}; box-shadow:${tier.glow};">
-            <span>✨ ${tier.label} STICKER</span>
-          </div>
-
-          <div class="gmf-sticker-img-box" id="gmfStickerCard">
-            <img src="${iconPath}" alt="${sticker.title}" />
-          </div>
-
-          <h2 class="gmf-sticker-title">${sticker.title}</h2>
-          <div class="gmf-sticker-tagline">${sticker.tagline}</div>
-
-          <div class="gmf-sticker-rewards-row">
-            <div class="gmf-sticker-pill">
-              <span style="color:#F59E0B;">⚡</span> +${sticker.xp} XP
-            </div>
-            <div class="gmf-sticker-pill">
-              <span style="color:#10B981;">🪙</span> +${sticker.coins} Coins
-            </div>
-          </div>
-
-          <div class="gmf-sticker-trigger-box">
-            🎯 <strong>Unlocked via:</strong> ${sticker.trigger}
-          </div>
-
-          <button class="gmf-sticker-btn-primary" id="gmfCollectBtn">
-            🎉 Collect & Add to Album
-          </button>
-          <button class="gmf-sticker-btn-secondary" id="gmfAlbumBtn">
-            📖 View Sticker Album (${Object.keys(store).length}/15)
-          </button>
-        </div>
-      `;
-
-      document.body.appendChild(backdrop);
-      const cardWrap = backdrop.querySelector('.gmf-sticker-card-wrap');
-      createConfettiBurst(cardWrap);
-
-      // Dynamic tilt on mouse move
-      const cardBox = backdrop.querySelector('#gmfStickerCard');
-      backdrop.addEventListener('mousemove', (e) => {
-        const rect = cardWrap.getBoundingClientRect();
-        const x = (e.clientX - rect.left) / rect.width - 0.5;
-        const y = (e.clientY - rect.top) / rect.height - 0.5;
-        cardBox.style.transform = `perspective(600px) rotateY(${x * 24}deg) rotateX(${-y * 24}deg) scale(1.08)`;
-      });
-
-      backdrop.querySelector('#gmfCollectBtn').onclick = () => {
-        backdrop.style.opacity = '0';
-        backdrop.style.transition = 'opacity 0.2s';
-        setTimeout(() => backdrop.remove(), 200);
-        if (typeof opts.onCollect === 'function') opts.onCollect(sticker);
-      };
-
-      backdrop.querySelector('#gmfAlbumBtn').onclick = () => {
-        backdrop.remove();
-        GamifyStickers.openAlbum(opts);
-      };
-
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) {
-          backdrop.remove();
-        }
-      };
-
-      return sticker;
+    /** Kept for older callers: opens the passport. */
+    openAlbum(opts = {}) {
+      return this.openPassport(opts);
     },
 
     /**
-     * Open full Sticker Collector Album Drawer
+     * Sticker Passport: a booklet with holder details on the left page and a stamp page on the
+     * right. Earned stickers appear as inked stamps with the date; others are empty slots that
+     * show how to earn them. Clicking a stamp only shows its details.
      */
-    openAlbum(opts = {}) {
+    openPassport(opts = {}) {
       injectStickerStyles();
+      injectPassportStyles();
       const store = getStorage();
       const stickers = this.getAll();
       const baseUrl = opts.baseUrl || '';
-
-      const unlockedCount = Object.keys(store).length;
-      const totalXp = stickers.reduce((acc, s) => acc + (store[s.id] ? s.xp : 0), 0);
-      const percent = Math.round((unlockedCount / stickers.length) * 100);
+      const earned = stickers.filter(s => store[s.id]);
+      const totalXp = earned.reduce((acc, s) => acc + s.xp, 0);
+      const totalCoins = earned.reduce((acc, s) => acc + s.coins, 0);
+      const percent = Math.round((earned.length / stickers.length) * 100);
+      const firstStamp = earned.length ? Math.min(...earned.map(s => store[s.id].unlockedAt)) : null;
+      const fmt = (ts) => {
+        const d = new Date(ts);
+        return `${String(d.getDate()).padStart(2, '0')}/${String(d.getMonth() + 1).padStart(2, '0')}/${d.getFullYear()}`;
+      };
+      const stampDate = (ts) => {
+        const d = new Date(ts);
+        return `${String(d.getDate()).padStart(2, '0')} ${['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][d.getMonth()]} ${d.getFullYear()}`;
+      };
+      const tilt = (i) => [-9, 6, -4, 10, -12, 3, 8, -6, 12, -2, 5, -10, 7, -7, 2][i % 15];
 
       const backdrop = document.createElement('div');
       backdrop.className = 'gmf-sticker-modal-backdrop';
-
       backdrop.innerHTML = `
-        <div class="gmf-album-modal">
-          <div class="gmf-album-header">
-            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:14px;">
-              <div>
-                <h2 style="margin:0; font-size:22px; font-weight:800; display:flex; align-items:center; gap:8px;">
-                  <span>📖</span> Sticker Collector Album
-                </h2>
-                <div style="color:#94A3B8; font-size:13px; margin-top:3px;">
-                  Complete milestones, daily streaks, spins and referrals to unlock all 15 stickers!
-                </div>
-              </div>
-              <button id="gmfCloseAlbum" style="background:rgba(255,255,255,0.08); border:none; color:#CBD5E1; width:34px; height:34px; border-radius:50%; font-size:18px; cursor:pointer;">✕</button>
+        <div class="gmf-passport" role="dialog" aria-label="Sticker Passport">
+          <button class="gmf-pp-close" id="gmfClosePassport" aria-label="Close passport">✕</button>
+          <div class="gmf-pp-page gmf-pp-left">
+            <div class="gmf-pp-kicker">Rewards Passport</div>
+            <div class="gmf-pp-emblem">
+              <svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="29" fill="none" stroke="#B8862B" stroke-width="2.5"/><circle cx="32" cy="32" r="23" fill="none" stroke="#B8862B" stroke-width="1" stroke-dasharray="2 3"/><path d="M32 14l5 11 12 1-9 8 3 12-11-6-11 6 3-12-9-8 12-1z" fill="#C9962F"/></svg>
             </div>
-
-            <!-- Stats Bar -->
-            <div style="background:rgba(15,23,42,0.8); border:1px solid rgba(255,255,255,0.08); border-radius:16px; padding:12px 18px; display:flex; align-items:center; justify-content:space-between;">
-              <div>
-                <div style="font-size:11px; color:#94A3B8; text-transform:uppercase; font-weight:700;">Album Progress</div>
-                <div style="font-size:18px; font-weight:900; color:#F8FAFC;">${unlockedCount} / ${stickers.length} <span style="font-size:13px; color:#F59E0B;">(${percent}%)</span></div>
-              </div>
-              <div style="text-align:right;">
-                <div style="font-size:11px; color:#94A3B8; text-transform:uppercase; font-weight:700;">Earned Sticker XP</div>
-                <div style="font-size:18px; font-weight:900; color:#10B981;">+${totalXp} XP</div>
-              </div>
+            <div class="gmf-pp-fields">
+              <div><span>Holder</span><b>${opts.holderName || 'Gamify Player'}</b></div>
+              <div><span>Stamps</span><b>${earned.length} / ${stickers.length}</b></div>
+              <div><span>XP from stamps</span><b>+${totalXp}</b></div>
+              <div><span>Coins from stamps</span><b>+${totalCoins}</b></div>
+              <div><span>First stamp</span><b>${firstStamp ? fmt(firstStamp) : 'Not yet'}</b></div>
             </div>
-
-            <!-- Progress line -->
-            <div style="width:100%; height:6px; background:rgba(255,255,255,0.08); border-radius:3px; margin-top:12px; overflow:hidden;">
-              <div style="width:${percent}%; height:100%; background:linear-gradient(90deg, #F59E0B, #EC4899); border-radius:3px; transition:width 0.4s ease;"></div>
+            <div class="gmf-pp-progress"><div style="width:${percent}%"></div></div>
+            <div class="gmf-pp-note">${percent}% complete. Win games, keep streaks and claim rewards to earn new stamps. Each stamp is earned once.</div>
+            <div class="gmf-pp-detail" id="gmfPassportDetail">
+              <div class="gmf-pp-detail-empty">Tap a stamp to see its details.</div>
             </div>
           </div>
-
-          <div class="gmf-album-body" id="gmfAlbumGrid">
-            ${stickers.map(s => {
-              const unlocked = !!store[s.id];
-              const tier = TIER_CONFIG[s.tier] || TIER_CONFIG.common;
-              const iconPath = `${baseUrl}/assets/stickers/${s.icon}`;
-
-              return `
-                <div class="gmf-album-item ${unlocked ? 'unlocked' : 'locked'}" data-id="${s.id}" style="${unlocked ? `border-color:${tier.color};` : ''}">
-                  <div class="gmf-album-thumb">
-                    <img src="${iconPath}" alt="${s.title}" style="${unlocked ? '' : 'filter: grayscale(1) brightness(0.25);'}" />
-                  </div>
-                  <div class="gmf-album-item-name">${s.title}</div>
-                  <div class="gmf-album-item-xp" style="color:${tier.color};">
-                    ${unlocked ? `✓ Unlocked` : `🔒 ${tier.label}`}
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-
-          <div style="padding:14px 28px; border-top:1px solid rgba(255,255,255,0.08); background:#0F172A; display:flex; align-items:center; justify-content:space-between;">
-            <div style="font-size:12px; color:#94A3B8;">Click any sticker to inspect unlock criteria & rewards</div>
-            <button id="gmfTestUnlockBtn" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#F8FAFC; padding:6px 14px; border-radius:10px; font-size:12px; font-weight:700; cursor:pointer;">
-              ⚡ Unlock Random Sticker
-            </button>
+          <div class="gmf-pp-page gmf-pp-right">
+            <div class="gmf-pp-kicker">Stamps</div>
+            <div class="gmf-pp-grid">
+              ${stickers.map((s, i) => {
+                const tier = TIER_CONFIG[s.tier] || TIER_CONFIG.common;
+                const got = store[s.id];
+                return got ? `
+                  <button class="gmf-pp-stamp" data-id="${s.id}" style="--ink:${tier.color}; transform:rotate(${tilt(i)}deg);" aria-label="${s.title} stamp, earned ${fmt(got.unlockedAt)}">
+                    <img src="${baseUrl}/assets/stickers/${s.icon}" alt="" />
+                    <span class="gmf-pp-stamp-title">${s.title}</span>
+                    <span class="gmf-pp-stamp-date">${stampDate(got.unlockedAt)}</span>
+                  </button>` : `
+                  <button class="gmf-pp-slot" data-id="${s.id}" aria-label="${s.title}, not earned yet">
+                    <span class="gmf-pp-slot-q">?</span>
+                    <span class="gmf-pp-stamp-title">${s.title}</span>
+                  </button>`;
+              }).join('')}
+            </div>
           </div>
         </div>
       `;
-
       document.body.appendChild(backdrop);
 
-      backdrop.querySelector('#gmfCloseAlbum').onclick = () => backdrop.remove();
-      backdrop.onclick = (e) => {
-        if (e.target === backdrop) backdrop.remove();
-      };
-
-      // Test unlock random
-      backdrop.querySelector('#gmfTestUnlockBtn').onclick = () => {
-        backdrop.remove();
-        const rand = stickers[Math.floor(Math.random() * stickers.length)];
-        GamifyStickers.unlock(rand.id, opts);
-      };
-
-      // Click sticker item to inspect
-      backdrop.querySelectorAll('.gmf-album-item').forEach(el => {
+      const close = () => backdrop.remove();
+      backdrop.querySelector('#gmfClosePassport').onclick = close;
+      backdrop.onclick = (e) => { if (e.target === backdrop) close(); };
+      const detail = backdrop.querySelector('#gmfPassportDetail');
+      backdrop.querySelectorAll('.gmf-pp-stamp, .gmf-pp-slot').forEach(el => {
         el.onclick = () => {
-          const sid = el.getAttribute('data-id');
-          backdrop.remove();
-          GamifyStickers.unlock(sid, opts);
+          const s = STICKER_DATA.find(x => x.id === el.getAttribute('data-id'));
+          const got = store[s.id];
+          const tier = TIER_CONFIG[s.tier] || TIER_CONFIG.common;
+          detail.innerHTML = `
+            <div class="gmf-pp-detail-title" style="color:${tier.color}">${s.title} <small>${tier.label}</small></div>
+            <div class="gmf-pp-detail-tag">${s.tagline}</div>
+            <div class="gmf-pp-detail-row">${got ? `Stamped on ${fmt(got.unlockedAt)}` : `How to earn: ${s.trigger}`}</div>
+            <div class="gmf-pp-detail-row">Reward: +${s.xp} XP, +${s.coins} coins</div>`;
         };
       });
     }
   };
+
+  // New-stamp celebration (shown once per sticker).
+  function showStampModal(sticker, store, opts) {
+    injectStickerStyles();
+    const tier = TIER_CONFIG[sticker.tier] || TIER_CONFIG.common;
+    const baseUrl = opts.baseUrl || '';
+    playCelebrationSound(opts.sound);
+    const backdrop = document.createElement('div');
+    backdrop.className = 'gmf-sticker-modal-backdrop';
+    backdrop.innerHTML = `
+      <div class="gmf-sticker-card-wrap">
+        <div class="gmf-rays-bg"></div>
+        <div class="gmf-sticker-tier-badge" style="background:${tier.bg}; border:1px solid ${tier.color}; color:${tier.color}; box-shadow:${tier.glow};">
+          <span>NEW PASSPORT STAMP · ${tier.label}</span>
+        </div>
+        <div class="gmf-sticker-img-box" id="gmfStickerCard">
+          <img src="${baseUrl}/assets/stickers/${sticker.icon}" alt="${sticker.title}" />
+        </div>
+        <h2 class="gmf-sticker-title">${sticker.title}</h2>
+        <div class="gmf-sticker-tagline">${sticker.tagline}</div>
+        <div class="gmf-sticker-rewards-row">
+          <div class="gmf-sticker-pill"><span style="color:#F59E0B;">⚡</span> +${sticker.xp} XP</div>
+          <div class="gmf-sticker-pill"><span style="color:#10B981;">🪙</span> +${sticker.coins} Coins</div>
+        </div>
+        <div class="gmf-sticker-trigger-box">🎯 <strong>Earned by:</strong> ${sticker.trigger}</div>
+        <button class="gmf-sticker-btn-primary" id="gmfCollectBtn">Stamp It</button>
+        <button class="gmf-sticker-btn-secondary" id="gmfAlbumBtn">Open Passport (${Object.keys(store).length}/${STICKER_DATA.length})</button>
+      </div>
+    `;
+    document.body.appendChild(backdrop);
+    const cardWrap = backdrop.querySelector('.gmf-sticker-card-wrap');
+    createConfettiBurst(cardWrap);
+    const cardBox = backdrop.querySelector('#gmfStickerCard');
+    backdrop.addEventListener('mousemove', (e) => {
+      const rect = cardWrap.getBoundingClientRect();
+      const x = (e.clientX - rect.left) / rect.width - 0.5;
+      const y = (e.clientY - rect.top) / rect.height - 0.5;
+      cardBox.style.transform = `perspective(600px) rotateY(${x * 24}deg) rotateX(${-y * 24}deg) scale(1.08)`;
+    });
+    backdrop.querySelector('#gmfCollectBtn').onclick = () => {
+      backdrop.style.opacity = '0';
+      backdrop.style.transition = 'opacity 0.2s';
+      setTimeout(() => backdrop.remove(), 200);
+      if (typeof opts.onCollect === 'function') opts.onCollect(sticker);
+    };
+    backdrop.querySelector('#gmfAlbumBtn').onclick = () => {
+      backdrop.remove();
+      GamifyStickers.openPassport(opts);
+    };
+    backdrop.onclick = (e) => { if (e.target === backdrop) backdrop.remove(); };
+  }
+
+  function injectPassportStyles() {
+    if (document.getElementById('gmf-passport-styles')) return;
+    const st = document.createElement('style');
+    st.id = 'gmf-passport-styles';
+    st.textContent = `
+      .gmf-passport { position:relative; width:min(760px, calc(100vw - 32px)); max-height:calc(100vh - 40px); display:grid; grid-template-columns: 1fr 1.25fr; border-radius:18px; overflow:hidden; background:#5A1424; padding:10px; box-shadow:0 30px 70px rgba(0,0,0,.55); font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; color:#3A2A14; }
+      .gmf-pp-page { position:relative; overflow:auto; padding:22px 20px; background-color:#F6EFD9; background-image: repeating-radial-gradient(circle at 30% 20%, rgba(184,134,43,.06) 0 2px, transparent 2px 9px), repeating-linear-gradient(45deg, rgba(90,20,36,.035) 0 1px, transparent 1px 7px); }
+      .gmf-pp-left { border-radius:10px 2px 2px 10px; box-shadow: inset -14px 0 18px -14px rgba(0,0,0,.35); }
+      .gmf-pp-right { border-radius:2px 10px 10px 2px; box-shadow: inset 14px 0 18px -14px rgba(0,0,0,.35); }
+      .gmf-pp-close { position:absolute; top:16px; right:18px; z-index:3; width:30px; height:30px; border-radius:50%; border:none; background:rgba(90,20,36,.12); color:#5A1424; font-size:15px; cursor:pointer; }
+      .gmf-pp-kicker { font-size:11px; font-weight:800; letter-spacing:2.5px; text-transform:uppercase; color:#8C2A3E; margin-bottom:12px; }
+      .gmf-pp-emblem { width:72px; height:72px; margin:4px auto 12px; }
+      .gmf-pp-fields { display:grid; gap:7px; font-size:12.5px; }
+      .gmf-pp-fields div { display:flex; justify-content:space-between; border-bottom:1px dashed rgba(90,20,36,.25); padding-bottom:5px; }
+      .gmf-pp-fields span { color:#7A6A50; text-transform:uppercase; font-size:10.5px; letter-spacing:1px; font-weight:700; }
+      .gmf-pp-fields b { color:#3A2A14; }
+      .gmf-pp-progress { height:7px; border-radius:4px; background:rgba(90,20,36,.12); margin:14px 0 8px; overflow:hidden; }
+      .gmf-pp-progress div { height:100%; background:linear-gradient(90deg,#C9962F,#8C2A3E); border-radius:4px; }
+      .gmf-pp-note { font-size:11.5px; line-height:1.45; color:#6A5A40; }
+      .gmf-pp-detail { margin-top:14px; padding:12px; border-radius:10px; background:rgba(255,255,255,.55); border:1px solid rgba(90,20,36,.15); min-height:64px; font-size:12px; line-height:1.45; }
+      .gmf-pp-detail-empty { color:#8A7A60; }
+      .gmf-pp-detail-title { font-weight:900; font-size:14px; }
+      .gmf-pp-detail-title small { font-size:9.5px; letter-spacing:1px; margin-left:4px; opacity:.8; }
+      .gmf-pp-detail-tag { color:#6A5A40; margin:2px 0 6px; }
+      .gmf-pp-detail-row { color:#3A2A14; }
+      .gmf-pp-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap:16px 12px; padding:6px 4px; }
+      .gmf-pp-right { overflow-x:hidden; }
+      .gmf-pp-stamp, .gmf-pp-slot { position:relative; min-width:0; overflow:hidden; aspect-ratio: 1 / 1.08; border-radius:14px; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; cursor:pointer; font-family:inherit; padding:6px; background:transparent; }
+      .gmf-pp-stamp { border:3px double var(--ink); color:var(--ink); background: radial-gradient(circle, rgba(255,255,255,.35), transparent 70%); mix-blend-mode:multiply; opacity:.95; animation: gmfStampIn .35s ease both; }
+      .gmf-pp-stamp::after { content:''; position:absolute; inset:5px; border:1.2px solid var(--ink); border-radius:10px; opacity:.55; pointer-events:none; }
+      .gmf-pp-stamp img { width:58%; height:auto; filter: saturate(1.1) contrast(1.05); }
+      .gmf-pp-stamp-title { font-size:9px; font-weight:900; letter-spacing:.4px; text-transform:uppercase; text-align:center; line-height:1.15; max-width:100%; overflow-wrap:anywhere; }
+      .gmf-pp-stamp-date { font-size:8.5px; font-weight:800; letter-spacing:1px; padding:1px 5px; border:1px solid var(--ink); border-radius:4px; }
+      .gmf-pp-slot { border:2px dashed rgba(90,20,36,.22); color:rgba(90,20,36,.38); }
+      .gmf-pp-slot-q { font-size:28px; font-weight:900; font-family: Georgia, serif; }
+      .gmf-pp-stamp:focus-visible, .gmf-pp-slot:focus-visible { outline:2px solid #8C2A3E; outline-offset:3px; }
+      @keyframes gmfStampIn { from { transform: scale(1.3); opacity:0; } }
+      @media (max-width: 640px) { .gmf-passport { grid-template-columns: 1fr; overflow:auto; } .gmf-pp-left, .gmf-pp-right { border-radius:10px; box-shadow:none; } .gmf-pp-right { margin-top:8px; } }
+      @media (prefers-reduced-motion: reduce) { .gmf-pp-stamp { animation:none; } }
+    `;
+    document.head.appendChild(st);
+  }
 
   // Attach to window
   window.GamifyStickers = GamifyStickers;

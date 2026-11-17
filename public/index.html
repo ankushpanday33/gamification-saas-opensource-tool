@@ -619,7 +619,7 @@
 
     <div class="nav-group-label">Playground &amp; Rewards</div>
     <div class="nav-link" onclick="window.location.href='/live'"><i class="fa-solid fa-gamepad"></i> Live PlayZone App <span class="badge-subtle">HOT</span></div>
-    <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openAlbum()"><i class="fa-solid fa-book-bookmark"></i> Sticker Album (15)</div>
+    <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openPassport()"><i class="fa-solid fa-passport"></i> Sticker Passport <span class="badge-subtle">NEW</span></div>
 
     <div class="sidebar-api-key">
       <div class="api-key-label"><span>API KEY</span><span style="color:var(--ds-success);">ACTIVE</span></div>
@@ -810,6 +810,67 @@
           <label>${label}</label>
           <input type="${type}" class="form-input liveCfg" data-key="${key}" value="${val}">
         </div>`;
+    }
+
+    // Brand logo: upload (shrunk to max 256 px and stored as a data URL), URL, remove, apply to all.
+    function readLogoFile(file) {
+      return new Promise((resolve, reject) => {
+        if (!file || !/^image\//.test(file.type)) return reject(new Error('Please choose an image file'));
+        const reader = new FileReader();
+        reader.onerror = () => reject(new Error('Could not read the file'));
+        reader.onload = () => {
+          const dataUrl = reader.result;
+          if (file.type === 'image/svg+xml') {
+            return file.size <= 150 * 1024 ? resolve(dataUrl) : reject(new Error('SVG logo must be under 150 KB'));
+          }
+          const img = new Image();
+          img.onerror = () => reject(new Error('That image could not be opened'));
+          img.onload = () => {
+            const scale = Math.min(1, 256 / Math.max(img.width, img.height));
+            const canvas = document.createElement('canvas');
+            canvas.width = Math.max(1, Math.round(img.width * scale));
+            canvas.height = Math.max(1, Math.round(img.height * scale));
+            canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+            resolve(canvas.toDataURL('image/png'));
+          };
+          img.src = dataUrl;
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+    const LOGO_KEYS = ['logoUrl', 'logoPosition', 'logoSize', 'logoOpacity', 'logoBadge'];
+    function wireLogoControls(form) {
+      const file = form.querySelector('#gmfLogoFile');
+      const url = form.querySelector('#gmfLogoUrl');
+      const remove = form.querySelector('#gmfLogoRemove');
+      const applyAll = form.querySelector('#gmfLogoApplyAll');
+      const refresh = () => { renderCustomizerForm(); renderPreview(); };
+      if (file) file.onchange = async () => {
+        try {
+          selectedWidget.config.logoUrl = await readLogoFile(file.files[0]);
+          refresh();
+        } catch (e) { alert(e.message); }
+      };
+      if (url) url.onchange = () => {
+        const v = url.value.trim();
+        if (v && !/^(https?:\/\/|\/)/i.test(v)) { alert('Logo URL must start with https:// or /'); return; }
+        selectedWidget.config.logoUrl = v;
+        refresh();
+      };
+      if (remove) remove.onclick = () => { selectedWidget.config.logoUrl = ''; refresh(); };
+      if (applyAll) applyAll.onclick = async () => {
+        const patch = {};
+        LOGO_KEYS.forEach((k) => { if (selectedWidget.config[k] !== undefined) patch[k] = selectedWidget.config[k]; });
+        applyAll.disabled = true;
+        applyAll.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Applying...';
+        await Promise.all(widgetsData.map((w) => fetch(`/api/v1/widgets/${w.id}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ config: patch })
+        }).then(() => { Object.assign(w.config, patch); })));
+        applyAll.disabled = false;
+        applyAll.innerHTML = `<i class="fa-solid fa-check"></i> Logo saved on all ${widgetsData.length} widgets`;
+      };
     }
 
     function fieldHeader(text) {
@@ -1109,6 +1170,33 @@
         fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
       }
 
+      // Brand logo (every widget). Rendered by applyLogo() in public/sdk/widgets.js.
+      const logo = c.logoUrl || '';
+      fields += fieldHeader('Brand Logo');
+      fields += `
+        <div class="form-group">
+          <label>Logo Image</label>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <div style="width:64px; height:40px; border-radius:8px; border:1px dashed var(--ds-border, rgba(255,255,255,0.2)); display:flex; align-items:center; justify-content:center; background:rgba(255,255,255,0.06); overflow:hidden;">
+              ${logo ? `<img id="gmfLogoPreview" src="${logo.replace(/"/g, '&quot;')}" style="max-width:60px; max-height:36px; object-fit:contain;">` : '<span style="font-size:10px; color:var(--ds-text-tertiary);">none</span>'}
+            </div>
+            <label class="reset-config-btn" style="cursor:pointer; padding:6px 10px; width:auto;">
+              <i class="fa-solid fa-upload"></i> Upload
+              <input type="file" id="gmfLogoFile" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" style="display:none;">
+            </label>
+            ${logo ? '<button type="button" class="reset-config-btn" id="gmfLogoRemove" style="width:auto; padding:6px 10px;" title="Remove logo"><i class="fa-solid fa-trash"></i></button>' : ''}
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Or Logo URL (https://...)</label>
+          <input type="text" class="form-input" id="gmfLogoUrl" value="${logo.startsWith('data:') ? '' : logo.replace(/"/g, '&quot;')}" placeholder="${logo.startsWith('data:') ? 'Uploaded image in use' : 'https://your-site.com/logo.png'}">
+        </div>`;
+      fields += fieldSelect('logoPosition', 'Position', c.logoPosition || 'bottom-center', [['top-left', 'Top left'], ['top-center', 'Top center'], ['top-right', 'Top right'], ['bottom-left', 'Bottom left'], ['bottom-center', 'Bottom center'], ['bottom-right', 'Bottom right']]);
+      fields += fieldInput('logoSize', 'Height (px)', c.logoSize ?? 28, 'number');
+      fields += fieldInput('logoOpacity', 'Opacity (0.1 to 1)', c.logoOpacity ?? 1, 'number');
+      fields += fieldInput('logoBadge', 'White Badge Behind Logo', c.logoBadge === true, 'boolean');
+      fields += `<button type="button" class="reset-config-btn" id="gmfLogoApplyAll" style="width:100%; margin:4px 0 8px; padding:8px;"><i class="fa-solid fa-clone"></i> Use this logo on all widgets</button>`;
+
       fields += fieldInput('soundEnabled', 'Enable Sound Effects', c.soundEnabled, 'boolean');
       fields += `
         <div class="btn-row">
@@ -1119,6 +1207,7 @@
 
       const form = document.getElementById('customizerForm');
       form.innerHTML = fields;
+      wireLogoControls(form);
 
       form.querySelectorAll('.liveCfg').forEach(inp => {
         inp.oninput = () => {

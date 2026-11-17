@@ -564,8 +564,8 @@
         <span id="hudStreak">7 Days</span>
       </div>
       <button class="btn-album-hud" onclick="openStickerAlbum()">
-        <i class="fa-solid fa-book-bookmark"></i>
-        <span>Sticker Album</span>
+        <i class="fa-solid fa-passport"></i>
+        <span>Passport</span>
       </button>
     </div>
   </header>
@@ -700,10 +700,7 @@
   <!-- Floating Dock -->
   <div class="floating-dock">
     <button class="dock-btn primary" onclick="openStickerAlbum()">
-      <i class="fa-solid fa-book-open"></i> Sticker Album
-    </button>
-    <button class="dock-btn" onclick="unlockRandomSticker()">
-      <i class="fa-solid fa-wand-magic-sparkles"></i> Test Random Unlock
+      <i class="fa-solid fa-passport"></i> Sticker Passport
     </button>
     <button class="dock-btn" onclick="window.location.href='/dashboard'">
       <i class="fa-solid fa-sliders"></i> Open Studio
@@ -754,14 +751,6 @@
       gamify.openStickerAlbum();
     }
 
-    function unlockRandomSticker() {
-      const all = window.GamifyStickers ? window.GamifyStickers.getAll() : [];
-      if (all.length > 0) {
-        const rand = all[Math.floor(Math.random() * all.length)];
-        gamify.unlockSticker(rand.id);
-        logEvent('Sticker Unlocked', rand.title + ' (+' + rand.xp + ' XP)');
-      }
-    }
 
     document.querySelectorAll('.tool-tab-btn').forEach(btn => {
       btn.onclick = () => {
@@ -784,7 +773,7 @@
         const tier = TIER_COLORS[s.tier] || TIER_COLORS.common;
 
         return `
-          <div class="sticker-card" onclick="gamify.unlockSticker('${s.id}')">
+          <div class="sticker-card" onclick="openStickerAlbum()">
             <div class="sticker-thumb">
               <img src="/assets/stickers/${s.icon}" alt="${s.title}" />
             </div>
@@ -794,9 +783,9 @@
               <span class="badge-tier" style="background:${tier.bg}; color:${tier.color};">
                 ${s.tier}
               </span>
-              <button class="btn-test-unlock" onclick="event.stopPropagation(); gamify.unlockSticker('${s.id}')">
-                Inspect
-              </button>
+              <span class="btn-test-unlock" style="cursor:default;">
+                ${userStore[s.id] ? 'Stamped ✓' : 'Not earned'}
+              </span>
             </div>
           </div>
         `;

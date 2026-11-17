@@ -2681,6 +2681,68 @@
       .catch(() => { mount.innerHTML = '<div style="color:#94A3B8;">Could not load this widget.</div>'; });
   }
 
+  // Brand logo on every widget: config.logoUrl (uploaded data URL, http(s) or site path),
+  // logoPosition, logoSize (px height), logoOpacity, logoBadge. A MutationObserver keeps the logo
+  // in place when a widget re-renders itself or a React kit mounts later.
+  const LOGO_POSITIONS = {
+    'top-left': 'top:10px; left:12px;',
+    'top-center': 'top:10px; left:50%; transform:translateX(-50%);',
+    'top-right': 'top:10px; right:12px;',
+    'bottom-left': 'bottom:10px; left:12px;',
+    'bottom-center': 'bottom:10px; left:50%; transform:translateX(-50%);',
+    'bottom-right': 'bottom:10px; right:12px;'
+  };
+  function safeLogoUrl(u) {
+    const s = String(u || '').trim();
+    return /^(data:image\/(png|jpe?g|gif|webp|svg\+xml);base64,|https?:\/\/|\/)/i.test(s) ? s : '';
+  }
+  // The widget's own frame: plain widgets use .gw-phone-frame, play-kit uses .pk-root; for other
+  // React kits take the deepest leading element that is at least phone-card sized.
+  function findLogoAnchor(mountEl) {
+    const direct = mountEl.querySelector('.gw-phone-frame, .pk-root');
+    if (direct) return direct;
+    let el = mountEl.firstElementChild;
+    let best = null;
+    while (el) {
+      if (el.offsetWidth >= 260 && el.offsetHeight >= 300) best = el;
+      else if (best) break;
+      el = el.firstElementChild;
+    }
+    return best;
+  }
+  function placeLogo(mountEl, cfg) {
+    const url = safeLogoUrl(cfg.logoUrl);
+    const existing = mountEl.querySelector('img[data-gmf-logo]');
+    if (!url) { if (existing) existing.remove(); return; }
+    const anchor = findLogoAnchor(mountEl);
+    if (!anchor) return;
+    if (existing && existing.parentElement === anchor) return;
+    if (existing) existing.remove();
+    if (getComputedStyle(anchor).position === 'static') anchor.style.position = 'relative';
+    const size = Math.min(Math.max(Number(cfg.logoSize) || 28, 12), 120);
+    const opacity = Math.min(Math.max(cfg.logoOpacity === undefined || cfg.logoOpacity === '' ? 1 : Number(cfg.logoOpacity), 0.1), 1);
+    const badge = cfg.logoBadge === true;
+    const img = document.createElement('img');
+    img.setAttribute('data-gmf-logo', '');
+    img.alt = 'Brand logo';
+    img.src = url;
+    img.style.cssText = `position:absolute; ${LOGO_POSITIONS[cfg.logoPosition] || LOGO_POSITIONS['bottom-center']} height:${size}px; width:auto; max-width:45%; object-fit:contain; opacity:${opacity}; z-index:40; pointer-events:none;` +
+      (badge ? ' background:rgba(255,255,255,0.94); padding:4px 8px; border-radius:10px; box-shadow:0 2px 8px rgba(0,0,0,0.25); box-sizing:content-box;' : '');
+    anchor.appendChild(img);
+  }
+  function applyLogo(mountEl, widget) {
+    if (mountEl.__gmfLogoObs) { mountEl.__gmfLogoObs.disconnect(); mountEl.__gmfLogoObs = null; }
+    const cfg = (widget && widget.config) || {};
+    placeLogo(mountEl, cfg);
+    if (!safeLogoUrl(cfg.logoUrl) || typeof MutationObserver === 'undefined') return;
+    const obs = new MutationObserver(() => {
+      const img = mountEl.querySelector('img[data-gmf-logo]');
+      if (!img || img.parentElement !== findLogoAnchor(mountEl)) placeLogo(mountEl, cfg);
+    });
+    obs.observe(mountEl, { childList: true, subtree: true });
+    mountEl.__gmfLogoObs = obs;
+  }
+
   // Public API
   window.GamifyWidgets = {
     render(mountEl, widget, opts = {}) {
@@ -2709,11 +2771,16 @@
             'claw_machine_won': 'award_winner'
           };
           const targetSticker = STICKER_EVENT_MAP[ev];
-          if (targetSticker && takeAutoStickerSlot(opts.maxStickersPerSession)) {
+          // Passport stamps are earned once: skip stickers already stamped. A new stamp always goes
+          // into the passport; the celebration popup still respects the per-session cap.
+          if (targetSticker && !window.GamifyStickers.isUnlocked(targetSticker)) {
+            const showPopup = takeAutoStickerSlot(opts.maxStickersPerSession);
             setTimeout(() => {
-              window.GamifyStickers.unlock(targetSticker, {
+              const stampFn = window.GamifyStickers.stamp || window.GamifyStickers.unlock;
+              stampFn.call(window.GamifyStickers, targetSticker, {
                 baseUrl: opts.baseUrl || '',
-                sound
+                sound,
+                silent: !showPopup
               });
             }, 850);
           }
@@ -2721,6 +2788,7 @@
       };
       const ctx = { sound, emit, baseUrl: opts.baseUrl || '' };
 
+      applyLogo(mountEl, widget);
       const kit = REACT_KITS.find((k) => k.types.includes(widget.type));
       if (kit) return renderReactKit(kit, mountEl, widget, ctx);
       delete mountEl.dataset.gmfPending;
