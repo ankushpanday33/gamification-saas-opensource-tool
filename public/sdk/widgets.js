@@ -963,136 +963,342 @@
   // =========================================================================
   // 4. PAYTM CHEST FLIP & ODOMETER (ScreenRecording_11-10-2026 22-17-38_1.mp4 pt1)
   // =========================================================================
+  // Royal scratch card: maroon card with gold frame and corner filigree, brand tab, gold
+  // elephants, faint mandala, tilted gold foil ("Scratch Card", crown, laurels, peeled corner).
+  // Scratching reveals a coupon (default: 80% OFF at Skullcandy) with confetti and copy-to-clipboard.
+  const PCS_CSS = `
+    .pcs-stage { background: radial-gradient(ellipse at 50% 40%, #182A42 0%, #0E1A2B 60%, #0A1220 100%) !important; color:#fff; padding: 20px 14px 22px !important; position:relative; overflow:hidden; display:flex; flex-direction:column; align-items:center; justify-content:center; font-family: Arial, "Helvetica Neue", Helvetica, sans-serif; }
+    .pcs-reset { position:absolute; top:12px; right:12px; height:30px; padding: 0 12px; border-radius:10px; border:1.5px solid rgba(255,210,120,.35); background: rgba(10,18,32,.7); color:#F6E3B4; font-family:inherit; font-size:12.5px; font-weight:700; display:flex; align-items:center; gap:6px; cursor:pointer; z-index:5; }
+    .pcs-reset svg { width:14px; height:14px; }
+    .pcs-card { position:relative; width:300px; height:418px; margin-top:16px; border-radius:30px; padding:3px; background: linear-gradient(160deg,#FFE7A0,#E2A73A 35%,#B97A1E 60%,#FFD978); box-shadow: 0 0 26px rgba(255,190,80,.35), 0 24px 50px rgba(0,0,0,.55); }
+    .pcs-inner { position:relative; width:100%; height:100%; border-radius:27px; overflow:hidden; background: radial-gradient(ellipse at 50% 38%, #8A1530 0%, #64091F 55%, #4A0616 100%); }
+    .pcs-frame-line { position:absolute; inset:12px; border:1.2px solid rgba(240,190,90,.75); border-radius:18px; pointer-events:none; }
+    .pcs-corner { position:absolute; width:30px; height:30px; pointer-events:none; }
+    .pcs-tab { position:absolute; top:-2px; left:50%; transform: translateX(-50%); width:150px; height:42px; border-radius: 0 0 18px 18px; background: linear-gradient(180deg,#3C0412,#5A0A1E); border:1.5px solid #E7B14C; border-top:none; display:flex; align-items:center; justify-content:center; gap:7px; font-size:14.5px; font-weight:800; color:#FFF3DC; z-index:3; box-shadow: 0 4px 10px rgba(0,0,0,.35); }
+    .pcs-tab svg { width:16px; height:16px; }
+    .pcs-elephant { position:absolute; top:34px; width:54px; height:42px; z-index:2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.4)); }
+    .pcs-mandala { position:absolute; left:50%; top:52px; width:250px; height:136px; transform: translateX(-50%); opacity:.7; pointer-events:none; }
+    .pcs-spark { position:absolute; width:26px; height:26px; z-index:2; pointer-events:none; animation: pcsTwinkle 1.8s ease-in-out infinite; }
+    @keyframes pcsTwinkle { 0%,100% { opacity:1; transform: scale(1); } 50% { opacity:.55; transform: scale(.82); } }
+    .pcs-foil-wrap { position:absolute; left:22px; top:128px; width:256px; height:170px; transform: rotate(-4deg); z-index:3; }
+    .pcs-foil-card { position:absolute; inset:0; border-radius:18px; padding:3px; background: linear-gradient(160deg,#FFE7A0,#D99A2B 50%,#FFD978); box-shadow: 0 14px 28px rgba(0,0,0,.45); }
+    .pcs-coupon { position:absolute; inset:3px; border-radius:15px; background: linear-gradient(180deg,#FFF8E6,#FCEBC2); color:#5A0A18; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; gap:2px; padding:10px; }
+    .pcs-coupon .brand { font-size:11px; font-weight:900; letter-spacing:3px; color:#8A1530; text-transform:uppercase; }
+    .pcs-coupon .off { font-family: Georgia, "Times New Roman", serif; font-size:38px; font-weight:900; line-height:1; color:#7A0F2A; }
+    .pcs-coupon .sub { font-size:11.5px; font-weight:700; color:#8C5A3C; margin-bottom:6px; }
+    .pcs-code { display:flex; align-items:center; gap:8px; border:1.8px dashed #C98A1E; border-radius:12px; padding:6px 12px; background:#FFFDF5; font-size:15px; font-weight:900; letter-spacing:1.5px; color:#5A0A18; cursor:pointer; }
+    .pcs-code small { font-size:10.5px; letter-spacing:0; font-weight:700; color:#A0703A; }
+    .pcs-canvas { position:absolute; inset:3px; width:calc(100% - 6px); height:calc(100% - 6px); border-radius:15px; touch-action:none; cursor:grab; transition: opacity .5s ease; }
+    .pcs-canvas.gone { opacity:0; pointer-events:none; }
+    .pcs-foot { position:absolute; left:0; right:0; bottom:58px; display:flex; align-items:center; justify-content:center; gap:8px; font-size:13.5px; font-weight:700; color:#FFF3DC; z-index:3; white-space:nowrap; }
+    .pcs-foot .rule { width:24px; height:1.2px; background:#E7B14C; flex:none; }
+    .pcs-foot svg { width:26px; height:26px; }
+    .pcs-cta { position:absolute; left:34px; right:34px; bottom:46px; height:46px; border-radius:23px; border:2px solid #FFF0B8; cursor:pointer; font-family:inherit; font-size:15px; font-weight:900; color:#4A0616; background: linear-gradient(180deg,#FFE98A,#F5B414 55%,#D99000); box-shadow: 0 4px 0 #8A5600, 0 0 16px rgba(255,200,60,.45); z-index:4; display:none; animation: gwPopIn .3s ease; }
+    .pcs-cta.show { display:block; }
+  `;
+
+  const PCS_ELEPHANT = `<svg viewBox="0 0 64 48">
+    <defs><linearGradient id="pcsElGold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#FFE7A0"/><stop offset=".55" stop-color="#E9AE3E"/><stop offset="1" stop-color="#B9791C"/></linearGradient></defs>
+    <rect x="15" y="31" width="6" height="14" rx="2" fill="url(#pcsElGold)"/><rect x="23" y="32" width="6" height="13" rx="2" fill="url(#pcsElGold)"/>
+    <rect x="34" y="32" width="6" height="13" rx="2" fill="url(#pcsElGold)"/><rect x="41" y="31" width="6" height="14" rx="2" fill="url(#pcsElGold)"/>
+    <ellipse cx="30" cy="26" rx="19" ry="13" fill="url(#pcsElGold)"/>
+    <circle cx="48" cy="19" r="10" fill="url(#pcsElGold)"/>
+    <path d="M55 21c6 6 6 14 2 19-1.2 1.4-3 .4-2.4-1.2 2.4-5 1.6-10-3.6-14z" fill="url(#pcsElGold)"/>
+    <ellipse cx="43" cy="20" rx="6" ry="8.5" fill="#D4952E"/>
+    <path d="M52 27c3 3 6 3.6 8.5 2.4" stroke="#FFF8E6" stroke-width="2" fill="none" stroke-linecap="round"/>
+    <circle cx="51" cy="16.5" r="1.4" fill="#4A0616"/>
+    <path d="M17 13h24v15l-12 6-12-6z" fill="#C8102E" stroke="#F2C35A" stroke-width="1.6" stroke-linejoin="round"/>
+    <path d="M29 16l3 4-3 4-3-4z" fill="#F2C35A"/><circle cx="21" cy="18" r="1.3" fill="#F2C35A"/><circle cx="37" cy="18" r="1.3" fill="#F2C35A"/><circle cx="29" cy="29" r="1.3" fill="#F2C35A"/>
+    <path d="M44 9c3-2 7-2 9 1l-2 3h-6z" fill="#C8102E" stroke="#F2C35A" stroke-width="1.2"/>
+  </svg>`;
+
+  const PCS_CORNER = `<svg viewBox="0 0 30 30"><path d="M2 28V8a6 6 0 0 1 6-6h20" stroke="#E7B14C" stroke-width="1.4" fill="none"/><path d="M6 24V11a5 5 0 0 1 5-5h13" stroke="#E7B14C" stroke-width="1" fill="none" opacity=".7"/><rect x="9" y="9" width="7" height="7" transform="rotate(45 12.5 12.5)" fill="none" stroke="#E7B14C" stroke-width="1.1"/></svg>`;
+
+  const PCS_SPARK = `<svg viewBox="0 0 26 26"><path d="M13 0c1 7 6 12 13 13-7 1-12 6-13 13-1-7-6-12-13-13 7-1 12-6 13-13z" fill="#FFE8A8" style="filter: drop-shadow(0 0 5px #FFC94A)"/></svg>`;
+
   function renderPaytmChestScratch(mount, widget, ctx) {
     const c = widget.config;
     const snd = ctx.sound;
-    let coins = Number(c.startingCoins ?? 135);
-    let stage = 'card'; // 'card' | 'chest_closed' | 'chest_open'
+    const soundOn = c.soundEnabled !== false;
+    const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
+    const brandName = c.brandName || 'Your Brand';
+    const offerBrand = c.offerBrand || 'Skullcandy';
+    const offerTitle = c.offerTitle || '80% OFF';
+    const offerSubtitle = c.offerSubtitle || 'on headphones & earbuds';
+    const couponCode = c.couponCode || 'SKULL80';
+    const threshold = Number(c.scratchThresholdPercent || 45);
 
-    function renderView() {
-      const digits = String(coins).padStart(3, '0').split('');
-      const isMaroon = (c.cardTheme || 'maroon') === 'maroon';
-      const cardBg = isMaroon
-        ? 'linear-gradient(160deg, #3A0A1E, #1F0610)'
-        : 'linear-gradient(160deg, #094D7A, #04253D)';
+    if (!document.getElementById('pcs-styles')) {
+      const st = document.createElement('style');
+      st.id = 'pcs-styles';
+      st.textContent = PCS_CSS;
+      document.head.appendChild(st);
+    }
 
-      mount.innerHTML = `
-        <div class="gw-phone-frame" style="background: #0D1B2A; color: #FFFFFF; padding: 18px 16px;">
-          <button class="gw-replay-chip" id="ptmChestReset"><i class="fa-solid fa-rotate-right"></i> Reset</button>
+    const mandala = `<svg class="pcs-mandala" viewBox="0 0 220 120">
+      <g transform="translate(110 112)" fill="none" stroke="#A0213F" stroke-width="1.4">
+        ${Array.from({ length: 11 }, (_, i) => `<path d="M0 0 C-14 -30 -10 -62 0 -86 C10 -62 14 -30 0 0" transform="rotate(${-75 + i * 15})"/>`).join('')}
+        ${Array.from({ length: 9 }, (_, i) => `<path d="M0 -20 C-8 -38 -6 -52 0 -60 C6 -52 8 -38 0 -20" transform="rotate(${-60 + i * 15})"/>`).join('')}
+        <circle r="18"/><circle r="40" stroke-dasharray="3 5"/>
+      </g>
+    </svg>`;
 
-          <!-- Top Navy Summary Bar -->
-          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; background: #071220; border: 1px solid #1C314B; border-radius: 14px; padding: 10px 8px; text-align: center; margin-bottom: 20px;">
-            <div>
-              <div style="font-size: 13px; font-weight: 900; color: #38BDF8;">₹1,068</div>
-              <div style="font-size: 9px; color: #94A3B8;">Cashback Won</div>
-            </div>
-            <div style="background: #10253F; border-radius: 10px; padding: 2px 4px; border: 1px solid #254B75;">
-              <div style="font-size: 14px; font-weight: 900; color: #FACC15;" id="ptmHeaderCoins">${coins}</div>
-              <div style="font-size: 9px; color: #E2E8F0;">Gold Coins</div>
-            </div>
-            <div>
-              <div style="font-size: 13px; font-weight: 900; color: #FFF;">80</div>
-              <div style="font-size: 9px; color: #94A3B8;">Saved Vouchers</div>
-            </div>
-          </div>
+    mount.innerHTML = `
+      <div class="gw-phone-frame pcs-stage">
+        <button class="pcs-reset" id="ptmChestReset"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.3-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Reset</button>
+        <div class="pcs-card">
+          <div class="pcs-inner">
+            ${mandala}
+            <div class="pcs-frame-line"></div>
+            <div class="pcs-corner" style="left:8px; top:8px">${PCS_CORNER}</div>
+            <div class="pcs-corner" style="right:8px; top:8px; transform: scaleX(-1)">${PCS_CORNER}</div>
+            <div class="pcs-corner" style="left:8px; bottom:8px; transform: scaleY(-1)">${PCS_CORNER}</div>
+            <div class="pcs-corner" style="right:8px; bottom:8px; transform: scale(-1,-1)">${PCS_CORNER}</div>
+            <div class="pcs-tab"><svg viewBox="0 0 24 24"><path d="M10 3c.8 5 3.4 7.6 8.4 8.4-5 .8-7.6 3.4-8.4 8.4-.8-5-3.4-7.6-8.4-8.4 5-.8 7.6-3.4 8.4-8.4z" fill="#FFF3DC"/><path d="M19 1c.3 1.8 1.2 2.7 3 3-1.8.3-2.7 1.2-3 3-.3-1.8-1.2-2.7-3-3 1.8-.3 2.7-1.2 3-3z" fill="#FFF3DC"/></svg>${esc(brandName)}</div>
+            <div class="pcs-elephant" style="left:26px; transform: scaleX(-1)">${PCS_ELEPHANT}</div>
+            <div class="pcs-elephant" style="right:26px">${PCS_ELEPHANT}</div>
+            <div class="pcs-spark" style="left:18px; top:96px">${PCS_SPARK}</div>
+            <div class="pcs-spark" style="right:20px; top:300px; animation-delay:.9s">${PCS_SPARK}</div>
 
-          <div style="flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative;">
-            ${stage === 'card' ? `
-              <!-- Festive Illustrated Scratch Card -->
-              <div id="ptmScratchCard" class="gw-btn-press" style="width: 240px; height: 340px; border-radius: 22px; background: ${cardBg}; border: 2px solid #D4A153; box-shadow: 0 20px 50px rgba(0,0,0,0.6); display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 18px; cursor: pointer; position: relative; overflow: hidden;">
-                <div style="width: 100%; display: flex; justify-content: space-between; font-size: 24px;">
-                  <span>${isMaroon ? '🐘' : '🪷'}</span>
-                  <span>${isMaroon ? '🐘' : '🪷'}</span>
+            <div class="pcs-foil-wrap" id="pcsFoilWrap">
+              <div class="pcs-foil-card">
+                <div class="pcs-coupon">
+                  <div class="brand">${esc(offerBrand)}</div>
+                  <div class="off">${esc(offerTitle)}</div>
+                  <div class="sub">${esc(offerSubtitle)}</div>
+                  <div class="pcs-code" id="pcsCode"><span>${esc(couponCode)}</span><small id="pcsCodeHint">Tap to copy</small></div>
                 </div>
-                <div style="background: #230A13; border: 2px solid #D4A153; border-radius: 18px; padding: 20px 24px; text-align: center; box-shadow: 0 6px 20px rgba(0,0,0,0.4);">
-                  <div style="font-size: 22px; font-weight: 900; color: #FDE68A; letter-spacing: 1px; line-height: 1.15;">SCRATCH<br>CARD</div>
-                </div>
-                <div style="font-size: 11px; color: #FDE68A; font-weight: 700; opacity: 0.85;">Tap to Scratch &amp; Open Chest</div>
+                <canvas class="pcs-canvas" id="pcsCanvas"></canvas>
               </div>
-            ` : `
-              <!-- Treasure Chest + Flying Coins + Mechanical Odometer -->
-              <div id="ptmCoinFountain" style="position: absolute; top: 45%; left: 50%; pointer-events: none; z-index: 20;"></div>
+            </div>
 
-              ${stage === 'chest_open' ? `
-                <div style="text-align: center; margin-bottom: 10px; animation: gwPopIn 0.35s ease;">
-                  <div style="font-size: 14px; font-weight: 900; color: #E2E8F0; letter-spacing: 0.8px;">YOU WON</div>
-                  <div style="font-size: 38px; font-weight: 900; color: #FACC15; line-height: 1.1;">${c.rewardCoins || 31}</div>
-                  <div style="font-size: 13px; font-weight: 700; color: #FDE68A;">Gold Coins</div>
-                </div>
-              ` : `
-                <div style="font-size: 13px; color: #93C5FD; font-weight: 700; margin-bottom: 16px;">Tap Chest to Unlock Coins</div>
-              `}
-
-              <div id="ptmChestIcon" style="font-size: 96px; cursor: pointer; filter: drop-shadow(0 12px 24px rgba(250, 204, 21, 0.35)); transition: transform 0.2s ease;">
-                ${stage === 'chest_open' ? '👑' : '🧰'}
-              </div>
-
-              <!-- Mechanical Yellow Odometer Counter -->
-              <div style="margin-top: 24px; text-align: center;">
-                <div style="font-size: 11px; color: #CBD5E1; font-weight: 600; margin-bottom: 8px;">Available Gold Coins</div>
-                <div style="display: flex; gap: 6px; justify-content: center;">
-                  ${digits.map(d => `
-                    <div style="width: 34px; height: 44px; background: linear-gradient(180deg, #FEF08A, #FACC15); color: #0F172A; border-radius: 8px; font-size: 22px; font-weight: 900; display: flex; align-items: center; justify-content: center; box-shadow: inset 0 -3px 0 #CA8A04, 0 4px 10px rgba(0,0,0,0.4);">
-                      ${d}
-                    </div>
-                  `).join('')}
-                </div>
-              </div>
-            `}
+            <div class="pcs-foot" id="pcsFoot"><span class="rule"></span><svg viewBox="0 0 48 56"><path d="M18 31V9a4 4 0 0 1 8 0v15v-4a3.5 3.5 0 0 1 7 0v5v-2a3.5 3.5 0 0 1 7 0v4a3 3 0 0 1 6 0v12c0 8-6 14-14 14h-6c-6 0-10-4-14-10l-6-9a3.5 3.5 0 0 1 6-4l6 5z" fill="none" stroke="#FFF3DC" stroke-width="2.6" stroke-linejoin="round"/><path d="M14 9a8 8 0 0 1 16 0M10 9a12 12 0 0 1 24 0" stroke="#FFF3DC" stroke-width="2" fill="none" stroke-linecap="round"/></svg>${esc(c.footerText || 'Tap to Scratch & Win Rewards')}<span class="rule"></span></div>
+            <button class="pcs-cta" id="pcsCta">Copy Code &amp; Shop ${esc(offerBrand)}</button>
           </div>
         </div>
-      `;
+      </div>
+    `;
 
-      const card = mount.querySelector('#ptmScratchCard');
-      if (card) {
-        card.onclick = () => {
-          if (c.soundEnabled !== false) snd.playCardFlip();
-          stage = 'chest_closed';
-          renderView();
-        };
+    const wrap = mount.querySelector('#pcsFoilWrap');
+    const canvas = mount.querySelector('#pcsCanvas');
+    const cta = mount.querySelector('#pcsCta');
+    const foot = mount.querySelector('#pcsFoot');
+    const W = 250, H = 164;
+    const TILT = -4 * Math.PI / 180;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = W * dpr;
+    canvas.height = H * dpr;
+    const g = canvas.getContext('2d', { willReadFrequently: true });
+    g.scale(dpr, dpr);
+    let revealed = false;
+    let drawing = false;
+    let last = null;
+    let lastSound = 0;
+    let moves = 0;
+
+    // Small seeded random so the brush edge looks the same every time.
+    let seed = 7;
+    const rnd = () => { seed = (seed * 9301 + 49297) % 233280; return seed / 233280; };
+
+    function drawFoil() {
+      revealed = false;
+      seed = 7;
+      canvas.classList.remove('gone');
+      cta.classList.remove('show');
+      cta.textContent = `Copy Code & Shop ${offerBrand}`;
+      foot.style.display = '';
+      g.save();
+      g.globalCompositeOperation = 'source-over';
+      g.clearRect(0, 0, W, H);
+
+      // Maroon card base
+      const base = g.createRadialGradient(W / 2, H / 2, 10, W / 2, H / 2, W * 0.7);
+      base.addColorStop(0, '#7A1028');
+      base.addColorStop(1, '#4E0618');
+      g.fillStyle = base;
+      g.fillRect(0, 0, W, H);
+
+      // Gold brush-stroke foil with jagged edges
+      const pts = [];
+      const inset = 12;
+      const jag = () => (rnd() - 0.5) * 14;
+      for (let x = inset; x <= W - inset; x += 9) pts.push([x, inset + Math.abs(jag())]);
+      for (let y = inset; y <= H - inset; y += 9) pts.push([W - inset - Math.abs(jag()), y]);
+      for (let x = W - inset; x >= inset; x -= 9) pts.push([x, H - inset - Math.abs(jag())]);
+      for (let y = H - inset; y >= inset; y -= 9) pts.push([inset + Math.abs(jag()), y]);
+      g.beginPath();
+      pts.forEach(([x, y], i) => (i ? g.lineTo(x, y) : g.moveTo(x, y)));
+      g.closePath();
+      const gold = g.createRadialGradient(W * 0.48, H * 0.45, 8, W * 0.5, H * 0.5, W * 0.62);
+      gold.addColorStop(0, '#FFF1BE');
+      gold.addColorStop(0.45, '#F7CB62');
+      gold.addColorStop(1, '#D6962A');
+      g.fillStyle = gold;
+      g.fill();
+      // brushed texture
+      g.save();
+      g.clip();
+      g.globalAlpha = 0.18;
+      for (let i = 0; i < 70; i++) {
+        g.strokeStyle = rnd() > 0.5 ? '#FFFFFF' : '#B9791C';
+        g.lineWidth = 0.6 + rnd() * 1.2;
+        const y = rnd() * H;
+        g.beginPath();
+        g.moveTo(rnd() * 40, y);
+        g.lineTo(W - rnd() * 40, y + (rnd() - 0.5) * 10);
+        g.stroke();
       }
+      g.restore();
 
-      const chestEl = mount.querySelector('#ptmChestIcon');
-      if (chestEl && stage === 'chest_closed') {
-        chestEl.onclick = () => {
-          stage = 'chest_open';
-          const target = coins + Number(c.rewardCoins || 31);
-          renderView();
-          if (c.soundEnabled !== false) snd.playCoinCascade(10);
-          fireConfetti(['#FACC15', '#00B9F5', '#FFFFFF']);
+      // Crown
+      g.fillStyle = '#5A0A18';
+      g.beginPath();
+      const cx = W / 2, cy = 36;
+      g.moveTo(cx - 14, cy + 6); g.lineTo(cx - 15, cy - 6); g.lineTo(cx - 7, cy); g.lineTo(cx, cy - 10);
+      g.lineTo(cx + 7, cy); g.lineTo(cx + 15, cy - 6); g.lineTo(cx + 14, cy + 6); g.closePath(); g.fill();
+      g.fillRect(cx - 14, cy + 7, 28, 3.5);
+      [[-15, -7], [0, -11], [15, -7]].forEach(([dx, dy]) => { g.beginPath(); g.arc(cx + dx, cy + dy, 2.2, 0, Math.PI * 2); g.fill(); });
 
-          // Spawn flying coins arc
-          const fountain = mount.querySelector('#ptmCoinFountain');
-          for (let i = 0; i < 10; i++) {
-            const coin = document.createElement('div');
-            coin.textContent = '🪙';
-            coin.style.cssText = `position:absolute; font-size:20px; --tx-mid:${(Math.random()-0.5)*140}px; --tx-end:${(Math.random()-0.5)*60}px; animation: gwCoinFly 0.85s ease-out ${i * 0.05}s forwards;`;
-            fountain.appendChild(coin);
-          }
-
-          // Animate odometer rolling smoothly
-          const stepTimer = setInterval(() => {
-            if (coins < target) {
-              coins++;
-              if (c.soundEnabled !== false) snd.playOdometerTick();
-              const hdr = mount.querySelector('#ptmHeaderCoins');
-              if (hdr) hdr.innerText = coins;
-            } else {
-              clearInterval(stepTimer);
-              renderView();
-            }
-          }, 28);
-          ctx.emit('paytm_chest_opened', { widgetId: widget.id, rewardCoins: c.rewardCoins || 31 });
-        };
-      }
-
-      mount.querySelector('#ptmChestReset').onclick = () => {
-        coins = Number(c.startingCoins ?? 135);
-        stage = 'card';
-        renderView();
+      // Laurels
+      const laurel = (x, flip) => {
+        g.save();
+        g.translate(x, H / 2 + 8);
+        g.scale(flip ? -1 : 1, 1);
+        g.strokeStyle = '#8A5418';
+        g.lineWidth = 1.6;
+        g.beginPath();
+        g.moveTo(6, 30); g.quadraticCurveTo(-8, 4, 2, -30); g.stroke();
+        g.fillStyle = '#9A6020';
+        for (let k = 0; k < 6; k++) {
+          const t = k / 5;
+          const px = 6 - 14 * Math.sin(t * Math.PI) * 0.6 + (t * -4);
+          const py = 30 - t * 58;
+          g.save(); g.translate(px, py); g.rotate(-0.9 + t * 0.4);
+          g.beginPath(); g.ellipse(-5, 0, 6, 2.6, 0, 0, Math.PI * 2); g.fill();
+          g.restore();
+          g.save(); g.translate(px + 1, py - 2); g.rotate(0.5 + t * 0.3);
+          g.beginPath(); g.ellipse(5, 0, 5.5, 2.4, 0, 0, Math.PI * 2); g.fill();
+          g.restore();
+        }
+        g.restore();
       };
+      laurel(42, false);
+      laurel(W - 42, true);
+
+      // "Scratch Card"
+      g.fillStyle = '#5A0A18';
+      g.textAlign = 'center';
+      g.font = '900 34px Georgia, "Times New Roman", serif';
+      g.fillText(c.foilLine1 || 'Scratch', W / 2, 88);
+      g.fillText(c.foilLine2 || 'Card', W / 2, 124);
+
+      // Peeled corner (bottom right)
+      g.beginPath();
+      g.moveTo(W - 46, H); g.quadraticCurveTo(W - 8, H - 6, W, H - 44); g.lineTo(W, H); g.closePath();
+      g.fillStyle = '#4E0618';
+      g.fill();
+      const curl = g.createLinearGradient(W - 46, H - 44, W, H);
+      curl.addColorStop(0, '#FFE7A0');
+      curl.addColorStop(0.6, '#E2A73A');
+      curl.addColorStop(1, '#9A6516');
+      g.beginPath();
+      g.moveTo(W - 46, H - 2); g.quadraticCurveTo(W - 40, H - 40, W - 2, H - 44); g.quadraticCurveTo(W - 22, H - 24, W - 46, H - 2);
+      g.fillStyle = curl;
+      g.fill();
+      g.restore();
     }
-    renderView();
+
+    function clearedFraction() {
+      const data = g.getImageData(0, 0, canvas.width, canvas.height).data;
+      const step = Math.max(4, Math.round(8 * dpr));
+      let total = 0, clear = 0;
+      for (let y = 0; y < canvas.height; y += step) {
+        for (let x = 0; x < canvas.width; x += step) {
+          total++;
+          if (data[(y * canvas.width + x) * 4 + 3] < 40) clear++;
+        }
+      }
+      return clear / total;
+    }
+
+    function reveal() {
+      if (revealed) return;
+      revealed = true;
+      drawing = false;
+      canvas.classList.add('gone');
+      foot.style.display = 'none';
+      cta.classList.add('show');
+      if (soundOn) snd.playRewardChime();
+      fireConfetti(['#FFD54A', '#C8102E', '#FFFFFF', '#F7CB62']);
+      // A second, wider burst from both sides
+      if (typeof window.confetti === 'function') {
+        setTimeout(() => {
+          window.confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.7 }, colors: ['#FFD54A', '#C8102E', '#FFFFFF'] });
+          window.confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.7 }, colors: ['#FFD54A', '#C8102E', '#FFFFFF'] });
+        }, 250);
+      }
+      ctx.emit('paytm_scratch_revealed', { widgetId: widget.id, offer: `${offerTitle} ${offerBrand}`, code: couponCode });
+    }
+
+    function scratchTo(x, y) {
+      if (revealed) return;
+      g.save();
+      g.globalCompositeOperation = 'destination-out';
+      g.lineWidth = 40;
+      g.lineCap = 'round';
+      g.lineJoin = 'round';
+      g.beginPath();
+      g.moveTo(last ? last.x : x, last ? last.y : y);
+      g.lineTo(x + 0.01, y);
+      g.stroke();
+      g.restore();
+      last = { x, y };
+      const now = performance.now();
+      if (soundOn && now - lastSound > 90) { lastSound = now; snd.playScratchFoil(); }
+      if (++moves >= 6) {
+        moves = 0;
+        if (clearedFraction() * 100 >= threshold) reveal();
+      }
+    }
+
+    // Map a pointer to canvas coordinates, undoing the foil's -4deg tilt.
+    const pos = (e) => {
+      const r = wrap.getBoundingClientRect();
+      const dx = e.clientX - (r.left + r.width / 2);
+      const dy = e.clientY - (r.top + r.height / 2);
+      const ux = dx * Math.cos(-TILT) - dy * Math.sin(-TILT);
+      const uy = dx * Math.sin(-TILT) + dy * Math.cos(-TILT);
+      return { x: W / 2 + ux, y: H / 2 + uy };
+    };
+    canvas.onpointerdown = (e) => {
+      e.preventDefault();
+      drawing = true;
+      last = null;
+      try { canvas.setPointerCapture(e.pointerId); } catch (_) {}
+      const p = pos(e);
+      scratchTo(p.x, p.y);
+    };
+    canvas.onpointermove = (e) => { if (drawing) { const p = pos(e); scratchTo(p.x, p.y); } };
+    canvas.onpointerup = canvas.onpointercancel = () => {
+      drawing = false;
+      last = null;
+      if (!revealed && clearedFraction() * 100 >= threshold) reveal();
+    };
+
+    const copyCode = () => {
+      navigator.clipboard?.writeText(couponCode).catch(() => {});
+      mount.querySelector('#pcsCodeHint').textContent = 'Copied!';
+      if (soundOn) snd.playToastPop();
+      ctx.emit('paytm_coupon_copied', { widgetId: widget.id, code: couponCode });
+    };
+    mount.querySelector('#pcsCode').onclick = () => { if (revealed) copyCode(); };
+    cta.onclick = () => {
+      copyCode();
+      cta.textContent = 'Copied! Use it at checkout';
+    };
+    mount.querySelector('#ptmChestReset').onclick = drawFoil;
+
+    drawFoil();
   }
 
   // =========================================================================
@@ -2445,6 +2651,7 @@
             'mynaksh_streak_claimed': 'binge_watcher',
             'mynaksh_mantra_claimed': 'romance_pro',
             'paytm_chest_opened': 'wildlife_explorer',
+            'paytm_scratch_revealed': 'wildlife_explorer',
             'paytm_spin_won': 'sci_fi_geek',
             'fire_streak_extended': 'binge_watcher',
             'coin_reward_claimed': 'award_winner'

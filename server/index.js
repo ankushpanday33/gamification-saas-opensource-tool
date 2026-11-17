@@ -72,13 +72,17 @@ function getDefaultWidgets() {
     {
       id: 'paytm_chest_04',
       type: 'paytm_chest_scratch',
-      name: 'Paytm Card-to-Chest Coin Odometer',
+      name: 'Paytm Royal Scratch Card',
       appSource: 'Paytm Cashback (ScreenRecording 11-10 pt1)',
       status: 'active',
       config: {
-        cardTheme: 'maroon',
-        startingCoins: 135,
-        rewardCoins: 31,
+        brandName: 'Your Brand',
+        offerBrand: 'Skullcandy',
+        offerTitle: '80% OFF',
+        offerSubtitle: 'on headphones & earbuds',
+        couponCode: 'SKULL80',
+        footerText: 'Tap to Scratch & Win Rewards',
+        scratchThresholdPercent: 45,
         soundEnabled: true
       },
       stats: { impressions: 6890, claims: 5940, conversionRate: '86.2%' }

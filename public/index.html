@@ -603,7 +603,7 @@
     <div class="nav-link" onclick="selectWidget('gamify_leaderboard_08')"><i class="fa-solid fa-ranking-star"></i> Triple Podium Ranks</div>
     <div class="nav-link" onclick="selectWidget('zepto_scratch_01')"><i class="fa-solid fa-wand-magic-sparkles"></i> Zepto Scratch</div>
     <div class="nav-link" onclick="selectWidget('duolingo_flow_06')"><i class="fa-solid fa-feather-pointed"></i> Duolingo Flow</div>
-    <div class="nav-link" onclick="selectWidget('paytm_chest_04')"><i class="fa-solid fa-treasure-chest"></i> Paytm Chest Flip</div>
+    <div class="nav-link" onclick="selectWidget('paytm_chest_04')"><i class="fa-solid fa-ticket"></i> Paytm Scratch Card</div>
     <div class="nav-link" onclick="selectWidget('paytm_spin_05')"><i class="fa-solid fa-dharmachakra"></i> Paytm Spin &amp; Win</div>
     <div class="nav-link" onclick="selectWidget('instaastro_points_03')"><i class="fa-solid fa-star"></i> InstaAstro Points</div>
     <div class="nav-link" onclick="selectWidget('fire_streak_10')"><i class="fa-solid fa-fire"></i> Fire Streak <span class="badge-subtle">NEW</span></div>
@@ -860,9 +860,13 @@
         fields += fieldInput('accentColor', 'Accent Color', c.accentColor, 'color');
         fields += fieldInput('progressColor', 'Progress Fill Color', c.progressColor, 'color');
       } else if (w.type === 'paytm_chest_scratch') {
-        fields += fieldSelect('cardTheme', 'Scratch Card Design', c.cardTheme, [['maroon', 'Royal Maroon Elephant'], ['teal', 'Blue-Teal Lotus']]);
-        fields += fieldInput('startingCoins', 'Starting Odometer Coins', c.startingCoins, 'number');
-        fields += fieldInput('rewardCoins', 'Reward Coins Won', c.rewardCoins, 'number');
+        fields += fieldInput('brandName', 'Brand Tab Text', c.brandName || 'Your Brand');
+        fields += fieldInput('offerBrand', 'Coupon Brand', c.offerBrand || 'Skullcandy');
+        fields += fieldInput('offerTitle', 'Coupon Offer', c.offerTitle || '80% OFF');
+        fields += fieldInput('offerSubtitle', 'Coupon Subtitle', c.offerSubtitle || 'on headphones & earbuds');
+        fields += fieldInput('couponCode', 'Coupon Code', c.couponCode || 'SKULL80');
+        fields += fieldInput('footerText', 'Footer Text', c.footerText || 'Tap to Scratch & Win Rewards');
+        fields += fieldInput('scratchThresholdPercent', 'Reveal Threshold %', c.scratchThresholdPercent || 45, 'number');
       } else if (w.type === 'paytm_spin_win') {
         fields += fieldInput('title', 'Header Title', c.title || 'Spin and Win');
         fields += fieldInput('spinsLeft', 'Initial Spins Left', c.spinsLeft, 'number');
