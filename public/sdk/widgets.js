@@ -2638,10 +2638,19 @@
   // (packages/flow-kit, react-native-flow-kit running on react-native-web).
   const REACT_KITS = [
     { types: ['fire_streak', 'coin_wallet'], global: 'GamifyCoinsStreak', file: 'coins-streak.js' },
-    { types: ['nudge_tour'], global: 'GamifyFlowKit', file: 'flow-kit.js' }
+    { types: ['nudge_tour'], global: 'GamifyFlowKit', file: 'flow-kit.js' },
+    // Gift Rain, Smash the Egg and Claw Machine from @play-kit/games (packages/play-kit)
+    { types: ['gift_rain', 'smash_egg', 'claw_machine'], global: 'GamifyPlayKit', file: 'play-kit.js', css: 'play-kit.css' }
   ];
   const kitLoading = {};
   function loadKit(kit, baseUrl) {
+    if (kit.css && !document.querySelector(`link[data-gmf-kit="${kit.css}"]`)) {
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.href = `${baseUrl}/sdk/${kit.css}`;
+      link.setAttribute('data-gmf-kit', kit.css);
+      document.head.appendChild(link);
+    }
     if (window[kit.global]) return Promise.resolve(window[kit.global]);
     if (!kitLoading[kit.file]) {
       kitLoading[kit.file] = new Promise((resolve, reject) => {
@@ -2694,7 +2703,10 @@
             'paytm_spin_won': 'sci_fi_geek',
             'fire_streak_extended': 'binge_watcher',
             'coin_reward_claimed': 'award_winner',
-            'nudge_tour_completed': 'award_winner'
+            'nudge_tour_completed': 'award_winner',
+            'gift_rain_won': 'action_hero',
+            'smash_egg_won': 'comedy_king',
+            'claw_machine_won': 'award_winner'
           };
           const targetSticker = STICKER_EVENT_MAP[ev];
           if (targetSticker && takeAutoStickerSlot(opts.maxStickersPerSession)) {

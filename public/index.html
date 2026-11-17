@@ -612,6 +612,11 @@
     <div class="nav-group-label">Nudges</div>
     <div class="nav-link" onclick="selectWidget('nudge_tour_12')"><i class="fa-solid fa-hand-pointer"></i> Onboarding Tour <span class="badge-subtle">NEW</span></div>
 
+    <div class="nav-group-label">Arcade Games</div>
+    <div class="nav-link" onclick="selectWidget('gift_rain_13')"><i class="fa-solid fa-cloud-rain"></i> Gift Rain <span class="badge-subtle">NEW</span></div>
+    <div class="nav-link" onclick="selectWidget('smash_egg_14')"><i class="fa-solid fa-egg"></i> Smash the Egg <span class="badge-subtle">NEW</span></div>
+    <div class="nav-link" onclick="selectWidget('claw_machine_15')"><i class="fa-solid fa-hand-back-fist"></i> Claw Machine <span class="badge-subtle">NEW</span></div>
+
     <div class="nav-group-label">Playground &amp; Rewards</div>
     <div class="nav-link" onclick="window.location.href='/live'"><i class="fa-solid fa-gamepad"></i> Live PlayZone App <span class="badge-subtle">HOT</span></div>
     <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openAlbum()"><i class="fa-solid fa-book-bookmark"></i> Sticker Album (15)</div>
@@ -753,7 +758,10 @@
         gamify_leaderboard: 'fa-ranking-star',
         fire_streak: 'fa-fire',
         coin_wallet: 'fa-wallet',
-        nudge_tour: 'fa-hand-pointer'
+        nudge_tour: 'fa-hand-pointer',
+        gift_rain: 'fa-cloud-rain',
+        smash_egg: 'fa-egg',
+        claw_machine: 'fa-hand-back-fist'
       };
       document.getElementById('widgetsListContainer').innerHTML = widgetsData.map(w => {
         const ic = iconMap[w.type] || 'fa-gift';
@@ -940,6 +948,66 @@
         fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
         fields += fieldInput('requireIgnite', 'Swipe / Tap to Ignite', c.requireIgnite, 'boolean');
         fields += fieldInput('showTiers', 'Show Flame Tiers', c.showTiers, 'boolean');
+      } else if (['gift_rain', 'smash_egg', 'claw_machine'].includes(w.type)) {
+        // play-kit arcade games. Defaults mirror packages/play-kit/demo/browser.tsx.
+        const v = (k, d) => (c[k] === undefined || c[k] === '' ? d : c[k]);
+        const prizeFields = (count, defaults) => {
+          for (let i = 1; i <= count; i++) {
+            const d = defaults[i - 1] || ['', true, 1];
+            fields += fieldHeader(`Prize ${i}`);
+            fields += fieldInput(`prize${i}Label`, 'Prize (empty = not used)', c[`prize${i}Label`] ?? d[0]);
+            fields += fieldInput(`prize${i}Win`, 'Counts as a Win', v(`prize${i}Win`, d[1]), 'boolean');
+            fields += fieldInput(`prize${i}Weight`, 'Chance Weight (0 = never)', v(`prize${i}Weight`, d[2]), 'number');
+          }
+        };
+        fields += fieldHeader('Look');
+        fields += fieldSelect('theme', 'Theme', v('theme', 'nocturne'), [['nocturne', 'Nocturne (midnight gold)'], ['light', 'Light'], ['neon', 'Neon'], ['holo', 'Holo']]);
+        fields += fieldInput('accentColor', 'Accent Color (blank = theme)', v('accentColor', ''));
+        fields += fieldInput('accentColor2', 'Second Accent (blank = theme)', v('accentColor2', ''));
+        fields += fieldInput('backgroundColor', 'Background (blank = theme)', v('backgroundColor', ''));
+        fields += fieldInput('textColor', 'Text Color (blank = theme)', v('textColor', ''));
+        fields += fieldInput('cornerRadius', 'Corner Radius (px)', v('cornerRadius', 20), 'number');
+
+        if (w.type === 'gift_rain') {
+          fields += fieldHeader('Game');
+          fields += fieldInput('title', 'Title', v('title', 'Gift Rain'));
+          fields += fieldInput('intro', 'Intro ({target}, {seconds})', v('intro', 'Score {target} in {seconds}s'));
+          fields += fieldInput('durationSec', 'Game Length (seconds)', v('durationSec', 10), 'number');
+          fields += fieldInput('scoreToWin', 'Score Needed to Win', v('scoreToWin', 8), 'number');
+          fields += fieldInput('spawnIntervalMs', 'New Drop Every (ms, lower = harder)', v('spawnIntervalMs', 380), 'number');
+          fields += fieldInput('goldChance', 'Gold Drop Chance (%)', v('goldChance', 12), 'number');
+          fields += fieldInput('bombChance', 'Bomb Chance (%)', v('bombChance', 16), 'number');
+          fields += fieldInput('redScore', 'Points per Red Gift', v('redScore', 1), 'number');
+          fields += fieldInput('goldScore', 'Points per Gold Gift', v('goldScore', 3), 'number');
+          fields += fieldInput('bombScore', 'Points per Bomb (negative)', v('bombScore', -2), 'number');
+          fields += fieldInput('rewardLabel', 'Reward Name (sent with the claim)', v('rewardLabel', '50 Coins'));
+        } else if (w.type === 'smash_egg') {
+          fields += fieldHeader('Game');
+          fields += fieldInput('title', 'Title', v('title', 'Smash the Egg'));
+          fields += fieldInput('eggCount', 'Number of Eggs (2 to 5)', v('eggCount', 3), 'number');
+          fields += fieldInput('hammerDelayMs', 'Hammer Delay (ms)', v('hammerDelayMs', 700), 'number');
+          fields += fieldInput('revealDelayMs', 'Reveal Delay (ms)', v('revealDelayMs', 700), 'number');
+          prizeFields(5, [['₹50 Cashback', true, 2], ['100 Coins', true, 3], ['Better luck next time', false, 4], ['', true, 1], ['', true, 1]]);
+        } else {
+          fields += fieldHeader('Game');
+          fields += fieldInput('title', 'Title', v('title', 'Claw Machine'));
+          fields += fieldInput('brand', 'Machine Sign', v('brand', 'CLAW'));
+          fields += fieldInput('maxPlays', 'Tries per Player', v('maxPlays', 3), 'number');
+          fields += fieldInput('winRatePercent', 'Lucky Win Rate (%)', v('winRatePercent', 30), 'number');
+          fields += fieldInput('targetX', 'Prize Position (5 to 95 %)', v('targetX', 70), 'number');
+          fields += fieldInput('tolerance', 'Aim Tolerance (%)', v('tolerance', 12), 'number');
+          fields += fieldInput('clawSpeed', 'Claw Speed', v('clawSpeed', 0.55), 'number');
+          prizeFields(4, [['Teddy Bear', true, 2], ['₹100 Voucher', true, 2], ['Wireless Earbuds', true, 1], ['', true, 1]]);
+        }
+
+        fields += fieldHeader('Button & Message Text');
+        fields += fieldInput('startText', 'Start Button', v('startText', 'Start'));
+        fields += fieldInput('claimText', 'Claim Button', v('claimText', 'Claim reward'));
+        fields += fieldInput('tryAgainText', 'Try Again Button', v('tryAgainText', 'Try again'));
+        fields += fieldInput('wonText', 'Win Message', v('wonText', 'You won!'));
+        fields += fieldInput('loseText', 'Lose Message', v('loseText', 'So close!'));
+        fields += fieldInput('claimedText', 'Claimed Label', v('claimedText', 'Claimed'));
+        if (w.type === 'claw_machine') fields += fieldInput('playsLeftText', 'Plays Left Label', v('playsLeftText', 'Plays left'));
       } else if (w.type === 'nudge_tour') {
         // Defaults here mirror resolveConfig() in packages/flow-kit/demo/browser.tsx.
         const v = (k, d) => (c[k] === undefined || c[k] === '' ? d : c[k]);

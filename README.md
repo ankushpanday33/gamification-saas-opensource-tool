@@ -57,6 +57,16 @@ npm run build:flowkit
 
 Events: `nudge_tour_started`, `nudge_tour_step`, `nudge_tour_completed`.
 
+## 🕹 Arcade Games: Gift Rain, Smash the Egg, Claw Machine
+
+The **Arcade Games** section has three games from [@play-kit/games](https://github.com/singer0503/play-kit) (MIT), vendored unmodified in `packages/play-kit/src` with its `LICENSE`: `gift_rain_13`, `smash_egg_14` and `claw_machine_15`. All text is English and can be changed in the Studio, along with theme, colours, prizes and difficulty. The wrapper is `packages/play-kit/demo/browser.tsx`, bundled to `public/sdk/play-kit.js` and `play-kit.css`:
+
+```bash
+npm run build:playkit
+```
+
+Events: `<game>_started`, `<game>_won`, `<game>_lost`, `<game>_claimed` (for example `gift_rain_won`).
+
 Automatic sticker rewards show at most 2 times per browser session. Change it with `maxStickersPerSession` in the `GamifyWidgets.render` options.
 
 To run on another port: `PORT=4010 npm start` (macOS/Linux) or `$env:PORT=4010; npm start` (PowerShell).

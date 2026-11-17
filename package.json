@@ -7,6 +7,7 @@
     "start": "node server/index.js",
     "build:coins": "esbuild packages/coins-streak/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --loader:.css=text --define:process.env.NODE_ENV=\\\"production\\\" --external:lottie-web/* --external:@rive-app/canvas --outfile=public/sdk/coins-streak.js",
     "typecheck:coins": "tsc -p packages/coins-streak",
+    "build:playkit": "esbuild packages/play-kit/demo/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=public/sdk/play-kit.js",
     "build:flowkit": "esbuild packages/flow-kit/demo/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --alias:react-native=react-native-web --define:process.env.NODE_ENV=\\\"production\\\" --define:__DEV__=false --external:react-native-svg --outfile=public/sdk/flow-kit.js"
   },
   "devDependencies": {

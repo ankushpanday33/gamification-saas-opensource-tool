@@ -415,6 +415,89 @@
         "claims": 31,
         "conversionRate": "3.1%"
       }
+    },
+    {
+      "id": "gift_rain_13",
+      "type": "gift_rain",
+      "name": "Gift Rain (Catch the Drops)",
+      "appSource": "@play-kit/games",
+      "status": "active",
+      "config": {
+        "theme": "nocturne",
+        "durationSec": 10,
+        "scoreToWin": 8,
+        "spawnIntervalMs": 380,
+        "goldChance": 12,
+        "bombChance": 16,
+        "redScore": 1,
+        "goldScore": 3,
+        "bombScore": -2,
+        "rewardLabel": "50 Coins",
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "smash_egg_14",
+      "type": "smash_egg",
+      "name": "Smash the Golden Egg",
+      "appSource": "@play-kit/games",
+      "status": "active",
+      "config": {
+        "theme": "nocturne",
+        "eggCount": 3,
+        "prize1Label": "₹50 Cashback",
+        "prize1Win": true,
+        "prize1Weight": 2,
+        "prize2Label": "100 Coins",
+        "prize2Win": true,
+        "prize2Weight": 3,
+        "prize3Label": "Better luck next time",
+        "prize3Win": false,
+        "prize3Weight": 4,
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "claw_machine_15",
+      "type": "claw_machine",
+      "name": "Claw Machine",
+      "appSource": "@play-kit/games",
+      "status": "active",
+      "config": {
+        "theme": "nocturne",
+        "title": "Claw Machine",
+        "brand": "CLAW",
+        "maxPlays": 3,
+        "winRatePercent": 30,
+        "targetX": 70,
+        "tolerance": 12,
+        "clawSpeed": 0.55,
+        "prize1Label": "Teddy Bear",
+        "prize1Win": true,
+        "prize1Weight": 2,
+        "prize2Label": "₹100 Voucher",
+        "prize2Win": true,
+        "prize2Weight": 2,
+        "prize3Label": "Wireless Earbuds",
+        "prize3Win": true,
+        "prize3Weight": 1,
+        "soundEnabled": true
+      },
+      "stats": {
+        "impressions": 1000,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
     }
   ],
   "events": [
