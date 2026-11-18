@@ -263,6 +263,24 @@ function getDefaultWidgets() {
   ];
 }
 
+// GH-Arcade classics: one widget per game, generated from the built registry (public/arcade/registry.json).
+function arcadeWidgets() {
+  try {
+    const reg = JSON.parse(fs.readFileSync(path.join(PUBLIC_DIR, 'arcade', 'registry.json'), 'utf8'));
+    return reg.map((g) => ({
+      id: 'arcade_' + g.slug,
+      type: 'arcade_game',
+      name: g.title + ' (Arcade)',
+      appSource: 'GH-Arcade (MIT)',
+      status: 'active',
+      config: { slug: g.slug, title: g.title, controls: g.controls, accentColor: g.accent, showHeader: true, maxWidth: 560, cornerRadius: 16 },
+      stats: { impressions: 0, claims: 0, conversionRate: '0.0%' }
+    }));
+  } catch (_) { return []; }
+}
+
+function getAllDefaultWidgets() { return getDefaultWidgets().concat(arcadeWidgets()); }
+
 function loadDB() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
   if (fs.existsSync(DB_FILE)) {
@@ -271,7 +289,7 @@ function loadDB() {
       if (parsed && Array.isArray(parsed.widgets) && parsed.widgets.length >= 7) {
         // Add any default widgets introduced after this DB was created, keeping saved ones as they are.
         const have = new Set(parsed.widgets.map(w => w.id));
-        const missing = getDefaultWidgets().filter(w => !have.has(w.id));
+        const missing = getAllDefaultWidgets().filter(w => !have.has(w.id));
         if (missing.length) {
           parsed.widgets.push(...missing);
           fs.writeFileSync(DB_FILE, JSON.stringify(parsed, null, 2));
@@ -282,7 +300,7 @@ function loadDB() {
   }
   const fresh = {
     projects: [{ id: 'proj_default', name: 'Default Workspace', apiKey: 'pk_live_duo_9821', createdAt: new Date().toISOString() }],
-    widgets: getDefaultWidgets(),
+    widgets: getAllDefaultWidgets(),
     events: []
   };
   fs.writeFileSync(DB_FILE, JSON.stringify(fresh, null, 2));
@@ -379,7 +397,7 @@ const server = http.createServer(async (req, res) => {
 
     const resetMatch = pathname.match(/^\/api\/v1\/widgets\/([a-zA-Z0-9_-]+)\/reset$/);
     if (resetMatch && req.method === 'POST') {
-      const def = getDefaultWidgets().find(w => w.id === resetMatch[1]);
+      const def = getAllDefaultWidgets().find(w => w.id === resetMatch[1]);
       const idx = DB.widgets.findIndex(w => w.id === resetMatch[1]);
       if (def && idx !== -1) {
         DB.widgets[idx] = def;
@@ -575,6 +593,8 @@ const server = http.createServer(async (req, res) => {
   if (reqPath === '/' || reqPath === '/dashboard') reqPath = '/index.html';
   if (reqPath === '/live' || reqPath === '/showcase' || reqPath === '/app') reqPath = '/live.html';
   if (reqPath === '/demo') reqPath = '/embed-demo.html';
+  // Folder URLs (e.g. /arcade/games/snake/) serve their index.html.
+  if (reqPath.endsWith('/') && reqPath !== '/') reqPath += 'index.html';
 
   const filePath = path.join(PUBLIC_DIR, reqPath);
   if (!filePath.startsWith(PUBLIC_DIR)) {

@@ -5,6 +5,7 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
+    "build:arcade": "npm --prefix packages/gh-arcade install && npm --prefix packages/gh-arcade run build",
     "offerkit:up": "docker compose -f offerkit/docker-compose.yml --env-file offerkit/.env up -d",
     "offerkit:down": "docker compose -f offerkit/docker-compose.yml --env-file offerkit/.env down",
     "offerkit:setup": "node scripts/offerkit-setup.js",

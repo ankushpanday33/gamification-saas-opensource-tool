@@ -73,6 +73,18 @@ To run on another port: `PORT=4010 npm start` (macOS/Linux) or `$env:PORT=4010; 
 
 ---
 
+## 🕹 Arcade Classics (GH-Arcade)
+
+17 complete browser games (Neon Breakout, Snake, Stack, Astro Blaster, Runner, Star Siege, Hop, Pong, Maze, Pinball, Lander, Mines, Golf, Crates, Match, Bubbles, Tanks) from [TMHSDigital/GH-Arcade](https://github.com/TMHSDigital/GH-Arcade) (MIT), vendored in `packages/gh-arcade` and built to `public/arcade/`. Each game is a Studio widget (`arcade_<slug>`, type `arcade_game`) with a customizable frame.
+
+```js
+gamify.mount('#slot', 'arcade_snake');   // or gamify.launchModal('arcade_snake')
+```
+
+Finished runs become Gamify events (`arcade_game_over`, `arcade_high_score`) that earn loyalty points in OfferKit and show up in Analytics. Rebuild the games with `npm run build:arcade`. Changes to upstream are listed in `packages/gh-arcade/GAMIFY.md`.
+
+---
+
 ## 💻 1-Line Embed Code
 
 ### Option 1: Vanilla HTML / Webflow / Shopify

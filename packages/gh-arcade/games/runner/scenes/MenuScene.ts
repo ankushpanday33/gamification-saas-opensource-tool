@@ -1,0 +1,42 @@
+import Phaser from 'phaser';
+import { GAME_ID, GROUND_Y, HEIGHT, WIDTH } from '../config';
+import { DAILY_MODES } from '../../../shared/rng';
+import { buildMenu, SCENE } from '../../../shared/scenes';
+import { helpKeys } from '../../../shared/settings';
+import { NEON, reducedMotion } from '../../../shared/ui';
+
+export class MenuScene extends Phaser.Scene {
+  private floor!: Phaser.GameObjects.Graphics;
+
+  constructor() {
+    super(SCENE.menu);
+  }
+
+  create(): void {
+    this.floor = this.add.graphics().setAlpha(0.5);
+    buildMenu(this, {
+      gameId: GAME_ID,
+      title: ['NEON', 'RUNNER'],
+      colors: [NEON.pink, NEON.cyan],
+      help: `Jump: tap / ${helpKeys('action', 'Space')} / ${helpKeys('up', '↑')} / A (again in the air to double jump)    Slide: swipe down / ${helpKeys(['down', 'alt'], '↓')} / B\nPress down in the air to dive    Pause: ${helpKeys('pause', 'P')} / Start`,
+      // Daily: the same course for everyone on a given (UTC) date, with its own best score.
+      modes: DAILY_MODES,
+    });
+  }
+
+  /** A perspective floor grid rushing toward the viewer. */
+  update(now: number): void {
+    const time = reducedMotion() ? 0 : now;
+    const g = this.floor.clear();
+    g.lineStyle(1, NEON.pink, 0.6);
+    const horizon = GROUND_Y - 40;
+    for (let i = 0; i < 10; i++) {
+      const t = ((time / 900 + i / 10) % 1) ** 2;
+      const y = horizon + t * (HEIGHT - horizon);
+      g.lineBetween(0, y, WIDTH, y);
+    }
+    for (let x = -12; x <= 12; x++) {
+      g.lineBetween(WIDTH / 2 + x * 20, horizon, WIDTH / 2 + x * 140, HEIGHT);
+    }
+  }
+}

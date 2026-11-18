@@ -7,7 +7,7 @@ const EARN_POINTS = {
   paytm_scratch_revealed: 5, paytm_spin_won: 5, paytm_spin_redeemed: 10, cred_wheel_won: 5, cred_wheel_redeemed: 10,
   cred_slot_won: 5, cred_slot_voucher_claimed: 10, duolingo_flow_completed: 50, coin_reward_claimed: 10,
   fire_streak_extended: 10, gift_rain_won: 5, smash_egg_won: 5, claw_machine_won: 5, nudge_tour_completed: 20,
-  leaderboard_top3_reached: 25, instaastro_points_earned: 5,
+  leaderboard_top3_reached: 25, arcade_game_over: 10, arcade_high_score: 25, instaastro_points_earned: 5,
 };
 const CONVERSIONS = new Set(Object.keys(EARN_POINTS));
 const day = (d = new Date()) => d.toISOString().slice(0, 10);

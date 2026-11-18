@@ -1,0 +1,89 @@
+import Phaser from 'phaser';
+import { onUnlock } from './achievements';
+import { hideLoader, initGameChrome, showBootError } from './chrome';
+import { registerOffline } from './pwa';
+import { getSettings } from './settings';
+import { initStorageNotice } from './storage-notice';
+import { showToast } from './toast';
+import { PIXEL_FONT } from './ui';
+
+export interface ArcadeGameOptions {
+  width?: number;
+  height?: number;
+  backgroundColor?: string;
+  scenes: Phaser.Types.Scenes.SceneType[];
+  physics?: Phaser.Types.Core.PhysicsConfig;
+}
+
+/**
+ * With reduced motion on, camera shake and flash become no-ops for every game, so no game has to
+ * remember to check the setting before each effect. The setting is read on every call, so turning
+ * it on or off from the pause menu takes effect straight away.
+ */
+function applyReducedMotion(): void {
+  const proto = Phaser.Cameras.Scene2D.Camera.prototype as unknown as Record<string, (...args: unknown[]) => unknown>;
+  if (proto.__motionAware) return;
+  for (const effect of ['shake', 'flash']) {
+    const original = proto[effect];
+    proto[effect] = function (this: unknown, ...args: unknown[]) {
+      return getSettings().reducedMotion ? this : original.apply(this, args);
+    };
+  }
+  proto.__motionAware = () => true;
+}
+
+/** Standard Phaser setup for arcade games: fixed logical resolution scaled to fit any screen. */
+function createArcadeGame(opts: ArcadeGameOptions): Phaser.Game {
+  applyReducedMotion();
+  const game = new Phaser.Game({
+    type: Phaser.AUTO,
+    parent: 'game',
+    width: opts.width ?? 800,
+    height: opts.height ?? 600,
+    backgroundColor: opts.backgroundColor ?? '#05050d',
+    scale: {
+      mode: Phaser.Scale.FIT,
+      autoCenter: Phaser.Scale.CENTER_BOTH,
+    },
+    physics: opts.physics ?? { default: 'arcade', arcade: { debug: false } },
+    // Three pointers so a touch stick and two buttons can be held at once; gamepads via the Gamepad API.
+    input: { activePointers: 3, gamepad: true },
+    scene: opts.scenes,
+  });
+  // Swap the page's "loading" placeholder for the game once its first frame is drawn.
+  game.events.once(Phaser.Core.Events.POST_RENDER, hideLoader);
+  // Handy for debugging and automated tests in `npm run dev`; stripped from production builds.
+  if (import.meta.env.DEV) (window as unknown as { game: Phaser.Game }).game = game;
+  return game;
+}
+
+/**
+ * Waits (briefly) for the pixel font so Phaser doesn't render text in the fallback font, then starts the game.
+ * Use this from each game's main.ts.
+ */
+export async function startArcadeGame(opts: ArcadeGameOptions): Promise<Phaser.Game> {
+  // An error before the first frame (a scene's create() throwing, a failed import) would otherwise
+  // leave LOADING on screen forever. showBootError is a no-op once the game has rendered.
+  window.addEventListener('error', showBootError);
+  window.addEventListener('unhandledrejection', showBootError);
+  registerOffline();
+  // Gamify: mark embedded mode (hides the back link) and tell the host page the game is up.
+  if (window.parent !== window) {
+    document.documentElement.classList.add('embedded');
+    window.parent.postMessage({ source: 'gamify-arcade', type: 'ready' }, '*');
+  }
+  initGameChrome((opts.width ?? 800) / (opts.height ?? 600));
+  onUnlock((t) => showToast('Trophy unlocked', t.title));
+  initStorageNotice();
+  try {
+    await Promise.race([document.fonts.load(`16px ${PIXEL_FONT}`), new Promise((r) => setTimeout(r, 1500))]);
+  } catch {
+    /* font loading unsupported; fall back to monospace */
+  }
+  try {
+    return createArcadeGame(opts);
+  } catch (err) {
+    showBootError();
+    throw err;
+  }
+}

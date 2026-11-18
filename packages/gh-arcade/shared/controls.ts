@@ -1,0 +1,252 @@
+import Phaser from 'phaser';
+import { DEFAULT_KEYS, PLAYER_KEYS } from './default-keys';
+import { playRumble, STICK_PRESS } from './gamepad';
+import { DEFAULT_PAD_BUTTONS, getSettings, type RebindableAction, sharedKeyCodes } from './settings';
+
+/**
+ * Unified input for arcade games: keyboard, gamepad and on-screen touch controls behind one API.
+ *
+ *   const controls = new ArcadeControls(this);                                  // solo, default bindings
+ *   const controls = new ArcadeControls(this, { hold: { keys: ['C'], buttons: [3] } });  // plus extras
+ *   const p2 = new ArcadeControls(this, undefined, { player: 2 });              // arrows + second gamepad
+ *
+ *   controls.isDown('left')        held this frame
+ *   controls.justPressed('action') went down since last frame (never misses quick taps)
+ *   controls.axisX / axisY         -1..1, analog from the left stick, digital from keys and d-pad
+ *
+ * Solo players get the keys from their settings (rebindable on the hub), and every player's gamepad
+ * uses the buttons chosen there. State refreshes automatically at the start of every scene update.
+ */
+
+export interface Binding {
+  /** Phaser key names (e.g. 'LEFT', 'A', 'SPACE') or keyCodes. */
+  keys?: (string | number)[];
+  /** Standard gamepad button indices; see PAD in shared/gamepad.ts for the named ones. */
+  buttons?: number[];
+  /** Left-stick direction that also triggers this binding. */
+  stick?: 'left' | 'right' | 'up' | 'down';
+}
+
+// The default keys are written once in shared/default-keys.ts, which the settings also read.
+const binding = (action: RebindableAction, stick?: Binding['stick']): Binding => ({ keys: [...DEFAULT_KEYS[action]], buttons: [DEFAULT_PAD_BUTTONS[action]], ...(stick && { stick }) });
+const DEFAULT_BINDINGS = {
+  left: binding('left', 'left'),
+  right: binding('right', 'right'),
+  up: binding('up', 'up'),
+  down: binding('down', 'down'),
+  action: binding('action'),
+  alt: binding('alt'),
+  pause: binding('pause'),
+  mute: binding('mute'),
+} satisfies Record<RebindableAction, Binding>;
+
+export type DefaultAction = keyof typeof DEFAULT_BINDINGS;
+
+export interface ControlsOptions {
+  /** Local multiplayer seat. Omit for single player (all default keys, first gamepad, custom bindings). */
+  player?: 1 | 2;
+}
+
+const STICK_DEADZONE = 0.25;
+
+export class ArcadeControls<Extra extends string = never> {
+  private readonly bindings: Record<string, Binding>;
+  private readonly keysByAction = new Map<string, Phaser.Input.Keyboard.Key[]>();
+  private readonly actionsByKeyCode = new Map<number, string[]>();
+  private readonly virtual = new Map<string, Array<() => boolean>>();
+  private stickSource?: () => { x: number; y: number };
+
+  private down = new Set<string>();
+  private prevNonKey = new Set<string>();
+  private pressed = new Set<string>();
+  private latched = new Set<string>();
+  /** The pad found for this frame, and whether it has been looked up yet (see `pad`). */
+  private framePad: Phaser.Input.Gamepad.Gamepad | undefined;
+  private padKnown = false;
+
+  constructor(
+    private readonly scene: Phaser.Scene,
+    extra?: Record<Extra, Binding>,
+    private readonly options: ControlsOptions = {},
+  ) {
+    this.bindings = { ...this.resolveDefaults(), ...(extra ?? {}) } as Record<string, Binding>;
+    const kb = scene.input.keyboard;
+    if (kb) {
+      for (const [name, binding] of Object.entries(this.bindings)) {
+        const keys = (binding.keys ?? []).map((k) => kb.addKey(k));
+        this.keysByAction.set(name, keys);
+        for (const key of keys) {
+          const list = this.actionsByKeyCode.get(key.keyCode) ?? [];
+          list.push(name);
+          this.actionsByKeyCode.set(key.keyCode, list);
+        }
+      }
+      // Latch key presses from events so a tap shorter than one frame is never missed.
+      kb.on('keydown', (e: KeyboardEvent) => {
+        if (e.repeat) return;
+        for (const name of this.actionsByKeyCode.get(e.keyCode) ?? []) this.latched.add(name);
+      });
+    }
+    scene.events.on(Phaser.Scenes.Events.PRE_UPDATE, this.refresh, this);
+    scene.events.once(Phaser.Scenes.Events.SHUTDOWN, () => scene.events.off(Phaser.Scenes.Events.PRE_UPDATE, this.refresh, this));
+  }
+
+  /**
+   * Default bindings for this seat: per-player key halves, or the solo keys with the player's custom
+   * bindings. Custom gamepad buttons apply to every seat, since each has its own pad.
+   */
+  private resolveDefaults(): Record<DefaultAction, Binding> {
+    const out = {} as Record<DefaultAction, Binding>;
+    const { bindings: custom, padBindings } = getSettings();
+    for (const [name, b] of Object.entries(DEFAULT_BINDINGS) as [DefaultAction, Binding][]) {
+      const keys = this.options.player
+        ? name === 'pause' || name === 'mute'
+          ? sharedKeyCodes(name)
+          : [...PLAYER_KEYS[this.options.player][name]]
+        : custom[name]
+          ? [custom[name]!.code]
+          : b.keys;
+      out[name] = { ...b, keys, buttons: padBindings[name] ? [padBindings[name]!.button] : b.buttons };
+    }
+    return out;
+  }
+
+  /** True for a seat in a local two-player game, false for a solo player. */
+  get seated(): boolean {
+    return this.options.player !== undefined;
+  }
+
+  /**
+   * This seat's gamepad: the first connected pad for solo play, or pad 1 / pad 2 in two-player games.
+   * It is looked up once per frame (the buttons, the stick and the axes all read it several times)
+   * and again at the start of the next.
+   */
+  get pad(): Phaser.Input.Gamepad.Gamepad | undefined {
+    if (!this.padKnown) {
+      this.padKnown = true;
+      const gp = this.scene.input.gamepad;
+      this.framePad =
+        !gp || gp.total === 0
+          ? undefined
+          : gp
+              .getAll()
+              .filter((p) => p.connected)
+              .sort((a, b) => a.index - b.index)[(this.options.player ?? 1) - 1];
+    }
+    return this.framePad;
+  }
+
+  get usingGamepad(): boolean {
+    return this.pad !== undefined;
+  }
+
+  /**
+   * Rumbles this seat's gamepad for an impact: `strength` from 0 to 1, for `ms` milliseconds. Does
+   * nothing without a gamepad that can rumble, or when the player has turned rumble off, so games
+   * can call it wherever they shake the screen.
+   */
+  rumble(strength: number, ms: number): void {
+    if (!getSettings().rumble) return;
+    playRumble(this.pad?.pad?.vibrationActuator, strength, ms);
+  }
+
+  /** Adds an extra source (e.g. an on-screen button) that holds a binding down. */
+  addVirtual(name: DefaultAction | Extra, isDown: () => boolean): void {
+    const list = this.virtual.get(name) ?? [];
+    list.push(isDown);
+    this.virtual.set(name, list);
+  }
+
+  /** Adds an analog stick source (e.g. an on-screen joystick) merged into axisX/axisY. */
+  setStick(source: () => { x: number; y: number }): void {
+    this.stickSource = source;
+  }
+
+  isDown(name: DefaultAction | Extra): boolean {
+    return this.down.has(name);
+  }
+
+  justPressed(name: DefaultAction | Extra): boolean {
+    return this.pressed.has(name);
+  }
+
+  get axisX(): number {
+    return this.axis('x');
+  }
+
+  get axisY(): number {
+    return this.axis('y');
+  }
+
+  /**
+   * The analog stick alone, -1..1 on each axis, with no keys or d-pad mixed in: for games that point
+   * in the stick's direction (Golf's aim) rather than step with it.
+   */
+  get stick(): { x: number; y: number } {
+    return this.stickValue();
+  }
+
+  private axis(which: 'x' | 'y'): number {
+    const stick = this.stickValue();
+    const analog = which === 'x' ? stick.x : stick.y;
+    if (Math.abs(analog) > STICK_DEADZONE) return analog;
+    const neg = which === 'x' ? 'left' : 'up';
+    const pos = which === 'x' ? 'right' : 'down';
+    // Keys and d-pad only; the stick was already handled above.
+    return (this.digitalDown(pos) ? 1 : 0) - (this.digitalDown(neg) ? 1 : 0);
+  }
+
+  private stickValue(): { x: number; y: number } {
+    let x = 0;
+    let y = 0;
+    const pad = this.pad;
+    if (pad) {
+      x = pad.leftStick.x;
+      y = pad.leftStick.y;
+    }
+    if (this.stickSource) {
+      const v = this.stickSource();
+      if (Math.abs(v.x) > Math.abs(x)) x = v.x;
+      if (Math.abs(v.y) > Math.abs(y)) y = v.y;
+    }
+    return { x, y };
+  }
+
+  private keyDown(name: string): boolean {
+    return (this.keysByAction.get(name) ?? []).some((k) => k.isDown);
+  }
+
+  private buttonDown(name: string): boolean {
+    const pad = this.pad;
+    return !!pad && (this.bindings[name]?.buttons ?? []).some((i) => pad.buttons[i]?.pressed);
+  }
+
+  private digitalDown(name: string): boolean {
+    return this.keyDown(name) || this.buttonDown(name) || (this.virtual.get(name) ?? []).some((fn) => fn());
+  }
+
+  private refresh(): void {
+    // A new frame: gamepads may have come or gone.
+    this.padKnown = false;
+    const stick = this.stickValue();
+    const down = new Set<string>();
+    const nonKeyDown = new Set<string>();
+    for (const [name, b] of Object.entries(this.bindings)) {
+      const stickDown =
+        (b.stick === 'left' && stick.x < -STICK_PRESS) ||
+        (b.stick === 'right' && stick.x > STICK_PRESS) ||
+        (b.stick === 'up' && stick.y < -STICK_PRESS) ||
+        (b.stick === 'down' && stick.y > STICK_PRESS);
+      const other = this.buttonDown(name) || stickDown || (this.virtual.get(name) ?? []).some((fn) => fn());
+      if (other) nonKeyDown.add(name);
+      if (other || this.keyDown(name)) down.add(name);
+    }
+    // Edge detection: keyboard presses come from latched events, everything else from frame-to-frame state.
+    const pressed = new Set(this.latched);
+    for (const name of nonKeyDown) if (!this.prevNonKey.has(name)) pressed.add(name);
+    this.latched.clear();
+    this.prevNonKey = nonKeyDown;
+    this.down = down;
+    this.pressed = pressed;
+  }
+}

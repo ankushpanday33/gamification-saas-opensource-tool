@@ -2937,6 +2937,54 @@
     mountEl.__gmfLogoObs = obs;
   }
 
+
+  // GH-Arcade classics (MIT, TMHSDigital): each game runs in an iframe from /arcade/games/<slug>/ and reports
+  // finished runs back with postMessage. We turn those into Gamify events (arcade_game_over, arcade_high_score).
+  function renderArcadeGame(mount, widget, ctx) {
+    const c = widget.config || {};
+    const accent = c.accentColor || '#FF6623';
+    const slug = String(c.slug || 'breakout').replace(/[^a-z0-9_-]/gi, '');
+    const esc = (t) => String(t == null ? '' : t).replace(/[&<>"']/g, (m) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[m]));
+    if (mount.__arcadeOff) { mount.__arcadeOff(); mount.__arcadeOff = null; }
+    mount.innerHTML = `
+      <div class="gw-arcade" style="width:100%;max-width:${Number(c.maxWidth) || 560}px;margin:0 auto;background:#0B0B12;color:#EDE8E1;border:1px solid #23232F;border-radius:${Number(c.cornerRadius) || 16}px;overflow:hidden;font-family:Arial,Helvetica,sans-serif;">
+        ${c.showHeader === false ? '' : `
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 14px;border-bottom:1px solid #23232F;">
+          <div style="min-width:0;">
+            <div style="font-size:14px;font-weight:700;letter-spacing:-0.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(c.title || slug)}</div>
+            <div style="font-size:11px;color:#8C847A;margin-top:2px;">${esc(c.controls || '')}</div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;">
+            <span style="font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid #2E2E3C;color:#8C847A;">Runs <b id="gaRuns" style="color:#EDE8E1;">0</b></span>
+            <span style="font-size:11px;padding:4px 9px;border-radius:999px;border:1px solid ${esc(accent)};color:${esc(accent)};">Best <b id="gaBest">0</b></span>
+          </div>
+        </div>`}
+        <div style="position:relative;width:100%;aspect-ratio:4/3;background:#05050D;">
+          <iframe id="gaFrame" title="${esc(c.title || slug)}" allow="autoplay; fullscreen; gamepad"
+            style="position:absolute;inset:0;width:100%;height:100%;border:0;display:block;"></iframe>
+        </div>
+      </div>`;
+    const frame = mount.querySelector('#gaFrame');
+    const runsEl = mount.querySelector('#gaRuns');
+    const bestEl = mount.querySelector('#gaBest');
+    let runs = 0, best = 0;
+    frame.src = (ctx.baseUrl || '') + '/arcade/games/' + slug + '/';
+
+    const onMsg = (e) => {
+      const d = e.data;
+      if (!d || d.source !== 'gamify-arcade' || e.source !== frame.contentWindow) return;
+      if (d.type === 'game_over') {
+        runs += 1; best = Math.max(best, Number(d.score) || 0);
+        if (runsEl) runsEl.textContent = runs;
+        if (bestEl) bestEl.textContent = best.toLocaleString('en-IN');
+        ctx.emit('arcade_game_over', { widgetId: widget.id, slug, score: Number(d.score) || 0, isRecord: !!d.isRecord });
+        if (d.isRecord) ctx.emit('arcade_high_score', { widgetId: widget.id, slug, score: Number(d.score) || 0 });
+      }
+    };
+    window.addEventListener('message', onMsg);
+    mount.__arcadeOff = () => window.removeEventListener('message', onMsg);
+  }
+
   // Public API
   window.GamifyWidgets = {
     render(mountEl, widget, opts = {}) {
@@ -2962,7 +3010,9 @@
             'nudge_tour_completed': 'award_winner',
             'gift_rain_won': 'action_hero',
             'smash_egg_won': 'comedy_king',
-            'claw_machine_won': 'award_winner'
+            'claw_machine_won': 'award_winner',
+            'arcade_high_score': 'action_hero',
+            'arcade_game_over': 'comedy_king'
           };
           const targetSticker = STICKER_EVENT_MAP[ev];
           // Passport stamps are earned once: skip stickers already stamped. A new stamp always goes
@@ -3003,6 +3053,7 @@
         case 'cred_wheel': return renderCredWheel(mountEl, widget, ctx);
         case 'cred_slot_machine': return renderCredSlotMachine(mountEl, widget, ctx);
         case 'gamify_leaderboard': return renderGamifyLeaderboard(mountEl, widget, ctx);
+        case 'arcade_game': return renderArcadeGame(mountEl, widget, ctx);
         default:
           mountEl.innerHTML = `<div style="color:#94A3B8;">Unknown widget type: ${widget.type}</div>`;
       }

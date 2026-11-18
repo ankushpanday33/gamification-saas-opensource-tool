@@ -115,7 +115,7 @@
       },
       "stats": {
         "impressions": 0,
-        "claims": 1,
+        "claims": 0,
         "conversionRate": "0.0%"
       }
     },
@@ -498,44 +498,365 @@
         "claims": 0,
         "conversionRate": "0.0%"
       }
-    }
-  ],
-  "events": [
+    },
     {
-      "id": "evt_1794981476700_ssl9",
-      "userId": "u_sdk_check",
-      "event": "paytm_scratch_revealed",
-      "metadata": {
-        "widgetId": "paytm_chest_04",
-        "offer": "80% OFF Skullcandy",
-        "code": "SKULL80"
+      "id": "arcade_breakout",
+      "type": "arcade_game",
+      "name": "Neon Breakout (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "breakout",
+        "title": "Neon Breakout",
+        "controls": "Mouse / touch / ← →",
+        "accentColor": "#00f0ff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
       },
-      "timestamp": "2026-11-18T05:57:56.700Z"
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_snake",
+      "type": "arcade_game",
+      "name": "Neon Snake (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "snake",
+        "title": "Neon Snake",
+        "controls": "Arrows / swipe / d-pad",
+        "accentColor": "#3dff8a",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_stack",
+      "type": "arcade_game",
+      "name": "Neon Stack (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "stack",
+        "title": "Neon Stack",
+        "controls": "Arrows + X/Z / drag and tap / gamepad",
+        "accentColor": "#a45bff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_astro",
+      "type": "arcade_game",
+      "name": "Astro Blaster (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "astro",
+        "title": "Astro Blaster",
+        "controls": "Arrows + Space / touch stick / gamepad",
+        "accentColor": "#ff8a3d",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_runner",
+      "type": "arcade_game",
+      "name": "Neon Runner (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "runner",
+        "title": "Neon Runner",
+        "controls": "Tap + swipe / Space + Down / gamepad",
+        "accentColor": "#ff2e97",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_siege",
+      "type": "arcade_game",
+      "name": "Star Siege (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "siege",
+        "title": "Star Siege",
+        "controls": "Arrows + Space / drag / gamepad",
+        "accentColor": "#ffe45e",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_hop",
+      "type": "arcade_game",
+      "name": "Neon Hop (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "hop",
+        "title": "Neon Hop",
+        "controls": "Arrows / swipe / d-pad",
+        "accentColor": "#3d7bff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_pong",
+      "type": "arcade_game",
+      "name": "Neon Pong (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "pong",
+        "title": "Neon Pong",
+        "controls": "Up / down / drag / gamepad",
+        "accentColor": "#5ef2d0",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_maze",
+      "type": "arcade_game",
+      "name": "Neon Maze (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "maze",
+        "title": "Neon Maze",
+        "controls": "Arrows / swipe / d-pad",
+        "accentColor": "#ffe45e",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_pinball",
+      "type": "arcade_game",
+      "name": "Neon Pinball (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "pinball",
+        "title": "Neon Pinball",
+        "controls": "Left / right / hold sides / gamepad",
+        "accentColor": "#ff2e97",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_lander",
+      "type": "arcade_game",
+      "name": "Neon Lander (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "lander",
+        "title": "Neon Lander",
+        "controls": "Arrows + Space / touch stick / gamepad",
+        "accentColor": "#ff4d4d",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_mines",
+      "type": "arcade_game",
+      "name": "Neon Mines (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "mines",
+        "title": "Neon Mines",
+        "controls": "Click + right-click / tap + hold / arrows + Space / gamepad",
+        "accentColor": "#c6ff3d",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_golf",
+      "type": "arcade_game",
+      "name": "Neon Golf (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "golf",
+        "title": "Neon Golf",
+        "controls": "Drag / arrows + Space / gamepad",
+        "accentColor": "#7fd4ff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_crates",
+      "type": "arcade_game",
+      "name": "Neon Crates (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "crates",
+        "title": "Neon Crates",
+        "controls": "Arrows + Z/R / swipe / d-pad",
+        "accentColor": "#8a9bff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_match",
+      "type": "arcade_game",
+      "name": "Neon Match (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "match",
+        "title": "Neon Match",
+        "controls": "Drag or tap / arrows + Space / gamepad",
+        "accentColor": "#e05eff",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_bubbles",
+      "type": "arcade_game",
+      "name": "Neon Bubbles (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "bubbles",
+        "title": "Neon Bubbles",
+        "controls": "Mouse / drag / ← → + Space / gamepad",
+        "accentColor": "#ff9ef0",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
+    },
+    {
+      "id": "arcade_tanks",
+      "type": "arcade_game",
+      "name": "Neon Tanks (Arcade)",
+      "appSource": "GH-Arcade (MIT)",
+      "status": "active",
+      "config": {
+        "slug": "tanks",
+        "title": "Neon Tanks",
+        "controls": "Arrows + Space / drag / gamepad",
+        "accentColor": "#ffb000",
+        "showHeader": true,
+        "maxWidth": 560,
+        "cornerRadius": 16
+      },
+      "stats": {
+        "impressions": 0,
+        "claims": 0,
+        "conversionRate": "0.0%"
+      }
     }
   ],
-  "statsZeroed": true,
-  "analytics": {
-    "daily": {
-      "2026-11-18": {
-        "events": 1,
-        "impressions": 0,
-        "conversions": 1,
-        "users": [
-          "u_sdk_check"
-        ]
-      }
-    },
-    "users": {
-      "u_sdk_check": {
-        "first": "2026-11-18T05:57:56.700Z",
-        "events": 1,
-        "conversions": 1,
-        "last": "2026-11-18T05:57:56.700Z"
-      }
-    },
-    "eventTotals": {
-      "paytm_scratch_revealed": 1
-    },
-    "source": {}
-  }
+  "events": [],
+  "statsZeroed": true
 }

@@ -529,6 +529,9 @@
     <div class="nav-link" onclick="selectWidget('smash_egg_14')"><svg class="ic"><use href="#i-egg"/></svg> Smash the egg <span class="badge-subtle">new</span></div>
     <div class="nav-link" onclick="selectWidget('claw_machine_15')"><svg class="ic"><use href="#i-grab"/></svg> Claw machine <span class="badge-subtle">new</span></div>
 
+    <div class="nav-group-label">Arcade classics</div>
+    <div class="nav-link" onclick="selectWidget('arcade_breakout')"><svg class="ic"><use href="#i-gamepad"/></svg> 17 classic games <span class="badge-subtle">new</span></div>
+
     <div class="nav-group-label">Playground and rewards</div>
     <div class="nav-link" onclick="window.location.href='/live'"><svg class="ic"><use href="#i-gamepad"/></svg> Live PlayZone app</div>
     <div class="nav-link" onclick="window.GamifyStickers && window.GamifyStickers.openPassport()"><svg class="ic"><use href="#i-passport"/></svg> Sticker passport</div>
@@ -705,6 +708,7 @@
         coin_wallet: 'wallet',
         nudge_tour: 'pointer',
         gift_rain: 'cloud',
+        arcade_game: 'gamepad',
         smash_egg: 'egg',
         claw_machine: 'grab'
       };
@@ -963,6 +967,17 @@
         fields += fieldInput('accentColor', 'Secondary Color', c.accentColor, 'color');
         fields += fieldInput('requireIgnite', 'Swipe / Tap to Ignite', c.requireIgnite, 'boolean');
         fields += fieldInput('showTiers', 'Show Flame Tiers', c.showTiers, 'boolean');
+      } else if (w.type === 'arcade_game') {
+        // GH-Arcade classics: the game itself is fixed, the frame around it is customizable.
+        fields += fieldHeader('Frame');
+        fields += fieldInput('title', 'Title', c.title);
+        fields += fieldInput('controls', 'Controls Hint', c.controls);
+        fields += fieldInput('showHeader', 'Show Header (title, runs, best)', c.showHeader !== false, 'boolean');
+        fields += fieldInput('accentColor', 'Accent Color', c.accentColor || '#FF6623', 'color');
+        fields += fieldInput('maxWidth', 'Max Width (px)', c.maxWidth || 560, 'number');
+        fields += fieldInput('cornerRadius', 'Corner Radius (px)', c.cornerRadius || 16, 'number');
+        fields += fieldHeader('Rewards');
+        fields += '<div style="font-size:12px;color:var(--muted);line-height:1.5;">Every finished run earns 10 loyalty points and a new high score earns 25 more, recorded in OfferKit for identified users.</div>';
       } else if (['gift_rain', 'smash_egg', 'claw_machine'].includes(w.type)) {
         // play-kit arcade games. Defaults mirror packages/play-kit/demo/browser.tsx.
         const v = (k, d) => (c[k] === undefined || c[k] === '' ? d : c[k]);
