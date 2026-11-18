@@ -6,7 +6,8 @@ const path = require('path');
 
 const ROOT = path.join(__dirname, '..');
 const OK_DIR = path.join(ROOT, 'offerkit');
-const MAP_FILE = path.join(ROOT, 'data', 'offerkit-map.json');
+// On Vercel the repo is read-only: the id cache goes to /tmp (it is rebuilt from OfferKit when missing).
+const MAP_FILE = process.env.VERCEL ? path.join(require('os').tmpdir(), 'gamify-offerkit-map.json') : path.join(ROOT, 'data', 'offerkit-map.json');
 
 function readEnvFile() {
   const o = {};
@@ -19,6 +20,14 @@ function readEnvFile() {
   return o;
 }
 function readSeed() {
+  // Hosted: ids come from env vars. Local: offerkit/seed.json written by npm run offerkit:setup.
+  if (process.env.OFFERKIT_LOYALTY_PROGRAM_ID) {
+    return {
+      loyaltyProgramId: process.env.OFFERKIT_LOYALTY_PROGRAM_ID,
+      referralProgramId: process.env.OFFERKIT_REFERRAL_PROGRAM_ID,
+      couponCampaignId: process.env.OFFERKIT_COUPON_CAMPAIGN_ID,
+    };
+  }
   try { return JSON.parse(fs.readFileSync(path.join(OK_DIR, 'seed.json'), 'utf8')); } catch (_) { return {}; }
 }
 

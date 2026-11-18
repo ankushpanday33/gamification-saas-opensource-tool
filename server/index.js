@@ -4,10 +4,21 @@ const path = require('path');
 const offerkit = require('./offerkit');
 const analytics = require('./analytics');
 
+const os = require('os');
+
 const PORT = Number(process.env.PORT) || 4000;
+const IS_VERCEL = !!process.env.VERCEL;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
-const DATA_DIR = path.join(__dirname, '..', 'data');
+// The repo filesystem is read-only on Vercel, so the working copy of the DB lives in /tmp there and is seeded
+// from the bundled data/db.json. Durable storage on Vercel is the optional Redis below.
+const BUNDLED_DB = path.join(__dirname, '..', 'data', 'db.json');
+const DATA_DIR = IS_VERCEL ? path.join(os.tmpdir(), 'gamify') : path.join(__dirname, '..', 'data');
 const DB_FILE = path.join(DATA_DIR, 'db.json');
+
+// Optional durable storage: any Upstash Redis REST endpoint (Vercel Marketplace "Upstash Redis" sets KV_REST_API_*).
+const KV_URL = process.env.UPSTASH_REDIS_REST_URL || process.env.KV_REST_API_URL || '';
+const KV_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN || process.env.KV_REST_API_TOKEN || '';
+const KV_KEY = 'gamify:db';
 
 function getDefaultWidgets() {
   return [
@@ -283,9 +294,10 @@ function getAllDefaultWidgets() { return getDefaultWidgets().concat(arcadeWidget
 
 function loadDB() {
   if (!fs.existsSync(DATA_DIR)) fs.mkdirSync(DATA_DIR, { recursive: true });
-  if (fs.existsSync(DB_FILE)) {
+  const source = fs.existsSync(DB_FILE) ? DB_FILE : (IS_VERCEL && fs.existsSync(BUNDLED_DB) ? BUNDLED_DB : null);
+  if (source) {
     try {
-      const parsed = JSON.parse(fs.readFileSync(DB_FILE, 'utf8'));
+      const parsed = JSON.parse(fs.readFileSync(source, 'utf8'));
       if (parsed && Array.isArray(parsed.widgets) && parsed.widgets.length >= 7) {
         // Add any default widgets introduced after this DB was created, keeping saved ones as they are.
         const have = new Set(parsed.widgets.map(w => w.id));
@@ -307,8 +319,42 @@ function loadDB() {
   return fresh;
 }
 
+let kvDirty = false;
 function saveDB(db) {
   try { fs.writeFileSync(DB_FILE, JSON.stringify(db, null, 2)); } catch (_) { }
+  if (KV_URL) kvDirty = true;
+}
+
+async function kvCommand(cmd) {
+  const r = await fetch(KV_URL, {
+    method: 'POST',
+    headers: { Authorization: 'Bearer ' + KV_TOKEN, 'Content-Type': 'application/json' },
+    body: JSON.stringify(cmd),
+    signal: AbortSignal.timeout(4000),
+  });
+  if (!r.ok) throw new Error('kv ' + r.status);
+  return (await r.json()).result;
+}
+
+// Pull the shared DB from Redis (every API request, so parallel serverless instances stay in step).
+async function kvHydrate() {
+  if (!KV_URL) return;
+  try {
+    const raw = await kvCommand(['GET', KV_KEY]);
+    if (!raw) return;
+    const remote = JSON.parse(raw);
+    if (!remote || !Array.isArray(remote.widgets)) return;
+    const have = new Set(remote.widgets.map((w) => w.id));
+    remote.widgets.push(...getAllDefaultWidgets().filter((w) => !have.has(w.id)));
+    Object.keys(DB).forEach((k) => delete DB[k]);
+    Object.assign(DB, remote);
+  } catch (_) { /* keep the local copy */ }
+}
+
+async function kvFlush() {
+  if (!KV_URL || !kvDirty) return;
+  kvDirty = false;
+  try { await kvCommand(['SET', KV_KEY, JSON.stringify(DB)]); } catch (_) { kvDirty = true; }
 }
 
 const DB = loadDB();
@@ -344,7 +390,7 @@ function parseJsonBody(req) {
   });
 }
 
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   const parsedUrl = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
   const pathname = parsedUrl.pathname;
 
@@ -360,6 +406,11 @@ const server = http.createServer(async (req, res) => {
 
   if (pathname.startsWith('/api/v1/')) {
     res.setHeader('Content-Type', 'application/json');
+    if (KV_URL) {
+      await kvHydrate();
+      const realEnd = res.end.bind(res);
+      res.end = (...a) => { kvFlush().finally(() => realEnd(...a)); return res; };
+    }
 
     if (pathname === '/api/v1/widgets' && req.method === 'GET') {
       res.writeHead(200);
@@ -617,11 +668,18 @@ const server = http.createServer(async (req, res) => {
     });
     fs.createReadStream(filePath).pipe(res);
   });
-});
+}
 
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Gamify SaaS Platform running at http://localhost:${PORT}`);
-  console.log(`   - Studio Dashboard: http://localhost:${PORT}/dashboard`);
-  console.log(`   - Embeddable SDK:   http://localhost:${PORT}/sdk/gamify.js`);
-  console.log(`   - REST API:         http://localhost:${PORT}/api/v1/widgets`);
-});
+const server = http.createServer(handleRequest);
+
+if (require.main === module) {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`Gamify SaaS Platform running at http://localhost:${PORT}`);
+    console.log(`   - Studio Dashboard: http://localhost:${PORT}/dashboard`);
+    console.log(`   - Embeddable SDK:   http://localhost:${PORT}/sdk/gamify.js`);
+    console.log(`   - REST API:         http://localhost:${PORT}/api/v1/widgets`);
+  });
+}
+
+// Vercel (api/index.js) and tests import the request handler.
+module.exports = handleRequest;

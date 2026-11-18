@@ -146,6 +146,18 @@ Amounts are in minor units (paise). OfferKit percentages are basis points (`1000
 
 ---
 
+## ▲ Deploy to Vercel
+
+The repo is Vercel-ready: `public/` is served as static files and `api/index.js` runs the REST API as a serverless function (`vercel.json` has the rewrites). No build step is needed, the SDK and arcade bundles are committed.
+
+1. Import the GitHub repo in Vercel (or run `npx vercel`). Framework preset: **Other**.
+2. **Persistence (recommended):** add the *Upstash Redis* integration from the Vercel Marketplace to the project. It sets `KV_REST_API_URL` and `KV_REST_API_TOKEN`, and Gamify stores Studio edits, events and analytics there. Without it the API still works, but saved widget settings and analytics reset on every cold start (serverless instances have no durable disk).
+3. **OfferKit (coupons, loyalty, referrals):** OfferKit needs Postgres and Redis, so it cannot run on Vercel. Host it anywhere that runs Docker (Railway, Render, Fly.io, a VPS) using `offerkit/docker-compose.yml` as the template, then run `OFFERKIT_URL=https://your-offerkit-host npm run offerkit:setup` once. It prints the variables to add in Vercel: `OFFERKIT_URL`, `OFFERKIT_API_KEY` (from `offerkit/.env`), `OFFERKIT_LOYALTY_PROGRAM_ID`, `OFFERKIT_REFERRAL_PROGRAM_ID`, `OFFERKIT_COUPON_CAMPAIGN_ID`. Without them the widgets still work and the API reports `offline` for the OfferKit features.
+
+The embed snippet picks its API origin from the script tag, so on Vercel use `<script src="https://your-app.vercel.app/sdk/gamify.js">`.
+
+---
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

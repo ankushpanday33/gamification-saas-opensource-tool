@@ -147,6 +147,13 @@ async function main() {
 
   fs.writeFileSync(seedFile, JSON.stringify(seed, null, 2));
   console.log('Seeded:', JSON.stringify(seed));
+  console.log('
+For a hosted Gamify (Vercel) set these environment variables:');
+  console.log('  OFFERKIT_URL=' + BASE);
+  console.log('  OFFERKIT_API_KEY=<value of OFFERKIT_API_KEY in offerkit/.env>');
+  console.log('  OFFERKIT_LOYALTY_PROGRAM_ID=' + seed.loyaltyProgramId);
+  console.log('  OFFERKIT_REFERRAL_PROGRAM_ID=' + seed.referralProgramId);
+  console.log('  OFFERKIT_COUPON_CAMPAIGN_ID=' + seed.couponCampaignId);
 }
 
 main().catch((e) => { console.error(e.message); process.exit(1); });

@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Gamification-as-a-Service Platform (like Trophy.so) with authentic reverse-engineered mechanics",
   "main": "server/index.js",
+  "engines": { "node": ">=20" },
   "scripts": {
     "start": "node server/index.js",
     "build:arcade": "npm --prefix packages/gh-arcade install && npm --prefix packages/gh-arcade run build",

@@ -1,0 +1,24 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "buildCommand": null,
+  "outputDirectory": "public",
+  "functions": {
+    "api/index.js": {
+      "maxDuration": 15,
+      "includeFiles": "{data/db.json,public/arcade/registry.json,public/assets/stickers/stickers_manifest.json}"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/v1/:path*", "destination": "/api/index" },
+    { "source": "/dashboard", "destination": "/index.html" },
+    { "source": "/live", "destination": "/live.html" },
+    { "source": "/showcase", "destination": "/live.html" },
+    { "source": "/app", "destination": "/live.html" },
+    { "source": "/demo", "destination": "/embed-demo.html" },
+    { "source": "/arcade/games/:slug", "destination": "/arcade/games/:slug/index.html" }
+  ],
+  "headers": [
+    { "source": "/sdk/(.*)", "headers": [{ "key": "Access-Control-Allow-Origin", "value": "*" }, { "key": "Cache-Control", "value": "public, max-age=300" }] }
+  ]
+}

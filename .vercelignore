@@ -1,0 +1,6 @@
+*.mp4
+node_modules
+packages
+offerkit
+scripts
+.env
