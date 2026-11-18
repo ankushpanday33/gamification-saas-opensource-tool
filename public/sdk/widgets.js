@@ -2982,6 +2982,11 @@
       };
       const ctx = { sound, emit, baseUrl: opts.baseUrl || '' };
 
+      // Analytics: one impression per render (Studio previews pass trackImpressions:false).
+      if (opts.trackImpressions !== false) {
+        try { originalEmit('widget_impression', { widgetId: widget.id, widgetType: widget.type }); } catch (_) {}
+      }
+
       applyLogo(mountEl, widget);
       const kit = REACT_KITS.find((k) => k.types.includes(widget.type));
       if (kit) return renderReactKit(kit, mountEl, widget, ctx);

@@ -1,6 +1,8 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const offerkit = require('./offerkit');
+const analytics = require('./analytics');
 
 const PORT = Number(process.env.PORT) || 4000;
 const PUBLIC_DIR = path.join(__dirname, '..', 'public');
@@ -293,6 +295,14 @@ function saveDB(db) {
 
 const DB = loadDB();
 
+// One-time migration: the seeded demo numbers were placeholders. Real analytics start from zero.
+if (!DB.statsZeroed) {
+  DB.widgets.forEach((w) => { w.stats = { impressions: 0, claims: 0, conversionRate: '0.0%' }; });
+  DB.events = [];
+  DB.statsZeroed = true;
+  saveDB(DB);
+}
+
 const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.css': 'text/css',
@@ -419,27 +429,54 @@ const server = http.createServer(async (req, res) => {
 
     if (pathname === '/api/v1/users/identify' && req.method === 'POST') {
       const body = await parseJsonBody(req);
+      // Mirror the user into OfferKit as a customer + loyalty member (best effort).
+      let offerkitCustomer = null;
+      if (body.userId && body.userId !== 'studio_preview') {
+        const traits = body.traits || {};
+        const m = await offerkit.ensureMember(body.userId);
+        if (m.ok) {
+          offerkitCustomer = m.customerId;
+          if (traits.name || traits.email) offerkit.ensureCustomer(body.userId, traits);
+        }
+      }
       res.writeHead(200);
-      res.end(JSON.stringify({ success: true, userId: body.userId, identifiedAt: new Date().toISOString() }));
+      res.end(JSON.stringify({ success: true, userId: body.userId, identifiedAt: new Date().toISOString(), offerkitCustomerId: offerkitCustomer }));
       return;
     }
 
     if (pathname === '/api/v1/events' && req.method === 'POST') {
       const body = await parseJsonBody(req);
-      const ev = { id: 'evt_' + Date.now(), ...body, timestamp: new Date().toISOString() };
+      const ev = { id: 'evt_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6), ...body, timestamp: new Date().toISOString() };
       DB.events.push(ev);
       if (DB.events.length > 200) DB.events.shift();
+      analytics.record(DB, ev);
 
-      if (body.metadata && body.metadata.widgetId) {
-        const w = DB.widgets.find(item => item.id === body.metadata.widgetId);
-        if (w) {
-          w.stats.claims += 1;
-          w.stats.conversionRate = ((w.stats.claims / w.stats.impressions) * 100).toFixed(1) + '%';
-        }
+      const wid = body.metadata && body.metadata.widgetId;
+      const w = wid && DB.widgets.find(item => item.id === wid);
+      if (w) {
+        if (body.event === 'widget_impression') w.stats.impressions += 1;
+        else if (analytics.CONVERSIONS.has(body.event)) w.stats.claims += 1;
+        w.stats.conversionRate = (w.stats.impressions ? (w.stats.claims / w.stats.impressions) * 100 : 0).toFixed(1) + '%';
       }
       saveDB(DB);
+
+      // Loyalty: real users earn points in OfferKit for completing reward actions (best effort, non-blocking).
+      let loyalty = null;
+      const pts = analytics.EARN_POINTS[body.event];
+      const real = body.userId && !['anonymous', 'studio_preview', 'demo_user'].includes(body.userId);
+      if (pts && real) {
+        const r = await offerkit.earn(body.userId, pts, ev.id, body.event);
+        loyalty = r.ok ? { earned: pts, member: r.data } : { earned: 0, error: r.error, offline: !!r.offline };
+      }
+      // Coupon claims carry a code in metadata: verify it against OfferKit so analytics know it is a live voucher.
+      let coupon = null;
+      const code = body.metadata && typeof body.metadata.code === 'string' ? body.metadata.code.trim().toUpperCase() : '';
+      if (code && /^[A-Z0-9_-]{3,40}$/.test(code)) {
+        const v = await offerkit.validateCoupon(code, real ? body.userId : null, 100000);
+        coupon = { code, valid: !!(v.ok && v.data && v.data.valid), reason: v.ok && v.data && !v.data.valid ? v.data.code : (v.ok ? null : v.error) };
+      }
       res.writeHead(200);
-      res.end(JSON.stringify({ success: true, event: ev }));
+      res.end(JSON.stringify({ success: true, event: ev, loyalty, coupon }));
       return;
     }
 
@@ -453,11 +490,80 @@ const server = http.createServer(async (req, res) => {
           totalWidgets: DB.widgets.length,
           totalImpressions,
           totalClaims,
-          avgConversion: ((totalClaims / totalImpressions) * 100).toFixed(1) + '%',
+          avgConversion: (totalImpressions ? (totalClaims / totalImpressions) * 100 : 0).toFixed(1) + '%',
           recentEvents: DB.events.slice(-15)
         }
       }));
       return;
+    }
+
+    // ---- OfferKit-backed endpoints ----
+    const reply = (code, obj) => { res.writeHead(code); res.end(JSON.stringify(obj)); };
+    const fromOk = (r, extra = {}) => r.ok
+      ? reply(200, { success: true, ...extra, data: r.data })
+      : reply(r.offline ? 503 : (r.status || 400), { success: false, offline: !!r.offline, error: r.error });
+
+    if (pathname === '/api/v1/offerkit/status' && req.method === 'GET') {
+      return reply(200, { success: true, ...(await offerkit.status()) });
+    }
+
+    if (pathname === '/api/v1/analytics' && req.method === 'GET') {
+      const days = Math.min(90, Math.max(1, parseInt(parsedUrl.searchParams.get('days') || '14', 10) || 14));
+      const [st, ins, ov] = await Promise.all([offerkit.status(), offerkit.insights(), offerkit.overview()]);
+      return reply(200, {
+        success: true,
+        gamify: analytics.summary(DB, days),
+        offerkit: { status: st, insights: ins.ok ? ins.data : null, overview: ov.ok ? ov : null, error: ins.ok ? null : ins.error },
+      });
+    }
+
+    if (pathname === '/api/v1/coupons/validate' && req.method === 'POST') {
+      const b = await parseJsonBody(req);
+      if (!b.code) return reply(400, { success: false, error: 'code is required' });
+      return fromOk(await offerkit.validateCoupon(String(b.code).trim().toUpperCase(), b.userId, b.amount));
+    }
+
+    if (pathname === '/api/v1/coupons/redeem' && req.method === 'POST') {
+      const b = await parseJsonBody(req);
+      if (!b.code || !b.userId) return reply(400, { success: false, error: 'code and userId are required' });
+      const r = await offerkit.redeemCoupon(String(b.code).trim().toUpperCase(), b.userId, b.amount, b.orderId);
+      if (r.ok) {
+        const ev = { id: 'evt_' + Date.now(), event: 'coupon_redeemed', userId: b.userId, metadata: { code: b.code }, timestamp: new Date().toISOString() };
+        DB.events.push(ev); if (DB.events.length > 200) DB.events.shift();
+        analytics.record(DB, ev); saveDB(DB);
+      }
+      return fromOk(r);
+    }
+
+    const loyaltyMatch = pathname.match(/^\/api\/v1\/loyalty\/([^/]+)$/);
+    if (loyaltyMatch && req.method === 'GET') {
+      const r = await offerkit.loyalty(decodeURIComponent(loyaltyMatch[1]));
+      return r.ok ? reply(200, { success: true, ...r }) : fromOk(r);
+    }
+
+    if (pathname === '/api/v1/loyalty/redeem' && req.method === 'POST') {
+      const b = await parseJsonBody(req);
+      if (!b.userId || !b.rewardId) return reply(400, { success: false, error: 'userId and rewardId are required' });
+      return fromOk(await offerkit.redeemReward(b.userId, b.rewardId));
+    }
+
+    if (pathname === '/api/v1/referrals/issue' && req.method === 'POST') {
+      const b = await parseJsonBody(req);
+      if (!b.userId) return reply(400, { success: false, error: 'userId is required' });
+      const r = await offerkit.issueReferral(b.userId);
+      return r.ok ? reply(200, { success: true, code: r.code }) : fromOk(r);
+    }
+
+    if (pathname === '/api/v1/referrals/convert' && req.method === 'POST') {
+      const b = await parseJsonBody(req);
+      if (!b.code || !b.userId) return reply(400, { success: false, error: 'code and userId are required' });
+      const r = await offerkit.convertReferral(String(b.code).trim(), b.userId);
+      if (r.ok) {
+        const ev = { id: 'evt_' + Date.now(), event: 'referral_converted', userId: b.userId, metadata: { code: b.code }, timestamp: new Date().toISOString() };
+        DB.events.push(ev); if (DB.events.length > 200) DB.events.shift();
+        analytics.record(DB, ev); saveDB(DB);
+      }
+      return fromOk(r);
     }
 
     res.writeHead(404);

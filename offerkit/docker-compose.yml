@@ -1,0 +1,53 @@
+# OfferKit backend for Gamify. Secrets live in ./.env (gitignored).
+name: gamify-offerkit
+services:
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: offerkit
+      POSTGRES_PASSWORD: ${PG_PASSWORD}
+      POSTGRES_DB: offerkit
+    volumes: [pgdata:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U offerkit"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+  web:
+    image: ghcr.io/offerkit/offerkit:${OFFERKIT_IMAGE_TAG:-latest}
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    environment:
+      DATABASE_URL: postgres://offerkit:${PG_PASSWORD}@postgres:5432/offerkit
+      REDIS_URL: redis://redis:6379
+      BETTER_AUTH_SECRET: ${BETTER_AUTH_SECRET}
+      WEBHOOK_SECRET_ENCRYPTION_KEY: ${WEBHOOK_SECRET_ENCRYPTION_KEY}
+      OFFERKIT_PUBLIC_URL: ${OFFERKIT_PUBLIC_URL}
+      BETTER_AUTH_TRUSTED_ORIGINS: ${BETTER_AUTH_TRUSTED_ORIGINS}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
+    ports: ["127.0.0.1:3100:3000"]
+  worker:
+    image: ghcr.io/offerkit/offerkit:${OFFERKIT_IMAGE_TAG:-latest}
+    command: ["node", "apps/worker/dist/index.js"]
+    restart: unless-stopped
+    depends_on:
+      postgres: {condition: service_healthy}
+      redis: {condition: service_healthy}
+    environment:
+      DATABASE_URL: postgres://offerkit:${PG_PASSWORD}@postgres:5432/offerkit
+      REDIS_URL: redis://redis:6379
+      WEBHOOK_SECRET_ENCRYPTION_KEY: ${WEBHOOK_SECRET_ENCRYPTION_KEY}
+volumes:
+  pgdata:

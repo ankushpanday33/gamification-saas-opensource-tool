@@ -5,6 +5,9 @@
   "main": "server/index.js",
   "scripts": {
     "start": "node server/index.js",
+    "offerkit:up": "docker compose -f offerkit/docker-compose.yml --env-file offerkit/.env up -d",
+    "offerkit:down": "docker compose -f offerkit/docker-compose.yml --env-file offerkit/.env down",
+    "offerkit:setup": "node scripts/offerkit-setup.js",
     "build:coins": "esbuild packages/coins-streak/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --loader:.css=text --define:process.env.NODE_ENV=\\\"production\\\" --external:lottie-web/* --external:@rive-app/canvas --outfile=public/sdk/coins-streak.js",
     "typecheck:coins": "tsc -p packages/coins-streak",
     "build:playkit": "esbuild packages/play-kit/demo/browser.tsx --bundle --minify --format=iife --target=es2020 --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=public/sdk/play-kit.js",

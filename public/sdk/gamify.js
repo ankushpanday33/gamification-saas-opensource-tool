@@ -134,6 +134,28 @@
       }
     }
 
+    // ---- OfferKit-backed helpers (real coupons, loyalty points, referrals) ----
+    async _api(path, body) {
+      try {
+        const res = await fetch(`${this.endpoint}/api/v1/${path}`, {
+          method: body ? 'POST' : 'GET',
+          headers: { 'Content-Type': 'application/json', 'x-api-key': this.apiKey },
+          body: body ? JSON.stringify(body) : undefined,
+        });
+        return await res.json();
+      } catch (_) {
+        return { success: false, offline: true };
+      }
+    }
+    _uid() { return this.user ? this.user.userId : 'anonymous'; }
+    // amount is in paise (minor units): 300000 = Rs 3,000
+    validateCoupon(code, amount = 100000) { return this._api('coupons/validate', { code, amount, userId: this._uid() }); }
+    redeemCoupon(code, amount = 100000, orderId) { return this._api('coupons/redeem', { code, amount, orderId, userId: this._uid() }); }
+    getLoyalty() { return this._api('loyalty/' + encodeURIComponent(this._uid())); }
+    redeemReward(rewardId) { return this._api('loyalty/redeem', { rewardId, userId: this._uid() }); }
+    getReferralCode() { return this._api('referrals/issue', { userId: this._uid() }); }
+    convertReferral(code) { return this._api('referrals/convert', { code, userId: this._uid() }); }
+
     async mount(selectorOrEl, widgetId, overrideConfig = {}) {
       await this._ensureDependencies();
       const target = typeof selectorOrEl === 'string' ? document.querySelector(selectorOrEl) : selectorOrEl;

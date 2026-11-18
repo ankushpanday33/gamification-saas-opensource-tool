@@ -424,6 +424,32 @@
     .event-row:last-child { border-bottom: none; }
     .event-row b { color: var(--text) !important; font-weight: 500 !important; }
 
+    /* Analytics page */
+    .an-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 18px; flex-wrap: wrap; }
+    .an-head h3 { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+    .an-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; padding: 4px 10px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted); }
+    .an-pill i { width: 7px; height: 7px; border-radius: 50%; background: var(--faint); display: inline-block; }
+    .an-pill.ok i { background: #3FB67A; } .an-pill.bad i { background: #E5484D; }
+    .an-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 28px 32px; }
+    .an-grid .wide { grid-column: 1 / -1; }
+    .an-sec h4 { font-size: 12px; font-weight: 500; color: var(--muted); margin-bottom: 10px; letter-spacing: 0.02em; }
+    .an-bars { display: flex; align-items: flex-end; gap: 6px; height: 120px; padding-bottom: 4px; border-bottom: 1px solid var(--border); }
+    .an-bar { flex: 1; display: flex; flex-direction: column; justify-content: flex-end; align-items: stretch; height: 100%; gap: 2px; position: relative; }
+    .an-bar span { display: block; border-radius: 3px 3px 0 0; min-height: 0; }
+    .an-bar .ev { background: var(--border); } .an-bar .cv { background: var(--accent); }
+    .an-days { display: flex; gap: 6px; margin-top: 6px; font-size: 10px; color: var(--faint); }
+    .an-days span { flex: 1; text-align: center; }
+    .an-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    .an-table th { text-align: left; font-weight: 500; color: var(--muted); padding: 6px 8px 6px 0; border-bottom: 1px solid var(--border); }
+    .an-table td { padding: 8px 8px 8px 0; border-bottom: 1px solid var(--border); color: var(--text); }
+    .an-table td.num, .an-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
+    .an-table tr:last-child td { border-bottom: none; }
+    .an-empty { color: var(--faint); font-size: 13px; padding: 8px 0; }
+    .an-tester { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+    .an-tester input { background: var(--surface-raised); border: 1px solid var(--border); border-radius: 8px; color: var(--text); padding: 8px 10px; font: inherit; font-size: 13px; min-width: 0; }
+    .an-result { margin-top: 10px; font-family: var(--mono); font-size: 12px; color: var(--muted); white-space: pre-wrap; word-break: break-word; }
+    @media (max-width: 1100px) { .an-grid { grid-template-columns: minmax(0, 1fr); } }
+
     /* Never scroll the Studio sideways; on narrow windows stack the columns instead. */
     .content-area { overflow-x: hidden; }
     @media (max-width: 1100px) {
@@ -466,6 +492,7 @@
       <symbol id="i-gamepad" viewBox="0 0 24 24"><path d="M6 8h12a4 4 0 0 1 4 4v2a3 3 0 0 1-5 2l-1-1H8l-1 1a3 3 0 0 1-5-2v-2a4 4 0 0 1 4-4zM8 11v3M6.5 12.5h3M15 12h.01M17 13.5h.01"/></symbol>
       <symbol id="i-passport" viewBox="0 0 24 24"><path d="M6 3h12v18H6a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2zM9 3v18M12.5 9h3"/></symbol>
       <symbol id="i-gift" viewBox="0 0 24 24"><path d="M4 10h16v10H4zM3 7h18v3H3zM12 7v13M12 7c-2-4-5-3-4.5-1s3 1 4.5 1zM12 7c2-4 5-3 4.5-1s-3 1-4.5 1z"/></symbol>
+      <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
     </defs>
   </svg>
 
@@ -477,6 +504,7 @@
 
     <div class="nav-group-label">Platform</div>
     <div class="nav-link active" id="navStudio" onclick="switchPage('studio', this)"><svg class="ic"><use href="#i-sliders"/></svg> Widget studio</div>
+    <div class="nav-link" id="navAnalytics" onclick="switchPage('analytics', this)"><svg class="ic"><use href="#i-chart"/></svg> Analytics <span class="badge-subtle">new</span></div>
     <div class="nav-link" id="navEvents" onclick="switchPage('events', this)"><svg class="ic"><use href="#i-zap"/></svg> Live event log</div>
     <div class="nav-link" onclick="switchStudioTab('embed')"><svg class="ic"><use href="#i-code"/></svg> Embed SDK</div>
 
@@ -573,6 +601,40 @@
             </div>
 
             <div class="embed-drawer" id="embedDrawer"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Analytics View -->
+      <div class="events-panel" id="analyticsView">
+        <div class="an-head">
+          <h3>Analytics</h3>
+          <div style="display:flex; gap:10px; align-items:center;">
+            <span class="an-pill" id="anBackend"><i></i><span>Checking backend</span></span>
+            <button class="hdr-btn" onclick="loadAnalytics()">Refresh</button>
+          </div>
+        </div>
+        <div class="an-grid">
+          <div class="an-sec wide">
+            <h4>Last 14 days: events <span style="color:var(--faint)">(grey)</span> and conversions <span style="color:var(--accent)">(orange)</span></h4>
+            <div class="an-bars" id="anBars"></div>
+            <div class="an-days" id="anDays"></div>
+          </div>
+          <div class="an-sec"><h4>Widget performance</h4><div id="anWidgets"></div></div>
+          <div class="an-sec"><h4>Top events</h4><div id="anEvents"></div></div>
+          <div class="an-sec"><h4>Coupons (OfferKit vouchers)</h4><div id="anVouchers"></div></div>
+          <div class="an-sec"><h4>Redemptions and failures (30 days)</h4><div id="anInsights"></div></div>
+          <div class="an-sec"><h4>Loyalty and referrals</h4><div id="anLoyalty"></div></div>
+          <div class="an-sec">
+            <h4>Coupon tester (calls OfferKit live)</h4>
+            <div class="an-tester">
+              <input id="anCode" placeholder="Code" value="SKULL80" style="width:120px">
+              <input id="anAmount" type="number" min="0" placeholder="Order in Rs" value="3000" style="width:110px">
+              <input id="anUser" placeholder="User id" value="studio_tester" style="width:130px">
+              <button class="hdr-btn" onclick="testCoupon(false)">Validate</button>
+              <button class="hdr-btn" onclick="testCoupon(true)">Redeem</button>
+            </div>
+            <div class="an-result" id="anResult"></div>
           </div>
         </div>
       </div>
@@ -1155,6 +1217,7 @@
       const mount = document.getElementById('sandboxMount');
       window.GamifyWidgets.render(mount, selectedWidget, {
         sound: soundEngine,
+        trackImpressions: false,
         onEvent: (eventName, metadata) => {
           fetch('/api/v1/events', {
             method: 'POST',
@@ -1243,7 +1306,82 @@
       el.classList.add('active');
       document.getElementById('studioView').style.display = page === 'studio' ? 'grid' : 'none';
       document.getElementById('eventsView').style.display = page === 'events' ? 'block' : 'none';
+      document.getElementById('analyticsView').style.display = page === 'analytics' ? 'block' : 'none';
+      const titles = { studio: 'Widget studio', events: 'Live event log', analytics: 'Analytics' };
+      document.querySelector('.page-title h2').textContent = titles[page] || 'Widget studio';
       if (page === 'events') refreshStats();
+      if (page === 'analytics') loadAnalytics();
+    }
+
+    // ---- Analytics (Gamify events + OfferKit insights) ----
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+    const fmt = (n) => Number(n || 0).toLocaleString('en-IN');
+    const rupees = (paise) => '₹' + (Number(paise || 0) / 100).toLocaleString('en-IN', { maximumFractionDigits: 2 });
+    const table = (heads, rows) => rows.length
+      ? `<table class="an-table"><thead><tr>${heads.map((h, i) => `<th class="${i ? 'num' : ''}">${h}</th>`).join('')}</tr></thead><tbody>${rows.map(r => `<tr>${r.map((c, i) => `<td class="${i ? 'num' : ''}">${c}</td>`).join('')}</tr>`).join('')}</tbody></table>`
+      : '<div class="an-empty">No data yet.</div>';
+    const discountLabel = (d) => !d ? '' : d.type === 'PERCENTAGE' ? (d.percent / 100) + '% off' : rupees(d.amount) + ' off';
+
+    async function loadAnalytics() {
+      let j;
+      try { j = await (await fetch('/api/v1/analytics?days=14')).json(); } catch (_) { return; }
+      if (!j || !j.success) return;
+      const g = j.gamify, ok = j.offerkit;
+
+      const pill = document.getElementById('anBackend');
+      const live = ok.status && ok.status.online;
+      pill.className = 'an-pill ' + (live ? 'ok' : 'bad');
+      pill.lastElementChild.textContent = live ? 'OfferKit backend online' : (ok.status && ok.status.configured ? 'OfferKit offline (local fallback)' : 'OfferKit not set up');
+
+      document.getElementById('mImpressions').innerText = fmt(g.totals.lifetimeImpressions);
+      document.getElementById('mClaims').innerText = fmt(g.totals.lifetimeConversions);
+      document.getElementById('mConversion').innerText = g.totals.conversionRate + '%';
+
+      const max = Math.max(1, ...g.series.map(s => s.events));
+      document.getElementById('anBars').innerHTML = g.series.map(s =>
+        `<div class="an-bar" title="${s.day}: ${s.events} events, ${s.conversions} conversions, ${s.users} users"><span class="ev" style="height:${(s.events - s.conversions) / max * 100}%"></span><span class="cv" style="height:${s.conversions / max * 100}%"></span></div>`).join('');
+      document.getElementById('anDays').innerHTML = g.series.map(s => `<span>${s.day.slice(8)}</span>`).join('');
+
+      document.getElementById('anWidgets').innerHTML = table(['Widget', 'Views', 'Claims', 'Rate'],
+        g.widgets.slice(0, 8).map(w => [esc(w.name), fmt(w.impressions), fmt(w.conversions), w.rate + '%']));
+      document.getElementById('anEvents').innerHTML = table(['Event', 'Count'],
+        g.topEvents.map(e => [esc(e.event), fmt(e.total)]));
+
+      const ov = ok.overview;
+      document.getElementById('anVouchers').innerHTML = ov
+        ? table(['Code', 'Discount', 'Used'], ov.vouchers.map(v => [esc(v.code), esc(discountLabel(v.discount)), fmt(v.redemptions)]))
+        : '<div class="an-empty">Start OfferKit to see live coupons (npm run offerkit:up).</div>';
+
+      const ins = ok.insights;
+      document.getElementById('anInsights').innerHTML = ins
+        ? `<div style="font-size:13px; margin-bottom:10px;">Today <b>${fmt(ins.counters.redemptionsToday)}</b> &nbsp; 7 days <b>${fmt(ins.counters.redemptions7d)}</b> &nbsp; 30 days <b>${fmt(ins.counters.redemptions30d)}</b></div>`
+          + table(['Failure reason', 'Count'], ins.failures.map(f => [esc(f.reason), fmt(f.total)]))
+        : '<div class="an-empty">Insights unavailable.</div>';
+
+      document.getElementById('anLoyalty').innerHTML = ov
+        ? `<div style="font-size:13px; margin-bottom:10px;">Members <b>${fmt(ov.members.length)}</b> &nbsp; Points held <b>${fmt(ov.members.reduce((n, m) => n + m.balance, 0))}</b> &nbsp; Referral codes <b>${fmt(ov.referralCodes)}</b> &nbsp; Conversions <b>${fmt(ov.referralConversions)}</b></div>`
+          + table(['Top members', 'Points', 'Lifetime'], ov.members.slice().sort((a, b) => b.lifetimePoints - a.lifetimePoints).slice(0, 5).map(m => [esc(m.id.slice(0, 8)), fmt(m.balance), fmt(m.lifetimePoints)]))
+        : '<div class="an-empty">No loyalty data.</div>';
+    }
+
+    async function testCoupon(redeem) {
+      const out = document.getElementById('anResult');
+      const code = document.getElementById('anCode').value.trim();
+      const amount = Math.round(Number(document.getElementById('anAmount').value || 0) * 100);
+      const userId = document.getElementById('anUser').value.trim() || 'studio_tester';
+      out.textContent = 'Calling OfferKit...';
+      try {
+        const r = await fetch('/api/v1/coupons/' + (redeem ? 'redeem' : 'validate'), {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code, amount, userId, orderId: redeem ? 'studio_' + Date.now() : undefined })
+        });
+        const j = await r.json();
+        const d = j.data || {};
+        if (!j.success) out.textContent = 'Error: ' + (j.error || r.status);
+        else if (redeem) out.textContent = d.ok ? `Redeemed. Discount ${rupees(d.amount)}, pay ${rupees(d.finalOrder.amount)}.` : `Not redeemed: ${d.code} (${d.message})`;
+        else out.textContent = d.valid ? `Valid. Discount ${rupees(d.preview.amount)}, pay ${rupees(d.preview.finalOrder.amount)}.` : `Invalid: ${d.code} (${d.message})`;
+      } catch (e) { out.textContent = 'Request failed'; }
+      if (redeem) loadAnalytics();
     }
 
     function copyText(str) {

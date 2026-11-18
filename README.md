@@ -110,6 +110,30 @@ export function RewardButton() {
 
 ---
 
+## 🧱 Backend: OfferKit (coupons, loyalty, referrals, insights)
+
+Gamify uses [OfferKit](https://github.com/offerkit/offerkit) (open source promotion engine) as its real backend. The Node server in `server/` is a thin gateway; OfferKit stores customers, vouchers and redemptions, the loyalty points ledger, referral codes and webhooks in Postgres. If OfferKit is down, widgets keep working and the API reports `offline`.
+
+```bash
+npm run offerkit:up       # starts OfferKit + Postgres + Redis in Docker (localhost:3100)
+npm run offerkit:setup    # one-time: mints a scoped API key, seeds coupons, loyalty and referral programs
+npm start                 # Gamify Studio at http://localhost:4010 (PORT env to change)
+```
+
+Secrets are generated into `offerkit/.env` (git-ignored). OfferKit's own dashboard is at `http://localhost:3100` (admin email and password are in that file).
+
+| What | How |
+| --- | --- |
+| Customers | `gamify.identify(userId, traits)` upserts a customer and enrolls a loyalty member |
+| Loyalty points | Reward events (spin won, streak claimed, scratch revealed, and more) earn points in the OfferKit ledger |
+| Coupons | `gamify.validateCoupon(code, paise)` and `gamify.redeemCoupon(code, paise, orderId)`; seeded codes: `SKULL80`, `SPIN20`, `CRED899`, `UBER30`, `WELCOME10`, `FLAT100`, `SCRATCH50` |
+| Referrals | `gamify.getReferralCode()` and `gamify.convertReferral(code)` |
+| Analytics | Studio, Analytics page: impressions, conversions, daily trend, widget table, plus OfferKit insights (redemptions, failure reasons), vouchers, loyalty and referral counts. REST: `GET /api/v1/analytics` |
+
+Amounts are in minor units (paise). OfferKit percentages are basis points (`1000` = 10%).
+
+---
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

@@ -10,3 +10,6 @@ frames_inspect/
 
 
 
+offerkit/.env
+offerkit/seed.json
+data/offerkit-map.json
